@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-05-08T00:00:00Z",
+  "metrics": [
+    {
+      "name": "http.server.duration",
+      "labels": { "service": "checkout", "deployment": "prod" },
+      "series_estimate": 12000,
+      "ingest_gb_per_day": 4.2
+    },
+    {
+      "name": "jvm.memory.used",
+      "labels": { "service": "checkout", "pool": "heap" },
+      "series_estimate": 800,
+      "ingest_gb_per_day": 0.6
+    },
+    {
+      "name": "kube_pod_status_phase",
+      "labels": { "cluster": "us-east", "namespace": "dev" },
+      "series_estimate": 210000,
+      "ingest_gb_per_day": 18.4
+    },
+    {
+      "name": "legacy_batch_job_queue_depth",
+      "labels": { "region": "us-west" },
+      "series_estimate": 40,
+      "ingest_gb_per_day": 0.02
+    },
+    {
+      "name": "experimental_feature_x_clicks",
+      "labels": { "tenant": "pilot" },
+      "series_estimate": 95000,
+      "ingest_gb_per_day": 2.1
+    }
+  ]
+}

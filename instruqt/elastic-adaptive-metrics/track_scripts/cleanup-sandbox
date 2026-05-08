@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Intentionally lightweight: lab is ephemeral.
+rm -rf /opt/adaptive-metrics-lab 2>/dev/null || true

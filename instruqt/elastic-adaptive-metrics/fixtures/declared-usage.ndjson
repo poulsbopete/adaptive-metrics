@@ -1,0 +1,4 @@
+{"kind":"dashboard","title":"Checkout SLO overview","references":["http.server.duration","jvm.memory.used"]}
+{"kind":"dashboard","title":"Kubernetes capacity","references":["kube_pod_status_phase"]}
+{"kind":"alert","title":"Checkout p95 latency","references":["http.server.duration"]}
+{"kind":"slo","title":"Checkout availability","references":["http.server.duration"]}

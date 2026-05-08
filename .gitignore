@@ -1,0 +1,5 @@
+.DS_Store
+*.remote
+.env
+.env.*
+*.log

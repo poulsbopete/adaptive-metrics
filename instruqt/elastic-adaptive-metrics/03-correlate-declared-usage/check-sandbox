@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euxo pipefail
+
+R=/opt/adaptive-metrics-lab/reports/adaptive-metrics-report.md
+if [ ! -f "${R}" ]; then
+  fail-message "adaptive-metrics-report.md missing. Run correlate_usage.py"
+fi
+
+if ! grep -q 'legacy_batch_job_queue_depth' "${R}"; then
+  fail-message "Expected legacy_batch_job_queue_depth row in the report."
+fi
+
+if ! grep -q '| `http.server.duration` | yes |' "${R}"; then
+  fail-message "Expected http.server.duration declared usage = yes (exact table row)."
+fi
+
+if ! grep -q '| `legacy_batch_job_queue_depth` | no |' "${R}"; then
+  fail-message "Expected legacy_batch_job_queue_depth declared usage = no (exact table row)."
+fi

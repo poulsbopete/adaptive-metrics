@@ -1,0 +1,38 @@
+slug: elastic-adaptive-metrics
+id: REPLACE_WITH_INSTRUQT_TRACK_ID
+type: track
+title: "Elastic: Adaptive metrics & TCO (Streams-ready)"
+teaser: >-
+  Inventory metrics, correlate declared usage, and draft retention / shaping
+  policies—aligned with server-side Streams controls.
+description: >-
+  Hands-on lab that extends autonomous / AI-assisted observability narratives
+  with a governance story: cardinality and retention under control, with
+  explicit usage signals (dashboards, alerts, SLOs) and policy artifacts instead
+  of silent drops. Pairs with Elastic internal autonomous observability tracks;
+  substitute your org's track id and owner before pushing.
+icon: https://cdn.instruqt.com/assets/templates/ubuntu.png
+tags:
+  - elastic
+  - observability
+  - metrics
+  - tco
+  - streams
+owner: elastic
+developers:
+  - REPLACE_WITH_EMAIL@example.com
+maintenance: true
+show_timer: true
+skipping_enabled: true
+idle_timeout: 3600
+timelimit: 7200
+lab_config:
+  extend_ttl: 3600
+  sidebar_enabled: true
+  feedback_recap_enabled: true
+  feedback_tab_enabled: true
+  theme:
+    name: modern-dark
+  default_layout: AssignmentRight
+  default_layout_sidebar_size: 35
+  override_challenge_layout: false

@@ -1,0 +1,49 @@
+# Example server-side shaping (illustrative YAML for the lab)
+#
+# This is not a verbatim Kibana Streams export; it is a policy sketch learners
+# refine in challenge 04. Replace values to match your environment.
+
+stream: checkout-telemetry
+description: >-
+  Hot path metrics referenced by SLOs and alerts stay longer; high-cardinality
+  Kubernetes dev metrics roll to shorter retention.
+
+learner_acknowledged: false
+
+routing:
+  - match:
+      metric_name_prefix: http.server.
+    retention_hot_days: 30
+    retention_warm_days: 180
+    notes: Declared usage in dashboards + SLOs
+
+  - match:
+      metric_name_prefix: jvm.memory.
+    retention_hot_days: 14
+    retention_warm_days: 90
+    notes: Declared usage in dashboards
+
+  - match:
+      metric_name: kube_pod_status_phase
+    retention_hot_days: 3
+    retention_warm_days: 14
+    notes: High cardinality; keep hot short unless promoted by usage
+
+  - match:
+      metric_name_prefix: legacy_
+    retention_hot_days: 7
+    retention_warm_days: 30
+    notes: No declared usage in this lab dataset — candidate for aggregation or drop approval
+
+  - match:
+      metric_name_prefix: experimental_
+    retention_hot_days: 1
+    retention_warm_days: 7
+    notes: Pilot noise — default short retention; promote if referenced
+
+downsampling:
+  enabled: true
+  coarse_interval_seconds: 300
+  apply_when:
+    - no_declared_usage_for_days: 30
+    - series_estimate_gt: 50000

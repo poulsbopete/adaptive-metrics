@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euxo pipefail
+
+if [ -z "${ELASTIC_URL:-}" ] || [ -z "${ELASTIC_API_KEY:-}" ]; then
+  echo "ELASTIC_URL / ELASTIC_API_KEY not set — skipping live Elasticsearch validation."
+  exit 0
+fi
+
+/opt/adaptive-metrics-lab/scripts/check_elastic_health.sh

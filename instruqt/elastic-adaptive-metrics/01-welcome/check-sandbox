@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euxo pipefail
+
+if [ ! -f /opt/adaptive-metrics-lab/.track-setup-complete ]; then
+  fail-message "Lab setup did not complete. Wait a few seconds and retry, or re-run the track."
+fi
+
+if [ ! -d /opt/adaptive-metrics-lab/fixtures ]; then
+  fail-message "Fixtures directory missing under /opt/adaptive-metrics-lab."
+fi

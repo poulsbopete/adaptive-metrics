@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euxo pipefail
+
+YAML=/opt/adaptive-metrics-lab/policies/streams-snippet.yaml
+python3 - <<'PY'
+from pathlib import Path
+import re
+p = Path("/opt/adaptive-metrics-lab/policies/streams-snippet.yaml")
+text = p.read_text(encoding="utf-8")
+text2, n = re.subn(
+    r"(?m)^learner_acknowledged:.*$",
+    "learner_acknowledged: true",
+    text,
+    count=1,
+)
+if n != 1:
+    raise SystemExit(f"Could not update learner_acknowledged (matches={n})")
+p.write_text(text2, encoding="utf-8")
+PY

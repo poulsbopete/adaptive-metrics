@@ -1,0 +1,41 @@
+#!/bin/bash
+set -euxo pipefail
+
+until [ -f /opt/instruqt/bootstrap/host-bootstrap-completed ]; do
+  sleep 1
+done
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -y
+apt-get install -y --no-install-recommends python3 python3-yaml ca-certificates curl jq
+
+LAB_ROOT="${LAB_ROOT:-/opt/adaptive-metrics-lab}"
+mkdir -p "${LAB_ROOT}"
+
+TRACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ -d "${TRACK_ROOT}/fixtures" ]; then
+  cp -a "${TRACK_ROOT}/fixtures" "${LAB_ROOT}/"
+fi
+if [ -d "${TRACK_ROOT}/scripts" ]; then
+  cp -a "${TRACK_ROOT}/scripts" "${LAB_ROOT}/"
+fi
+mkdir -p "${LAB_ROOT}/policies" "${LAB_ROOT}/reports"
+
+if [ -f "${TRACK_ROOT}/policies/streams-snippet.example.yaml" ]; then
+  cp "${TRACK_ROOT}/policies/streams-snippet.example.yaml" "${LAB_ROOT}/policies/streams-snippet.yaml"
+fi
+
+chown -R root:root "${LAB_ROOT}"
+chmod -R a+rX "${LAB_ROOT}"
+find "${LAB_ROOT}/scripts" -type f -name "*.py" -exec chmod +x {} \; 2>/dev/null || true
+find "${LAB_ROOT}/scripts" -type f -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+
+PROFILE_D=/etc/profile.d/adaptive-metrics-lab.sh
+{
+  echo "export LAB_ROOT=\"${LAB_ROOT}\""
+  echo "if [ -n \"\${ELASTIC_URL:-}\" ]; then echo \"ELASTIC_URL is set (length \${#ELASTIC_URL})\"; fi"
+  echo "if [ -n \"\${ELASTIC_API_KEY:-}\" ]; then echo \"ELASTIC_API_KEY is set (length \${#ELASTIC_API_KEY})\"; fi"
+} >"${PROFILE_D}"
+chmod 0644 "${PROFILE_D}"
+
+touch /opt/adaptive-metrics-lab/.track-setup-complete

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euxo pipefail
+
+INV=/opt/adaptive-metrics-lab/reports/inventory.md
+if [ ! -f "${INV}" ]; then
+  fail-message "inventory.md not found. Run: python3 /opt/adaptive-metrics-lab/scripts/inventory.py"
+fi
+
+if ! grep -q 'kube_pod_status_phase' "${INV}"; then
+  fail-message "Expected kube_pod_status_phase in inventory.md (cardinality hotspot)."
+fi
+
+if ! grep -q 'http.server.duration' "${INV}"; then
+  fail-message "Expected http.server.duration in inventory.md."
+fi

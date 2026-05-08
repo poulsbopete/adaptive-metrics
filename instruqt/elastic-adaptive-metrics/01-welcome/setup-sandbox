@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euxo pipefail
+# no-op; track setup already materialized the lab tree
+true

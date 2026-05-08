@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euxo pipefail
+
+YAML=/opt/adaptive-metrics-lab/policies/streams-snippet.yaml
+if [ ! -f "${YAML}" ]; then
+  fail-message "Policy file missing. Re-run the track or copy from policies/streams-snippet.example.yaml."
+fi
+
+if ! grep -q '^learner_acknowledged:[[:space:]]*true[[:space:]]*$' "${YAML}"; then
+  fail-message "Set learner_acknowledged: true in streams-snippet.yaml (exact key at line start)."
+fi
+
+python3 -c "import yaml; yaml.safe_load(open('/opt/adaptive-metrics-lab/policies/streams-snippet.yaml'))"
+
+if ! grep -q '^routing:' "${YAML}"; then
+  fail-message "Expected a routing: section in streams-snippet.yaml."
+fi

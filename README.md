@@ -14,7 +14,7 @@ Because the managed track content is not exportable from here, align challenge c
 ## Prerequisites
 
 - [Instruqt CLI](https://docs.instruqt.com/getting-started/set-up-instruqt) authenticated to your org (`instruqt auth login`).
-- In `instruqt/elastic-adaptive-metrics/track.yml`, set **`id`** (from Instruqt after the track exists) and **`developers`** (your email). **`owner`** defaults to `elastic` for the Elastic team.
+- In `instruqt/elastic-adaptive-metrics/track.yml`, **`id`** and **`developers`** are set for [elastic-adaptive-metrics](https://play.instruqt.com/manage/elastic/tracks/elastic-adaptive-metrics). Re-sync with `instruqt track pull elastic-adaptive-metrics` if the remote track is recreated.
 
 ## Publish Git and Instruqt together
 

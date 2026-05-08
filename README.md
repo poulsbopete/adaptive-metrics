@@ -2,6 +2,8 @@
 
 This repository holds an **Instruqt track** that complements Elastic’s internal **Autonomous observability** style labs (for example [elastic-autonomous-observability](https://play.instruqt.com/manage/elastic/tracks/elastic-autonomous-observability)) by focusing on **TCO control**: metric inventory, **declared usage** (dashboards / alerts / SLOs), and **server-side shaping** (retention tiers, aggregation, Streams-style policy snippets)—without treating silent metric deletion as the default outcome.
 
+Track in Instruqt: [elastic / elastic-adaptive-metrics](https://play.instruqt.com/manage/elastic/tracks/elastic-adaptive-metrics).
+
 Because the managed track content is not exportable from here, align challenge copy and any shared hosts with whatever you use in Autonomous observability (same Kibana URL tab, same secret names, and so on). If you have access in Instruqt, pull the [elastic-autonomous-observability](https://play.instruqt.com/manage/elastic/tracks/elastic-autonomous-observability) track locally and reconcile hostnames, secrets, and browser tabs with this repo.
 
 ## Layout

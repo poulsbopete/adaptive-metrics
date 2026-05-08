@@ -1,5 +1,5 @@
 slug: elastic-adaptive-metrics
-id: REPLACE_WITH_INSTRUQT_TRACK_ID
+id: jxgrtsbcm88a
 type: track
 title: "Elastic: Adaptive metrics & TCO (Streams-ready)"
 teaser: >-
@@ -20,7 +20,7 @@ tags:
   - streams
 owner: elastic
 developers:
-  - REPLACE_WITH_EMAIL@example.com
+  - peter.simkins@elastic.co
 maintenance: true
 show_timer: true
 skipping_enabled: true

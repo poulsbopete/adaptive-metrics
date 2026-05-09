@@ -4,7 +4,7 @@ Canonical **Instruqt** track: **[elastic / elastic-adaptive-metrics](https://pla
 
 ## Workshop goal
 
-Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investigate → case) to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Elastic Workflows** make the “what actually fired in production?” question objective: they tie **declared usage** (dashboards, SLOs, alert rules) to the same store as logs and traces.
+Use **live Elastic Serverless** data to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Kibana Workflows** in this demo are **incident- and SLO-oriented** (alerts, remediation, reports); they make the “what actually fired in production?” question objective. **Automated unused-metric catalogs** are built on the same stack with **ES|QL**, **Streams**, **downsampling**, and **optional custom workflows** you author—not a separate pre-installed tile in the Workflows list.
 
 **Elastic differentiation in this story:** **downsampling** for metrics at scale, **server-side** policy (Streams, retention tiers), and **workflows** that prove which signals matter when incidents fire—so **TCO** and reliability stay aligned on one platform.
 

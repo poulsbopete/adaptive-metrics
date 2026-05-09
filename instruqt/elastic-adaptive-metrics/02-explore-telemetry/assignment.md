@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 2 — Explore Live OpenTelemetry Data
 
-    **Declared usage lens:** Products that automate “adaptive” metrics discovery look for **unused** series and propose **aggregation / dimension reduction / drops**. You will do the *discovery* step manually here—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—so you can explain why **Elastic downsampling** plus **Kibana Workflows** is a complete **TCO** answer, not only “drop more.”
+    **Declared usage lens:** Some products automate “adaptive” metrics discovery (unused series, aggregation, drops). In this lab you do the **discovery** manually—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—using **ES|QL** and the **Systems Operations** / **Executive** dashboards. That is the input to **downsampling** and **Streams** policy. **Kibana Workflows** here are **incident- and SLO-oriented** (see list under **Observability → Workflows**); they do **not** include a separate tile that auto-scans every metric and proposes drops—that pattern is **custom automation** you can add on the same platform (scheduled workflow + ES|QL + case for human approval).
 
     **By the end of this challenge you will:**
 
@@ -102,6 +102,14 @@ enhanced_loading: null
 # Explore Live OpenTelemetry Telemetry
 
 Now that your scenario is running, let's explore the data flowing into Elastic. Open the **Elastic Serverless** tab.
+
+---
+
+## What the Workflows list is (and is not)
+
+Under **Observability → Workflows** you will see **six operational workflows** for your scenario (titles are prefixed with the scenario name). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—the same surfaces that prove **declared usage** when production breaks.
+
+You will **not** see a built-in workflow whose only job is to “automatically determine which metrics are unused and suggest dropping or aggregating dimensions.” That outcome is not a single stock tile in this demo; on Elastic it is typically delivered by combining **(1)** **Streams** and ingest rules **(2)** **downsampling / rollup** settings **(3)** **ES|QL** or ML jobs that compare metric volume to dashboard and SLO references **(4)** optional **custom** Kibana workflows you create (for example a **scheduled** run that writes recommendations to a **Case** for human approval). This workshop teaches the discovery and positioning; a follow-on lab can implement step (4) via **Create a new workflow**.
 
 ---
 
@@ -272,7 +280,7 @@ You already have the **same sandbox** as a full observability workshop. Use it t
 
 1. **Declared usage** — Open **Dashboards** and list which metric charts your scenario ships. Those (and **SLOs** / **alert rules**) are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* buyers expect from adaptive-metrics stories, executed here with Elastic **downsampling** and **Streams**-style server policy.
 2. **Hot vs cold** — High-volume generators (Kubernetes pod metrics, nginx access patterns, etc.) are where **downsampling** and **tiered retention** pay off first, while SLO-driving series stay hot at full resolution for incident and executive views.
-3. **Why Elastic in evaluations** — Lead with **downsampling** plus **workflows** that prove which signals fire in incidents, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot—governance plus automation, not only cardinality reports.
+3. **Why Elastic in evaluations** — Lead with **downsampling** plus **incident workflows** that prove which signals fire under stress, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot. For **automated unused-metric recommendations**, describe a **custom** scheduled workflow (ES|QL + AI step + case) or **Streams** rules—same product surface, governance you own in code.
 
 Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
 

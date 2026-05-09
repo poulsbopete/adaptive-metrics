@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 3 — Inject a Fault and Watch Elastic Detect It
 
-    **Workshop payoff:** The **Significant Event Notification** workflow is a concrete **Elastic Workflow**: it shows which logs, metrics, and traces participate when something breaks—the same operational surface you would *never* silently drop in an “adaptive metrics” program. Pair that with **downsampling** for everything *not* on that path.
+    **Workshop payoff:** The **Significant Event Notification** workflow is a concrete **Elastic Workflow**: it shows which logs, metrics, and traces participate when something breaks—the same operational surface you would *never* silently drop in a governance program. That is **declared usage under stress**—distinct from a separate “metric catalog cleanup” workflow, which you would add as **custom** automation on the same platform.
 
     **By the end of this challenge you will:**
 

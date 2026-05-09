@@ -1,10 +1,11 @@
 slug: elastic-adaptive-metrics
 id: xrcnbkazo3u6
 title: 'Adaptive metrics: workflows, downsampling & TCO'
-description: 'Governed OTel metrics on Elastic Serverless: map dashboards and SLOs
-  to declared usage, drive downsampling and retention, and use Kibana Workflows for
-  adaptive-style metrics governance. Enterprise TCO for regulated buyers (financial
-  services, insurance, and similar).'
+description: 'Governed OTel metrics on Elastic Serverless: declared usage from dashboards
+  and SLOs, downsampling and retention, incident-oriented Kibana Workflows, plus Streams.
+  Metric drop/aggregate automation is custom (ES|QL + workflows you build), not a
+  stock demo tile. Enterprise TCO for regulated buyers (financial services, insurance,
+  and similar).'
 icon: ""
 tags:
 - co.elastic.workshops.production
@@ -28,5 +29,5 @@ lab_config:
     name: modern-dark
   override_challenge_layout: false
   hideStopButton: false
-checksum: "582707281809281931"
+checksum: "18005133787274536096"
 enhanced_loading: false

@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 1 — Connect to Elastic Cloud & Deploy
 
-    **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows**, and **server-side shaping** (for example **Elastic Streams**). This lab uses live OTel data and pre-built **Workflows** so you can *see* which signals are load-bearing when something breaks—then tie the same surfaces to **what stays hot in retention**.
+    **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows** (for **incidents and SLO operations**), and **server-side shaping** (for example **Elastic Streams**). This lab’s **pre-provisioned workflows** are for **alerts, remediation, and SLO hygiene**—they show **declared usage** when things break; **metric inventory and drop/aggregate suggestions** are something you layer on with **ES|QL**, **Streams**, and **optional workflows you author** (see Challenge 2).
 
     **What's happening right now:**
     Your Elastic Cloud Serverless Observability project is being provisioned and the **Elastic Observability Demo Platform** is being configured with your credentials.

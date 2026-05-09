@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 1 — Connect to Elastic Cloud & Deploy
 
-    **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows** (for **incidents and SLO operations**), and **server-side shaping** (for example **Elastic Streams**). This lab’s **pre-provisioned workflows** are for **alerts, remediation, and SLO hygiene**—they show **declared usage** when things break; **metric inventory and drop/aggregate suggestions** are something you layer on with **ES|QL**, **Streams**, and **optional workflows you author** (see Challenge 2).
+    **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows** (for **incidents and SLO operations**), and **server-side shaping** (for example **Elastic Streams**). This lab’s **pre-provisioned workflows** are for **alerts, remediation, and SLO hygiene**; Challenge 2 adds the **adaptive-metrics governance** story (**modeled_policy_savings_pct** in **Cases** + **Executive** + **AI Assistant** for $ language).
 
     **What's happening right now:**
     Your Elastic Cloud Serverless Observability project is being provisioned and the **Elastic Observability Demo Platform** is being configured with your credentials.
@@ -134,7 +134,7 @@ Click the **Elastic Serverless** tab — you're already logged in. Navigate to:
 - **Applications → Service inventory** — distributed traces from the instrumented application tier
 - **Observability → Infrastructure** — simulated hosts per cloud (for banking, names look like `banking-aws-host-01`, `banking-gcp-host-01`, `banking-azure-host-01`)
 - **Observability → SLOs** — auto-created SLOs tied to the running scenario
-- **Observability → Workflows** — pre-configured AI response workflows for your deployment
+- **Observability → Workflows** — pre-configured AI response workflows for your deployment, plus the **Retail Banking Metric governance snapshot** starter when you import it (writes **modeled_policy_savings_pct** into **Cases** for TCO + AI dollarization — see Challenge 2)
 
 > **Tip:** Set the time range to **Last 15 minutes** to see the freshest data.
 

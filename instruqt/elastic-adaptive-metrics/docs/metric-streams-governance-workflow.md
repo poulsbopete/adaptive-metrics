@@ -73,6 +73,8 @@ The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yam
 
 Replace the service allowlist and the `0.35` factor with **your** governance model before production.
 
+**Workshop UX:** mirror **`modeled_policy_savings_pct`** on the **Executive** dashboard with the same ES|QL in a **Lens** metric (Challenge 2), then use **Observability AI Assistant** on the Case for **$/month** language so the savings story is obvious to finance.
+
 ---
 
 ## Prompt sketch (AI step)

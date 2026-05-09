@@ -4,13 +4,16 @@ id: 98kwdohjlsof
 type: challenge
 title: Explore Live OpenTelemetry Data
 teaser: Map live metrics to dashboards and SLOs—that **declared usage** signal—then
-  relate **write volume** to **downsampling** and **retention** on Elastic Serverless.
+  surface **modeled ingest savings %** (adaptive-metrics workflow) on Executive and in **Cases**,
+  and use **AI** to turn that % into a **TCO / $** story.
 notes:
 - type: text
   contents: |
     ## Lab 2 — Explore Live OpenTelemetry Data
 
     **Declared usage lens:** This track defaults to **Retail Banking Platform**. You relate **which metric families show up on shipped dashboards and SLOs vs raw generator volume** using **ES|QL** and the **Systems Operations** / **Executive** dashboards—that is the input to **downsampling** and **Streams** policy. The six workflows under **Observability → Workflows** are the **pre-installed operational set** (SLO hygiene, incidents, remediation, reporting). **Metric governance** (unused or over-shipped series, aggregation, retention, Streams child routes) is a **first-class pattern on Elastic**: combine **Streams**, **downsampling**, **ES|QL** (or ML), and **your own scheduled workflow** with a **Case** (and optional AI) — see the **Build** section below and `workflows/kibana/metric-governance-retail-banking-starter.yaml` in this repo.
+
+    **TCO headline for buyers:** The governance workflow writes **`modeled_policy_savings_pct`** into **Cases** (illustrative % of total metric *points* reclaimable after Streams / downsampling / aggregation). Add the **same ES|QL as a Lens on Executive** so leadership sees **“money left on the table → money reclaimed by policy”** in one screen. Then open **Observability AI Assistant** on the Case and ask it to **estimate monthly $ impact** from your $/GB assumptions—that is the “**AI is saving you money**” moment (deterministic model first, **AI narrates and refines**).
 
     **By the end of this challenge you will:**
 
@@ -20,6 +23,7 @@ notes:
     - ✅ View distributed traces and service maps in APM
     - ✅ Inspect host metrics across 3 simulated cloud providers
     - ✅ Relate **Systems Operations** and **Executive** dashboards to which metric families you would keep under longer retention in production
+    - ✅ Add a **modeled savings %** panel to **Executive** (same ES|QL as the governance workflow) and tie **Cases + AI** to a TCO / $ narrative
 
     **Your data is real.** Every log, trace, and metric is generated fresh and shipped via OTLP directly to Elastic — no recordings, no synthetic replay.
 - type: text
@@ -117,7 +121,7 @@ A **seventh** workflow for **metric governance** (compare write volume to dashbo
 
 **Goal:** A workflow that runs on a schedule (for example **every five minutes**), **lists Streams**, gathers **ES|QL + declared-usage** context, calls an **AI** step for a JSON-safe plan, opens or updates a **Case** for approval, then applies **`PUT /api/streams/{name}`** (via `kibana.request` or your approved automation)—**not** silent deletes.
 
-**Starter in this repo:** Import or POST the YAML at **`workflows/kibana/metric-governance-retail-banking-starter.yaml`** — it already chains **`kibana.streams.list`** → **`elasticsearch.esql.query`** → **`cases.createCase`** + **`cases.addComment`** with the ES|QL payload. Switch the trigger to **manual** while you validate (the file warns that `every: "5m"` creates many cases).
+**Starter in this repo:** Import or POST the YAML at **`workflows/kibana/metric-governance-retail-banking-starter.yaml`** — it already chains **`kibana.streams.list`** → **`elasticsearch.esql.query`** (with **`modeled_policy_savings_pct`**) → **`cases.createCase`** + **`cases.addComment`** so **Cases** show the **TCO % headline** and prompt **AI Assistant** dollarization. Mirror the same ES|QL on **Executive** (steps under *Explore #3*). Switch the trigger to **manual** while you validate (scheduled `every: "5m"` creates many cases).
 
 **Elastic Agent:** The workflow runs **inside Kibana** (scheduled steps, Elasticsearch steps, Kibana steps). Agents keep shipping under **Fleet** policy; **Streams** changes affect **routing/processing of ingested documents**. Narrowing **what** agents collect is a **separate Fleet policy** branch—only after approval.
 
@@ -275,6 +279,30 @@ Saved object id ends in **`-business-exec-dashboard`**. Panels chart **`business
 | **Trust & safety** | **`fraud_sentinel.*`**, **`auth_gateway.*`**, **`document_vault.*`** — risk score, MFA delivery, uploads, and storage. |
 
 Use **Executive** for stakeholder-style storytelling; use **Systems Operations** when you need to prove *why* a KPI moved (drill to services, logs, and traces).
+
+### Add “modeled ingest savings %” to Executive (same math as the governance Case)
+
+The **Retail Banking Metric governance snapshot** workflow (repo: `workflows/kibana/metric-governance-retail-banking-starter.yaml`) already computes **`streams_eligible_pct`** and **`modeled_policy_savings_pct`** and writes them into **Observability → Cases**. For the **Executive** dashboard, add a **single headline number** so finance sees **TCO**, not only `business.*` KPIs:
+
+1. Open **Dashboards** → **Retail Banking Platform Executive** (or your scenario’s Executive dashboard) → **Edit**.
+2. **Create visualization** → **Lens** → switch data source to **ES|QL**.
+3. Paste this query (same logic as the workflow; tune the `0.35` factor to match your TCO model):
+
+```esql
+FROM metrics*
+| WHERE @timestamp > NOW() - 15 minutes
+| STATS
+    metric_points = COUNT(*),
+    points_core_services = COUNT(*) WHERE service.name IN ("payment-engine", "claims-processor", "mobile-gateway", "member-portal", "fraud-sentinel", "policy-manager", "auth-gateway", "document-vault", "quote-engine")
+| EVAL streams_eligible_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * (metric_points - COALESCE(points_core_services, 0)) / metric_points, 2))
+| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)
+| KEEP modeled_policy_savings_pct, streams_eligible_pct
+```
+
+4. Choose visualization **Metric** (or **Gauge**) → primary metric **`modeled_policy_savings_pct`** → title **“Modeled ingest savings % (adaptive-metrics workflow)”** and subtitle **“Illustrative reclaim after Streams / downsampling / aggregation — see Case for JSON + AI $ estimate.”**
+5. **Save** the dashboard.
+
+**Make the AI / $ story obvious:** Open **Observability → Cases** → the latest **`[Governance]`** case → **Observability AI Assistant** (header) and prompt: *“Using `modeled_policy_savings_pct` and `metric_points` from this case, estimate monthly storage savings if hot OTLP metrics cost $0.08/GB-month ingested and we move the modeled share to warm tier at half the rate.”* Paste the assistant’s answer back into the Case comment for a **CFO-ready** artifact.
 
 ---
 

@@ -271,7 +271,7 @@ You already have the **same sandbox** as a full observability workshop. Use it t
 
 1. **Declared usage** — Open **Dashboards** and list which metric charts your scenario ships. Those (and **SLOs** / **alert rules**) are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* Grafana surfaces, executed with Elastic **downsampling** and **Streams**-style server policy.
 2. **Hot vs cold** — High-volume generators (Kubernetes pod metrics, nginx access patterns, etc.) are where **downsampling** and **tiered retention** pay off first, while SLO-driving series stay hot at full resolution for incident and executive views.
-3. **Why Elastic in RFPs** — Pair the Adaptive Metrics *narrative* with **downsampling** (highlight vs **Grafana / Mimir** positioning in competitive talk tracks) and **workflows** that prove which signals actually fire during incidents—governance plus automation, not only cardinality reports.
+3. **Why Elastic in RFPs** — Pair the Adaptive Metrics *narrative* with **downsampling** (vs **Grafana / Mimir**) and **workflows** that prove which signals fire in incidents. Against **VictoriaMetrics**, stress **governance + unified stack** (metrics are not an island). Against **Datadog**, stress **cost predictability** and **declared usage** (dashboards, SLOs, alerts) driving what stays hot—without splitting observability across unrelated SKUs.
 
 Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
 

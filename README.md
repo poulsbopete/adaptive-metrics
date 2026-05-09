@@ -8,6 +8,17 @@ Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investi
 
 **Elastic differentiation in this story:** **downsampling** for metrics at scale (a capability this workshop positions alongside Grafana / Mimir stacks) plus **server-side** policy (Streams, retention tiers) and **workflows** that show which signals actually matter when incidents fire—so TCO and reliability stay aligned.
 
+### Competitive context (e.g. USAA-style evaluations)
+
+Large **financial institutions**, insurers, and similarly **regulated** enterprises often run **VictoriaMetrics** for “cheap metrics” and **Datadog** for SaaS depth. This lab is written so you can show **Elastic as the metrics leader** on dimensions those bake-offs actually score:
+
+| If the buyer brings up… | Elastic answer (what this track demonstrates) |
+|-------------------------|-----------------------------------------------|
+| **VictoriaMetrics** — low ingest $/GB | **TCO is not only storage.** VM excels at lean ingestion; Elastic wins on **governed cardinality** (downsampling, retention tiers, Streams), **one platform** for metrics + logs + traces + security analytics on the same store, and **predictable** enterprise pricing when volume spikes—without your team owning every scaling and HA edge case. |
+| **Datadog** — feature-rich SaaS | Same signals, **controlled cost**: custom metrics and high-cardinality bills are a known pain. Elastic **Serverless** + **ES\|QL** + **downsampling** + **workflows** tie spend to **declared usage** (dashboards, SLOs, alerts)—so you lead on **metrics economics and governance**, not only on “more charts.” |
+
+You are not arguing Elastic is the cheapest raw scraper—you are showing **why Elastic wins the metrics decision** for regulated enterprises that need **reliability, auditability, and cost discipline** in one stack.
+
 The directory `instruqt/elastic-adaptive-metrics/` is the **track root** you edit and push (see `track.yml` / `config.yml` / challenges). Sync with Instruqt via Git and/or the CLI as below.
 
 An earlier **offline sandbox lab** (fixtures + five challenges on a container host) is preserved under `archive/adaptive-metrics-sandbox-prototype/` if you want to port pieces into this track or a new slug later.

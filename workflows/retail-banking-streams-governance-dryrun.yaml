@@ -1,0 +1,36 @@
+name: retail-banking-streams-governance-mcp-dryrun
+description: Snapshot observability context and retail-banking metric volume for governance decisions. Does not modify
+  Streams; pair with Kibana Observability Workflow or POST /api/workflows/workflow for scheduled PUT /api/streams/*.
+version: 1.0.0
+steps:
+  - id: discover
+    name: Discover O11y data profile
+    tool: discover_o11y_data
+    parameters:
+      service_names:
+        - payment-engine
+        - claims-processor
+        - mobile-gateway
+        - member-portal
+        - fraud-sentinel
+      time_range_from: now-30m
+      time_range_to: now
+  - id: metric_points
+    name: Count metric points (last 15m)
+    tool: esql_query
+    parameters:
+      query: TS metrics* | WHERE @timestamp > NOW() - 15 minutes | STATS metric_points = COUNT(*)
+  - id: payment_hotspot
+    name: Payment engine snapshot
+    tool: esql_query
+    parameters:
+      query: >-
+        TS metrics* | WHERE @timestamp > NOW() - 15 minutes
+        | STATS avg_tps = AVG(payment_engine.transactions_per_sec), avg_ach_q = AVG(payment_engine.ach_queue_depth), avg_auth = AVG(payment_engine.auth_success_rate)
+  - id: claims_fraud
+    name: Claims and fraud snapshot
+    tool: esql_query
+    parameters:
+      query: >-
+        TS metrics* | WHERE @timestamp > NOW() - 15 minutes
+        | STATS claims_q = AVG(claims_processor.queue_depth), fraud_score = AVG(fraud_sentinel.avg_risk_score)

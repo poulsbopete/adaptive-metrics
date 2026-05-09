@@ -31,6 +31,8 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (**Retail Banking Platform**: ACH/wires/bill pay, claims, policy, fraud, mobile). Override per customer in Instruqt Sandbox → VM environment. |
 | Sandbox secrets | `config.yml` lists **`LLM_PROXY_PROD`** and **`ESS_CLOUD_API_KEY`** by name only. Set values in Instruqt (**Sandbox → Secrets**); Git never stores secret material. |
 | `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` | Blueprint: **scheduled Workflow → Streams API → AI → Case → Agent/Fleet** for metric governance. |
+| `workflows/` | **MCP** `run_workflow` definitions (e.g. retail-banking governance **dry run**); not the same as Kibana’s **Observability → Workflows** list. See `.cursor/skills/kibana-observability-workflows-api/`. |
+| `.cursor/skills/kibana-observability-workflows-api/` | Project skill: create **Kibana** workflows via `POST /api/workflows/workflow` vs MCP YAML. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |
 | `scripts/publish.sh` | Git commit/push + `instruqt track push` for the track above. |
 | `scripts/fetch-instruqt-track-id.sh` | Prints `id` / `checksum` from Instruqt after a temp pull (debugging). |

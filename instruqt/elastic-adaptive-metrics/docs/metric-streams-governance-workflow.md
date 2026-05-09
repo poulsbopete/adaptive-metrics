@@ -83,3 +83,5 @@ Ask the assistant to:
 ## Relation to this Instruqt track
 
 The track teaches **declared usage** and **Streams** as concepts. This blueprint is the **next implementation step**: build or import the workflow in Kibana, then version the workflow definition alongside this repo when your team is ready.
+
+**Cursor / MCP side:** this repository also ships `workflows/retail-banking-streams-governance-dryrun.yaml` for the Elastic Serverless MCP `run_workflow` helper (agent executes `discover_o11y_data` + ES|QL snapshots). That file does **not** register a workflow in Kibana; for the UI list, use **Create a new workflow** or `POST /api/workflows/workflow` (see project skill `.cursor/skills/kibana-observability-workflows-api/SKILL.md`).

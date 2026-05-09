@@ -3,8 +3,9 @@ slug: inject-fault
 id: idjcheiijoey
 type: challenge
 title: Inject a Fault and Watch Elastic Detect It
-teaser: Use the incident simulator to inject a realistic multi-cloud fault and watch
-  Elastic's ES|QL alert rules and AI agent fire within seconds.
+teaser: >-
+  Inject a multi-cloud fault, watch ES|QL alerts and the AI agent respond—then tie
+  that RCA window to retention and server-side shaping (adaptive metrics in practice).
 notes:
 - type: text
   contents: |
@@ -16,6 +17,7 @@ notes:
     - ✅ Watch the error spike appear in Elastic's log stream within seconds
     - ✅ See an ES|QL alert rule fire within 30–60 seconds
     - ✅ Observe the AI agent begin its investigation automatically
+    - ✅ Connect incident response to **why** hot retention and governed metrics matter for TCO
 
     **You have 20 fault channels to choose from** — each simulates a realistic incident across AWS, GCP, and Azure services. Pick any one and watch Elastic light up.
 - type: text
@@ -146,3 +148,11 @@ A new case will appear automatically with:
 - Severity set to **High**
 
 ✅ **Ready to continue when** you can see a workflow execution and an auto-created case in Elastic Serverless.
+
+---
+
+## After the incident — retention, downsampling, and Streams
+
+Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, and dashboards** (everything you touched in Challenges 1–2), and use **shorter hot windows or coarser rollups** for high-cardinality metrics that never appear in those surfaces.
+
+**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. Pair that story with [Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)–style positioning when you talk to finance: you are not “deleting observability,” you are **tiering cost** to the signals that actually drive incidents and customer outcomes.

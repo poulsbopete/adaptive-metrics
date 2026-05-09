@@ -3,8 +3,10 @@ slug: explore-telemetry
 id: 98kwdohjlsof
 type: challenge
 title: Explore Live OpenTelemetry Data
-teaser: Navigate Elastic Serverless to see logs, distributed traces, and host metrics
-  flowing from 9 simulated microservices across three cloud providers.
+teaser: >-
+  Navigate Elastic Serverless for logs, traces, and metrics—then map which
+  signals are tied to dashboards and SLOs (declared usage) for adaptive metrics
+  thinking.
 notes:
 - type: text
   contents: |
@@ -17,6 +19,7 @@ notes:
     - ✅ Explore Systems Operations (telemetry) and Executive (`business.*` leadership KPIs) dashboards
     - ✅ View distributed traces and service maps in APM
     - ✅ Inspect host metrics across 3 simulated cloud providers
+    - ✅ Relate **Systems Operations** and **Executive** dashboards to which metric families you would keep under longer retention in production
 
     **Your data is real.** Every log, trace, and metric is generated fresh and shipped via OTLP directly to Elastic — no recordings, no synthetic replay.
 - type: text
@@ -259,6 +262,26 @@ Saved object id ends in **`-business-exec-dashboard`**. This is a **synthetic ex
 | **Health & retention proxies** | Premium-tier ARPU, loyalty points redeemed, churn-risk index, satisfaction proxy (NPS-style score) |
 
 Use **Executive** for stakeholder-style storytelling; use **Systems Operations** when you need to prove *why* a KPI moved (drill to services, logs, and traces).
+
+---
+
+## Adaptive metrics — declared usage and tiers (same sandbox)
+
+You already have the **same sandbox** as a full observability workshop. Use it to practice **governance**:
+
+1. **Declared usage** — Open **Dashboards** and note which services and metric charts your scenario ships. Those charts (and the **SLOs** under Observability) are the usage signal you would import from Kibana in a real “adaptive metrics” workflow—not every raw series in the index.
+2. **Hot vs cold** — High-volume generators (for example Kubernetes pod metrics or nginx access patterns) are exactly where **tiered retention** and **downsampling** pay off, while SLO-driving series stay hot longer.
+3. **Positioning** — Competitors market unused-series discovery as [Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/). Elastic’s answer is the same *classification* story plus **downsampling** and **Streams** for **server-side** policy without maintaining brittle edge-only rules.
+
+Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
+
+```esql
+TS metrics*
+| WHERE @timestamp > NOW() - 15 MINUTES
+| STATS metric_points = COUNT(*)
+```
+
+If you see a large number, that is the kind of volume finance cares about when you compare Elastic Serverless to “free” self-hosted scrapes.
 
 ---
 

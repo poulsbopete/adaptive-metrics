@@ -3,8 +3,10 @@ slug: connect-and-deploy
 id: zcj2ykfryvmc
 type: challenge
 title: Connect to Elastic Cloud & Deploy
-teaser: Wire the demo platform to your Elastic Cloud project and launch 9 microservices
-  sending live OpenTelemetry telemetry.
+teaser: >-
+  Wire the demo platform to your Elastic Cloud project, launch 9 microservices
+  sending live OpenTelemetry telemetry, and frame how dashboards and SLOs define
+  “declared usage” for adaptive metrics and TCO.
 notes:
 - type: text
   contents: |
@@ -19,6 +21,7 @@ notes:
     - ✅ Open your Elastic Serverless project — no login required
     - ✅ Verify logs, metrics, and traces are flowing from 9 microservices
     - ✅ Review the auto-provisioned AI agent, alert rules, and workflows
+    - ✅ Understand how **dashboards, SLOs, alerts, and workflows** become *declared usage* for metrics when you optimize cost later
 
     *Setup takes 3–4 minutes. Grab a coffee — it'll be ready soon.*
 - type: text
@@ -108,6 +111,14 @@ enhanced_loading: null
 # Connect to Elastic Cloud & Deploy
 
 Everything was **automatically provisioned** when this lab started — your Elastic Cloud project is live, 9 microservices are sending telemetry, and the AI observability stack is configured. Nothing to set up.
+
+---
+
+## TCO, adaptive metrics, and “declared usage”
+
+“Free” metrics stacks often look cheap until **cardinality and retention** grow without governance. Elastic Serverless pairs a columnar time series store with **downsampling** and **server-side shaping** (for example **Elastic Streams**) so cost stays predictable.
+
+For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter hot tiers, rollups, or human-approved policy**—not silent deletion. Vendors often call this pattern [Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/); on Elastic you pair the same idea with **downsampling** and **Streams-style** controls on the server.
 
 ---
 

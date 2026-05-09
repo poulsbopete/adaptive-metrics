@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 2 — Explore Live OpenTelemetry Data
 
-    **Declared usage lens:** This track defaults to **Retail Banking Platform**. Some products automate “adaptive” metrics discovery (unused series, aggregation, drops). In this lab you do the **discovery** manually—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—using **ES|QL** and the **Systems Operations** / **Executive** dashboards. That is the input to **downsampling** and **Streams** policy. **Kibana Workflows** here are **incident- and SLO-oriented** (see list under **Observability → Workflows**); they do **not** include a separate tile that auto-scans every metric and proposes drops—that pattern is **custom automation** you can add on the same platform (scheduled workflow + ES|QL + case for human approval).
+    **Declared usage lens:** This track defaults to **Retail Banking Platform**. You relate **which metric families show up on shipped dashboards and SLOs vs raw generator volume** using **ES|QL** and the **Systems Operations** / **Executive** dashboards—that is the input to **downsampling** and **Streams** policy. The six workflows under **Observability → Workflows** are the **pre-installed operational set** (SLO hygiene, incidents, remediation, reporting). **Metric governance** (unused or over-shipped series, aggregation, retention, Streams child routes) is a **first-class pattern on Elastic**: combine **Streams**, **downsampling**, **ES|QL** (or ML), and **your own scheduled workflow** with a **Case** (and optional AI) — see the **Build** section below and `workflows/kibana/metric-governance-retail-banking-starter.yaml` in this repo.
 
     **By the end of this challenge you will:**
 
@@ -105,21 +105,23 @@ This track defaults to **Retail Banking Platform** — digital banking, payments
 
 ---
 
-## What the Workflows list is (and is not)
+## What you see in Workflows today — and what you add for governance
 
-Under **Observability → Workflows** you will see **six operational workflows** for your deployment (titles are prefixed with the scenario name — for the default, **Retail Banking Platform**). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—the same surfaces that prove **declared usage** when production breaks.
+Under **Observability → Workflows** the demo ships **six operational workflows** (titles are prefixed with the scenario name — for the default, **Retail Banking Platform**). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—they prove **declared usage** when production breaks.
 
-You will **not** see a built-in workflow whose only job is to “automatically determine which metrics are unused and suggest dropping or aggregating dimensions.” That outcome is not a single stock tile in this demo; on Elastic it is typically delivered by combining **(1)** **Streams** and ingest rules **(2)** **downsampling / rollup** settings **(3)** **ES|QL** or ML jobs that compare metric volume to dashboard and SLO references **(4)** optional **custom** Kibana workflows you create (for example a **scheduled** run that writes recommendations to a **Case** for human approval). This workshop teaches the discovery and positioning; the **implementation** of step (4) is a **custom** Kibana workflow you author (see below).
+A **seventh** workflow for **metric governance** (compare write volume to dashboards/SLOs, recommend aggregation or retention, route noisy families via **Streams**, keep humans in the loop with **Cases**) is **not missing from Elastic** — it is **the workflow you add** on the same platform. Elastic gives you the primitives: **[Streams](https://www.elastic.co/docs/solutions/observability/streams/streams)** (including workflow steps like [`kibana.streams.list`](https://www.elastic.co/docs/explore-analyze/workflows/steps/streams)), **[downsampling / rollups](https://www.elastic.co/docs/manage-data/data-store/data-rollups)**, **[ES|QL](https://www.elastic.co/docs/explore-analyze/query-filter/languages/esql-rest)** (and ML where you need it), **[Cases](https://www.elastic.co/docs/explore-analyze/workflows/steps/cases)**, **[AI workflow steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps)**, and **[`kibana.request`](https://www.elastic.co/docs/explore-analyze/workflows/steps/kibana#kibana-request)** for any Kibana API (for example `PUT /api/streams/{name}`). The lab’s six tiles are the **starter pack**; **governance automation is the build**.
 
 ---
 
-## Stretch design: Streams governance loop (Workflows + AI + Agent)
+## Build: Metric governance loop (Workflows + Streams + Cases + AI)
 
-**Goal:** A workflow that runs **every five minutes** (or on your chosen schedule), **lists Streams** (`GET /api/streams`), identifies **wired** parents that can accept **child routes** (“sub-streams”), gathers **ES|QL + declared-usage** context, calls an **AI** step for a JSON-safe plan, optionally opens a **Case** for approval, then **`PUT /api/streams/{name}`** to create/update child streams and processing—**not** silent deletes.
+**Goal:** A workflow that runs on a schedule (for example **every five minutes**), **lists Streams**, gathers **ES|QL + declared-usage** context, calls an **AI** step for a JSON-safe plan, opens or updates a **Case** for approval, then applies **`PUT /api/streams/{name}`** (via `kibana.request` or your approved automation)—**not** silent deletes.
 
-**Elastic Agent:** The workflow runs **inside Kibana** (scheduled + `kibana.request` steps per [Kibana workflow steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/kibana)). Agents keep shipping under **Fleet** policy; **Streams** changes affect **routing/processing of ingested documents**. Narrowing **what** agents collect is a **separate Fleet policy** branch—only after approval.
+**Starter in this repo:** Import or POST the YAML at **`workflows/kibana/metric-governance-retail-banking-starter.yaml`** — it already chains **`kibana.streams.list`** → **`elasticsearch.esql.query`** → **`cases.createCase`** + **`cases.addComment`** with the ES|QL payload. Switch the trigger to **manual** while you validate (the file warns that `every: "5m"` creates many cases).
 
-**Authoring reference:** See the blueprint in this repository: `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` (API links for [list streams](https://www.elastic.co/docs/api/doc/kibana/operation/operation-get-streams) and [create/update stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name), mermaid graph, safety checklist).
+**Elastic Agent:** The workflow runs **inside Kibana** (scheduled steps, Elasticsearch steps, Kibana steps). Agents keep shipping under **Fleet** policy; **Streams** changes affect **routing/processing of ingested documents**. Narrowing **what** agents collect is a **separate Fleet policy** branch—only after approval.
+
+**Full design doc:** `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` (mermaid, safety checklist, [Streams API](https://www.elastic.co/docs/api/doc/kibana/group/endpoint-streams), [create/update stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name)). **Import / API:** `.cursor/skills/kibana-observability-workflows-api/SKILL.md`.
 
 ---
 
@@ -282,7 +284,7 @@ You already have the **same sandbox** as a full observability workshop. Use it t
 
 1. **Declared usage** — Open **Dashboards** and list which metric charts your deployment ships for **Retail Banking** (and **SLOs** / **alert rules**). Those are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* buyers expect from adaptive-metrics stories, executed here with Elastic **downsampling** and **Streams**-style server policy.
 2. **Hot vs cold** — High-volume generators (Kubernetes pod metrics, nginx access patterns, etc.) are where **downsampling** and **tiered retention** pay off first, while SLO-driving series stay hot at full resolution for incident and executive views.
-3. **Why Elastic in evaluations** — Lead with **downsampling** plus **incident workflows** that prove which signals fire under stress, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot. For **automated unused-metric recommendations**, describe a **custom** scheduled workflow (ES|QL + AI step + case) or **Streams** rules—same product surface, governance you own in code.
+3. **Why Elastic in evaluations** — Lead with **downsampling** plus **incident workflows** that prove which signals fire under stress, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot. For **automated unused-metric recommendations**, show the **governance workflow you ship**: scheduled **ES|QL** + **Cases** + optional **AI** + **Streams** updates (`workflows/kibana/metric-governance-retail-banking-starter.yaml` as the starting YAML).
 
 Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
 

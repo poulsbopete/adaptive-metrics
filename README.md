@@ -4,7 +4,7 @@ Canonical **Instruqt** track: **[elastic / elastic-adaptive-metrics](https://pla
 
 ## Workshop goal
 
-Use **live Elastic Serverless** data — track default **Retail Banking Platform** (payments, claims, policy, fraud) — to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Kibana Workflows** in this demo are **incident- and SLO-oriented** (alerts, remediation, reports); they make the “what actually fired in production?” question objective. **Automated unused-metric catalogs** are built on the same stack with **ES|QL**, **Streams**, **downsampling**, and **optional custom workflows** you author—not a separate pre-installed tile in the Workflows list. See **`instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`** for a **5-minute scheduled loop** (Streams `GET`/`PUT`, AI, Case, optional Fleet) blueprint.
+Use **live Elastic Serverless** data — track default **Retail Banking Platform** (payments, claims, policy, fraud) — to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. The shipped demo includes **six** incident- and SLO-oriented **Kibana Workflows**; **metric governance automation** is the **seventh workflow you add** on the same platform using **ES|QL**, **Streams**, **downsampling**, **Cases**, and **AI workflow steps** (see **`workflows/kibana/metric-governance-retail-banking-starter.yaml`** and **`instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`**).
 
 **Elastic differentiation in this story:** **downsampling** for metrics at scale, **server-side** policy (Streams, retention tiers), and **workflows** that prove which signals matter when incidents fire—so **TCO** and reliability stay aligned on one platform.
 
@@ -31,7 +31,8 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (**Retail Banking Platform**: ACH/wires/bill pay, claims, policy, fraud, mobile). Override per customer in Instruqt Sandbox → VM environment. |
 | Sandbox secrets | `config.yml` lists **`LLM_PROXY_PROD`** and **`ESS_CLOUD_API_KEY`** by name only. Set values in Instruqt (**Sandbox → Secrets**); Git never stores secret material. |
 | `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` | Blueprint: **scheduled Workflow → Streams API → AI → Case → Agent/Fleet** for metric governance. |
-| `workflows/` | **MCP** `run_workflow` definitions (e.g. retail-banking governance **dry run**); not the same as Kibana’s **Observability → Workflows** list. See `.cursor/skills/kibana-observability-workflows-api/`. |
+| `workflows/kibana/metric-governance-retail-banking-starter.yaml` | **Kibana** Observability workflow (import / `POST /api/workflows/workflow`): Streams list + ES|QL + Case — extend with AI + Streams `PUT`. |
+| `workflows/retail-banking-streams-governance-dryrun.yaml` | **MCP** `run_workflow` dry run only (not a Kibana tile). |
 | `.cursor/skills/kibana-observability-workflows-api/` | Project skill: create **Kibana** workflows via `POST /api/workflows/workflow` vs MCP YAML. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |
 | `scripts/publish.sh` | Git commit/push + `instruqt track push` for the track above. |

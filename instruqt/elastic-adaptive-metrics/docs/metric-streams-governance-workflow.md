@@ -1,8 +1,10 @@
 # Metric governance loop: Workflows + Streams + AI (blueprint)
 
-This document describes how to implement the pattern you described: a **Kibana Observability Workflow** on a **short schedule** (for example every five minutes) that **inspects Streams**, asks an **AI assistant** for safe changes (sub-routes, retention, or drops), and **applies** updates via the **Streams API**—while **Elastic Agent** continues to ship telemetry under **Fleet** policy.
+This document is the **implementation guide** for a **Kibana Observability Workflow** on a **short schedule** (for example every five minutes) that **inspects Streams**, asks an **AI assistant** for safe changes (sub-routes, retention, or drops), and **applies** updates via the **Streams API**—while **Elastic Agent** continues to ship telemetry under **Fleet** policy.
 
-> **Scope:** Architecture and API pointers for workshop authors. Validate step types and request bodies against **your** Serverless / Kibana minor version before production use. The Streams HTTP API is still evolving; see Elastic’s note on technical preview where it appears in the [Streams API group](https://www.elastic.co/docs/api/doc/kibana/group/endpoint-streams).
+**Start from code:** import [`workflows/kibana/metric-governance-retail-banking-starter.yaml`](../../../workflows/kibana/metric-governance-retail-banking-starter.yaml) (scheduled **`kibana.streams.list`** + **`elasticsearch.esql.query`** + **Observability Case**), then extend with AI steps and `kibana.request` / `PUT` as below.
+
+> **Scope:** Validate step types and request bodies against **your** Serverless / Kibana minor version before production use. The Streams HTTP API and **`kibana.streams.*`** steps are still evolving; see Elastic’s technical preview notes in the [Streams API group](https://www.elastic.co/docs/api/doc/kibana/group/endpoint-streams) and [Streams action steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/streams).
 
 ---
 
@@ -20,7 +22,7 @@ This document describes how to implement the pattern you described: a **Kibana O
 
 ## APIs you will call from the workflow
 
-Use **`kibana.request`** (or equivalent HTTP-to-Kibana step) with `kbn-xsrf` and an API key that has at least **`read_stream`** and **`manage_stream`** where needed.
+Use **`kibana.streams.list`** / **`kibana.streams.get`** ([Streams action steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/streams)) when the editor supports them; otherwise use **`kibana.request`** with `method: GET` and `path: /api/streams` (same privilege model). For updates, **`kibana.request`** `PUT /api/streams/{name}` matches the [Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name) contract until a dedicated Streams update step exists.
 
 | Action | HTTP | Doc |
 |--------|------|-----|
@@ -37,7 +39,7 @@ Workflow step reference: [Kibana workflow steps](https://www.elastic.co/docs/exp
 
 ```mermaid
 flowchart TD
-  S[Scheduled trigger 5m] --> L[List streams GET /api/streams]
+  S[Scheduled trigger 5m] --> L[List streams kibana.streams.list or GET /api/streams]
   L --> F{Filter: wired parent candidates}
   F --> M[Metrics: ES|QL volume + cardinality snapshot]
   M --> D[Declared usage: dashboards / SLOs / alert refs]
@@ -50,9 +52,9 @@ flowchart TD
   P --> R[Optional: Fleet policy tweak for high-card agents]
 ```
 
-1. **Scheduled trigger** — cron-style `*/5 * * * *` (or UI “every 5 minutes”).
-2. **List + filter** — Parse JSON from `GET /api/streams`. Select **wired** parents that are allowed to receive **child** routes (your naming convention, e.g. `otel-metrics-*`).
-3. **Context pack** — Run **ES|QL** (workflow step or pre-request) for top-N noisy metric families; attach **dashboard/SLO** identifiers the way you already teach in the lab (**declared usage**).
+1. **Scheduled trigger** — for example `every: "5m"` ([Scheduled triggers](https://www.elastic.co/docs/explore-analyze/workflows/triggers/scheduled-triggers)).
+2. **List + filter** — Use **`kibana.streams.list`** output or `GET /api/streams` via **`kibana.request`**. Select **wired** parents that are allowed to receive **child** routes (your naming convention, e.g. `otel-metrics-*`).
+3. **Context pack** — Run **ES|QL** with **`elasticsearch.esql.query`** for top-N noisy metric families; attach **dashboard/SLO** identifiers the way you teach in the lab (**declared usage**).
 4. **AI step** — Prompt the model to output **only** a JSON patch: suggested `child` stream names, routing predicates, retention intent, and explicit **“no change”** when uncertain. Enforce JSON schema validation in a small **inline script** step if your workflow product supports it.
 5. **Governance gate** — Default to **Case** + `@mention` SRE. Auto-apply only after the Case transitions to approved, or only in non-prod.
 6. **Apply** — `PUT /api/streams/{name}` with the body shape required by your version (see API docs for `stream`, `rules`, `queries`, `dashboards` fields).
@@ -82,6 +84,6 @@ Ask the assistant to:
 
 ## Relation to this Instruqt track
 
-The track teaches **declared usage** and **Streams** as concepts. This blueprint is the **next implementation step**: build or import the workflow in Kibana, then version the workflow definition alongside this repo when your team is ready.
+The track teaches **declared usage** and **Streams** as concepts, then **this blueprint + starter YAML** are the build: import **`workflows/kibana/metric-governance-retail-banking-starter.yaml`**, validate in a lab project, add AI + `PUT` when ready, and version the YAML beside this repo.
 
-**Cursor / MCP side:** this repository also ships `workflows/retail-banking-streams-governance-dryrun.yaml` for the Elastic Serverless MCP `run_workflow` helper (agent executes `discover_o11y_data` + ES|QL snapshots). That file does **not** register a workflow in Kibana; for the UI list, use **Create a new workflow** or `POST /api/workflows/workflow` (see project skill `.cursor/skills/kibana-observability-workflows-api/SKILL.md`).
+**Cursor / MCP side:** `workflows/retail-banking-streams-governance-dryrun.yaml` is an optional **MCP** `run_workflow` helper (agent calls `discover_o11y_data` + ES|QL) for dry runs from the IDE; it does **not** register a workflow in Kibana. For the Kibana UI list, use **Create a new workflow** or `POST /api/workflows/workflow` (see `.cursor/skills/kibana-observability-workflows-api/SKILL.md`).

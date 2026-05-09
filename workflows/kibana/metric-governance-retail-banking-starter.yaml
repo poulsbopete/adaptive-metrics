@@ -1,0 +1,87 @@
+# =============================================================================
+# Retail Banking — Metric governance loop (starter)
+#
+# Purpose: Scheduled (or manual) snapshot for **declared-usage / volume** work:
+#   1) List Observability Streams (named step — preview; see Elastic docs).
+#   2) ES|QL aggregate over retail-banking OTLP gauges (tune fields to your mapping).
+#   3) Open an Observability **Case** as the human gate; extend with AI steps and
+#      `kibana.request` PUT /api/streams/{name} after your review process.
+#
+# Import: Observability → Workflows → Create workflow → paste YAML, or POST
+#   POST /api/workflows/workflow  with JSON { "yaml": "<this file>" }
+#   See .cursor/skills/kibana-observability-workflows-api/SKILL.md
+#
+# WARNING: With `every: "5m"` and a Case on every run, you will create many cases.
+#   For first tests, switch triggers to `manual` only (see bottom comment block).
+# =============================================================================
+
+name: "Retail Banking — Metric governance snapshot"
+description: >
+  Lists Streams, captures a retail-banking ES|QL metric snapshot, and opens an
+  Observability case for governance review. Extend with AI classification and
+  Streams updates (kibana.request or Streams steps) per your runbook.
+
+triggers:
+  - type: scheduled
+    with:
+      every: "5m"
+
+steps:
+  - name: list_streams
+    type: kibana.streams.list
+
+  - name: metrics_snapshot
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        TS metrics*
+        | WHERE @timestamp > NOW() - 15 minutes
+        | STATS
+            metric_points = COUNT(*),
+            pay_tps = AVG(payment_engine.transactions_per_sec),
+            ach_q = AVG(payment_engine.ach_queue_depth),
+            claims_q = AVG(claims_processor.queue_depth),
+            fraud_score = AVG(fraud_sentinel.avg_risk_score)
+
+  - name: governance_case
+    type: cases.createCase
+    with:
+      title: "[Governance] Retail Banking metric snapshot"
+      description: |
+        Scheduled **metric governance** snapshot (Retail Banking demo).
+
+        **Intent:** Compare this run to **Systems Operations**, **Executive**, and **SLOs**
+        as *declared usage*; identify high-volume series that never appear there; propose
+        downsampling, Streams child routes, or retention — then approve changes out-of-band.
+
+        Next iteration: add an [AI step](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps)
+        and optional `kibana.request` to `PUT /api/streams/{name}` after approval.
+      owner: observability
+      severity: low
+      tags:
+        - metric-governance
+        - retail-banking
+        - streams-next
+
+  - name: attach_esql_comment
+    type: cases.addComment
+    with:
+      case_id: "{{ steps.governance_case.output.case.id }}"
+      comment: |
+        **ES|QL snapshot** (`metrics_snapshot` step output):
+
+        ```json
+        {{ steps.metrics_snapshot.output | json }}
+        ```
+
+        **Streams:** `list_streams` completed; inspect full JSON in the workflow run
+        detail in Kibana if the editor does not surface step payloads in comments.
+
+# -----------------------------------------------------------------------------
+# First-time testing: use manual trigger only (uncomment below, comment schedule)
+# -----------------------------------------------------------------------------
+# triggers:
+#   - type: manual
+#
+# steps: [ ... same steps ... ]

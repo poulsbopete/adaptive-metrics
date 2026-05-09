@@ -40,11 +40,13 @@ Do **not** guess full product YAML here: step types and fields are version-sensi
 
 ### Streams governance pattern
 
-For **scheduled Streams inspection + AI + optional Case + `PUT /api/streams/{name}`**, follow the repo blueprint:
+Starter YAML in this repo (import into Kibana, then extend):
 
-`instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`
+`workflows/kibana/metric-governance-retail-banking-starter.yaml`
 
-Implement **`kibana.request`** (or equivalent) steps against `GET /api/streams` and `PUT /api/streams/{name}` per [Streams API](https://www.elastic.co/docs/api/doc/kibana/group/endpoint-streams). Default to **dry-run** (Case only, no `PUT`) until reviewed.
+Full design (AI, `PUT`, safety): `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`
+
+For **scheduled Streams inspection + AI + optional Case + `PUT /api/streams/{name}`**, follow that blueprint and add [AI steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps) plus **`kibana.request`** where a named step does not exist.
 
 ## MCP dry run in this repository
 

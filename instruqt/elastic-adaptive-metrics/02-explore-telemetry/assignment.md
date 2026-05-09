@@ -10,7 +10,7 @@ notes:
   contents: |
     ## Lab 2 — Explore Live OpenTelemetry Data
 
-    **Declared usage lens:** Some products automate “adaptive” metrics discovery (unused series, aggregation, drops). In this lab you do the **discovery** manually—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—using **ES|QL** and the **Systems Operations** / **Executive** dashboards. That is the input to **downsampling** and **Streams** policy. **Kibana Workflows** here are **incident- and SLO-oriented** (see list under **Observability → Workflows**); they do **not** include a separate tile that auto-scans every metric and proposes drops—that pattern is **custom automation** you can add on the same platform (scheduled workflow + ES|QL + case for human approval).
+    **Declared usage lens:** This track defaults to **Retail Banking Platform**. Some products automate “adaptive” metrics discovery (unused series, aggregation, drops). In this lab you do the **discovery** manually—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—using **ES|QL** and the **Systems Operations** / **Executive** dashboards. That is the input to **downsampling** and **Streams** policy. **Kibana Workflows** here are **incident- and SLO-oriented** (see list under **Observability → Workflows**); they do **not** include a separate tile that auto-scans every metric and proposes drops—that pattern is **custom automation** you can add on the same platform (scheduled workflow + ES|QL + case for human approval).
 
     **By the end of this challenge you will:**
 
@@ -39,7 +39,7 @@ notes:
   contents: |
     ## What's Generating Telemetry
 
-    **Nine instrumented microservices** (application logs + traces)—**names and domains depend on the scenario** you launched (Retail Banking, Healthcare, financial trading, and so on).
+    **Nine instrumented microservices** for **Retail Banking** (application logs + traces): for example **`mobile-gateway`**, **`payment-engine`**, **`claims-processor`**, **`policy-manager`**, **`fraud-sentinel`**, **`member-portal`**, **`auth-gateway`**, **`document-vault`**, and **`quote-engine`**. If you switched scenarios in the Demo App, service names follow that card instead.
 
     **Background generators** (infrastructure telemetry):
     - 3 cloud hosts (AWS, GCP, Azure) — CPU, memory, disk, network
@@ -63,12 +63,12 @@ notes:
     | SORT errors DESC
     ```
 
-    **Latency trend over time:**
+    **Latency trend (Retail Banking — mobile API):**
     ```
     TS metrics*
     | WHERE @timestamp > NOW() - 30 MINUTES
     | EVAL minute = DATE_TRUNC(1 minute, @timestamp)
-    | STATS avg_latency = AVG(auction.bid_latency_ms) BY minute
+    | STATS avg_api_ms = AVG(mobile_gateway.api_latency_ms) BY minute
     | SORT minute DESC
     ```
 tabs:
@@ -101,13 +101,13 @@ enhanced_loading: null
 
 # Explore Live OpenTelemetry Telemetry
 
-Now that your scenario is running, let's explore the data flowing into Elastic. Open the **Elastic Serverless** tab.
+This track defaults to **Retail Banking Platform** — digital banking, payments, claims, policy, and fraud signals. Open the **Elastic Serverless** tab.
 
 ---
 
 ## What the Workflows list is (and is not)
 
-Under **Observability → Workflows** you will see **six operational workflows** for your scenario (titles are prefixed with the scenario name). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—the same surfaces that prove **declared usage** when production breaks.
+Under **Observability → Workflows** you will see **six operational workflows** for your deployment (titles are prefixed with the scenario name — for the default, **Retail Banking Platform**). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—the same surfaces that prove **declared usage** when production breaks.
 
 You will **not** see a built-in workflow whose only job is to “automatically determine which metrics are unused and suggest dropping or aggregating dimensions.” That outcome is not a single stock tile in this demo; on Elastic it is typically delivered by combining **(1)** **Streams** and ingest rules **(2)** **downsampling / rollup** settings **(3)** **ES|QL** or ML jobs that compare metric volume to dashboard and SLO references **(4)** optional **custom** Kibana workflows you create (for example a **scheduled** run that writes recommendations to a **Case** for human approval). This workshop teaches the discovery and positioning; the **implementation** of step (4) is a **custom** Kibana workflow you author (see below).
 
@@ -129,7 +129,7 @@ The platform runs several background generators simultaneously:
 
 | Generator | What It Produces |
 |-----------|-----------------|
-| **9 scenario services** | Application logs, traces, errors (service mix depends on vertical) |
+| **9 retail-banking services** | Application logs, traces, errors (`mobile-gateway`, `payment-engine`, `claims-processor`, …) |
 | **Host metrics** | CPU, memory, disk, network for 3 cloud hosts |
 | **Kubernetes metrics** | Node, pod, container metrics |
 | **Nginx metrics + logs** | Access logs, error logs, request spans |
@@ -164,7 +164,7 @@ FROM logs*
 ```
 
 **Things to notice:**
-- `service.name`: values depend on your scenario (e.g. banking, healthcare, finserv)
+- `service.name`: for the default **Retail Banking** card, values include **`payment-engine`**, **`claims-processor`**, **`mobile-gateway`**, **`member-portal`**, and peers from the nine-service set (hyphenated names in logs and APM)
 - `severity_text`: `INFO`, `WARN`, `ERROR`
 - `body.text` contains the raw log message and error type
 
@@ -172,68 +172,60 @@ FROM logs*
 
 ## Explore #2 — ES|QL Time Series Queries
 
-> **Note:** Sample `TS metrics*` queries below use **example field names** from one vertical’s gauges. If you launched **Retail Banking** or another scenario, open **Systems Operations** or run `FROM metrics* | WHERE @timestamp > NOW() - 15 minutes | KEEP * | LIMIT 3` to discover field names, then substitute.
+> **Note:** `TS metrics*` column names follow the demo’s OTLP gauge names (dots in metric names become fields such as `payment_engine.transactions_per_sec`). If a query returns no columns, run `FROM metrics* | WHERE @timestamp > NOW() - 15 minutes | KEEP * | LIMIT 3` once to confirm field spelling for your stack version, then adjust.
 
 In the **Elastic Serverless** tab → **Discover** → **ES|QL** mode, try these queries against the live metrics stream.
 
-### Auction health at a glance
+### Payment engine throughput and ACH backlog
 ```esql
 TS metrics*
 | WHERE @timestamp > NOW() - 15 MINUTES
 | EVAL minute = DATE_TRUNC(1 minute, @timestamp)
 | STATS
-    active_auctions = AVG(auction.active_auctions),
-    bid_latency_ms  = AVG(auction.bid_latency_ms),
-    bids_per_min    = AVG(auction.bids_per_min),
-    websocket_conns = AVG(auction.websocket_connections)
+    txn_per_sec = AVG(payment_engine.transactions_per_sec),
+    ach_queue     = AVG(payment_engine.ach_queue_depth),
+    auth_ok_pct   = AVG(payment_engine.auth_success_rate)
   BY minute
 | SORT minute DESC
 ```
 
-### Spot a latency spike before users notice
+### Mobile API latency vs healthy band
 ```esql
 TS metrics*
 | WHERE @timestamp > NOW() - 30 MINUTES
 | EVAL minute = DATE_TRUNC(1 minute, @timestamp)
-| STATS avg_latency = AVG(auction.bid_latency_ms) BY minute
+| STATS avg_api_ms = AVG(mobile_gateway.api_latency_ms) BY minute
 | EVAL status = CASE(
-    avg_latency > 45, "🔴 CRITICAL",
-    avg_latency > 30, "🟡 DEGRADED",
+    avg_api_ms > 1200, "🔴 CRITICAL",
+    avg_api_ms > 600, "🟡 DEGRADED",
     "🟢 HEALTHY"
   )
 | SORT minute DESC
 ```
 
-### Card printing throughput vs queue depth
+### Claims and fraud pressure (same timeline)
 ```esql
 TS metrics*
 | WHERE @timestamp > NOW() - 20 MINUTES
 | EVAL minute = DATE_TRUNC(1 minute, @timestamp)
 | STATS
-    queue_depth    = AVG(card_printing.queue_depth),
-    throughput     = AVG(card_printing.throughput),
-    substrate_temp = AVG(card_printing.substrate_temp)
+    claims_queue = AVG(claims_processor.queue_depth),
+    fraud_score    = AVG(fraud_sentinel.avg_risk_score),
+    fraud_latency  = AVG(fraud_sentinel.model_latency_ms)
   BY minute
-| EVAL backlog_ratio = ROUND(queue_depth / throughput, 2)
 | SORT minute DESC
 ```
 
-### Multi-cloud compliance drift
+### Policy book vs quote path
 ```esql
 TS metrics*
 | WHERE @timestamp > NOW() - 30 MINUTES
 | EVAL bucket5m = DATE_TRUNC(5 minutes, @timestamp)
 | STATS
-    aws_compliance   = AVG(cloud_inventory.aws.compliance_pct),
-    gcp_compliance   = AVG(cloud_inventory.gcp.compliance_pct),
-    azure_compliance = AVG(cloud_inventory.azure.compliance_pct)
+    active_policies = AVG(policy_manager.active_policies),
+    renewal_pct       = AVG(policy_manager.renewal_rate),
+    quote_latency_ms  = AVG(quote_engine.response_time_ms)
   BY bucket5m
-| EVAL lowest = LEAST(aws_compliance, gcp_compliance, azure_compliance)
-| EVAL at_risk_cloud = CASE(
-    lowest == aws_compliance, "AWS",
-    lowest == gcp_compliance, "GCP",
-    "Azure"
-  )
 | SORT bucket5m DESC
 ```
 
@@ -256,7 +248,7 @@ FROM logs*
 
 ## Explore #3 — Dashboards
 
-The deployer creates **two** Kibana saved dashboards for **every** scenario. Open the **Elastic Serverless** tab → **Dashboards** → search by your **scenario name** (for example *Retail Banking Platform* or *Healthcare Systems*).
+The deployer creates **two** Kibana saved dashboards for **every** scenario. Open the **Elastic Serverless** tab → **Dashboards** → search **`Retail Banking Platform`** (default) or the name of the card you launched.
 
 ### Systems Operations
 
@@ -264,21 +256,21 @@ Saved object id ends in **`-exec-dashboard`**. This is the engineering view: ser
 
 ### Executive (business KPIs)
 
-Saved object id ends in **`-business-exec-dashboard`**. This is a **synthetic executive / revenue narrative** built from the same live OTLP metric stream as the rest of the demo — not a separate data source.
+Saved object id ends in **`-business-exec-dashboard`**. Panels chart **`business.*`** gauges emitted from **one designated service per scenario** (for Retail Banking, **`member-portal`**). Those series are **shared across demo cards** for workshop consistency—treat them as **synthetic leadership KPIs** for the lab; in production you would rename panels to match your bank’s reporting (NII, deposits, loan growth, claims cycle time, digital adoption, and so on).
 
 **How the data is produced**
 
-- Each scenario designates **one** microservice to emit all `business.*` gauges each telemetry cycle (so KPIs are not duplicated across services). The emitter **service name differs by vertical**—confirm yours from **Systems Operations** or **Executive** dashboard panels, or from **Applications → Service inventory**.
-- Values are **real-time generated** for the lab (plausible ranges), then shipped like any other metric so you can correlate dips with chaos, latency, or errors on **Systems Operations**.
+- **`member-portal`** emits the `business.*` gauges each telemetry cycle so Executive charts are not duplicated across all nine services.
+- Values are **real-time generated** for the lab (plausible ranges), then shipped like any other metric so you can correlate movement with chaos, latency, or errors on **Systems Operations**.
 
-**What to scan on the dashboard** (grouped the way leadership lenses usually run the business)
+**How to read Executive vs Systems Operations for governance**
 
-| Lens | Examples (metric themes) |
-|------|---------------------------|
-| **Audience & engagement** | Live concurrent viewers, video minutes, page views, app sessions, content completion, push CTR, newsletter opens, social clip shares |
-| **Monetization & commerce** | Ad revenue, programmatic fill rate, betting handle / hold / gross win, subscription MRR, merch GMV, live-event ticketing, active fantasy entries |
-| **Partners & B2B** | Sponsorship revenue, sponsored inventory, API / data-partner revenue |
-| **Health & retention proxies** | Premium-tier ARPU, loyalty points redeemed, churn-risk index, satisfaction proxy (NPS-style score) |
+| Lens | What to tie to **declared usage** |
+|------|-----------------------------------|
+| **Digital & member experience** | Portal and mobile signals on **Systems Operations** (`member_portal.*`, `mobile_gateway.*`) plus any Executive panels you map to “digital adoption.” |
+| **Payments & money movement** | **`payment_engine.*`** (throughput, ACH queue, auth success) — primary TCO hotspot when faults hit ACH, wires, or bill pay. |
+| **Claims & policy** | **`claims_processor.*`**, **`policy_manager.*`**, **`quote_engine.*`** — cycle time, queues, renewal, and quote latency families. |
+| **Trust & safety** | **`fraud_sentinel.*`**, **`auth_gateway.*`**, **`document_vault.*`** — risk score, MFA delivery, uploads, and storage. |
 
 Use **Executive** for stakeholder-style storytelling; use **Systems Operations** when you need to prove *why* a KPI moved (drill to services, logs, and traces).
 
@@ -288,7 +280,7 @@ Use **Executive** for stakeholder-style storytelling; use **Systems Operations**
 
 You already have the **same sandbox** as a full observability workshop. Use it to practice **governance**—**unused vs declared-used** series—entirely on Elastic:
 
-1. **Declared usage** — Open **Dashboards** and list which metric charts your scenario ships. Those (and **SLOs** / **alert rules**) are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* buyers expect from adaptive-metrics stories, executed here with Elastic **downsampling** and **Streams**-style server policy.
+1. **Declared usage** — Open **Dashboards** and list which metric charts your deployment ships for **Retail Banking** (and **SLOs** / **alert rules**). Those are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* buyers expect from adaptive-metrics stories, executed here with Elastic **downsampling** and **Streams**-style server policy.
 2. **Hot vs cold** — High-volume generators (Kubernetes pod metrics, nginx access patterns, etc.) are where **downsampling** and **tiered retention** pay off first, while SLO-driving series stay hot at full resolution for incident and executive views.
 3. **Why Elastic in evaluations** — Lead with **downsampling** plus **incident workflows** that prove which signals fire under stress, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot. For **automated unused-metric recommendations**, describe a **custom** scheduled workflow (ES|QL + AI step + case) or **Streams** rules—same product surface, governance you own in code.
 
@@ -307,8 +299,7 @@ If you see a large number, that is the kind of volume finance cares about when y
 ## Explore #4 — APM / Services
 
 1. In the **Elastic Serverless** tab → **Applications → Service inventory**
-2. You should see **several application services** plus shared infrastructure services such as `nginx-proxy` and `mysql-primary` when the scenario emits traces for them
-   > The remaining 2 network/infrastructure services (`wifi-controller`, `network-controller`, `firewall-gateway`, `dns-dhcp-service`) emit logs only — no traces — so they won't appear here
+2. For **Retail Banking**, you should see the nine application services (for example **`payment-engine`**, **`claims-processor`**, **`mobile-gateway`**, **`member-portal`**, **`fraud-sentinel`**, **`policy-manager`**, **`auth-gateway`**, **`document-vault`**, **`quote-engine`**) plus shared infrastructure such as **`nginx-proxy`** and **`mysql-primary`** when the deployment emits traces for them.
 3. Click any service to see latency, throughput, and error rate
 4. Open a transaction to see the **distributed trace waterfall**
 
@@ -317,7 +308,7 @@ If you see a large number, that is the kind of volume finance cares about when y
 ## Explore #5 — Infrastructure / Hosts
 
 1. In the **Elastic Serverless** tab → **Observability → Infrastructure**
-2. You should see **3 hosts** — one per simulated cloud provider (names use your scenario prefix, e.g. `…-aws-host-01`, `…-gcp-host-01`, `…-azure-host-01`)
+2. You should see **3 hosts** — one per simulated cloud provider. With the default card, names look like **`banking-aws-host-01`**, **`banking-gcp-host-01`**, **`banking-azure-host-01`**.
 3. Click a host to see CPU, memory, disk, and network metrics
 
 > **Note:** If hosts don't appear immediately, wait 1–2 minutes for the host metrics generator to send its first batch.

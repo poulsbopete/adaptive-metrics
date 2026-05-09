@@ -9,7 +9,8 @@ virtualmachines:
     PRODUCT_TIER: complete
     PROJECT_TYPE: observability
     REGIONS: aws-us-east-1
-    # Default vertical for auto-launch: `banking` = Retail Banking (financial + claims/policy).
+    # Default vertical for auto-launch: `banking` = Retail Banking Platform (payments,
+    # claims, policy, fraud, digital banking). Recommended for regulated retail-banking workshops.
     # Override in Instruqt Sandbox → es3-api environment (e.g. healthcare, finserv).
     DEMO_SCENARIO_ID: banking
   memory: 12288

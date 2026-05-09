@@ -20,7 +20,7 @@ notes:
     - ✅ Observe the AI agent begin its investigation automatically
     - ✅ Connect incident response to **why** hot retention and governed metrics matter for TCO
 
-    **You have 20 fault channels to choose from** — each simulates a realistic incident across AWS, GCP, and Azure services. Pick any one and watch Elastic light up.
+    **You have 20 fault channels to choose from** — for **Retail Banking** they map to **digital banking, payments, claims, policy, fraud, identity, documents, and core infra** across AWS, GCP, and Azure. Pick any channel and watch Elastic light up.
 - type: text
   contents: |
     ## How Fault Detection Works
@@ -56,20 +56,19 @@ notes:
     This cascade across logs, metrics, and traces is what makes incidents hard to diagnose manually — and what makes Elastic's correlated view so powerful.
 - type: text
   contents: |
-    ## 20 Fault Channels — Pick One
+    ## 20 Fault Channels — Pick One (Retail Banking)
 
-    | Category | Cloud | Example Faults |
-    |----------|-------|---------------|
-    | **Network Core** | Azure | MAC flapping, BGP peer drop, spanning tree change |
-    | **Security** | Azure | Firewall session exhaustion, SSL cert expiry |
-    | **WiFi / Network Access** | GCP | AP disconnect storm, channel interference |
-    | **Network Services** | Azure | DNS failure, DHCP lease storm |
-    | **Commerce** | AWS | Bid latency spike, payment timeout, catalog sync failure |
-    | **Manufacturing** | AWS | Print queue overflow, QC rejection spike |
-    | **Logistics** | GCP | Label printer failure, warehouse scanner desync |
-    | **Cloud Ops** | GCP | Orphaned resource alert, VPN tunnel flapping |
+    | Category | Cloud | Example channels |
+    |----------|-------|------------------|
+    | **Digital banking** | AWS | Mobile app API timeout, mobile deposit failure, push notification storm |
+    | **Payments & treasury** | AWS | ACH direct deposit delay, bill pay failure, wire OFAC block, debit auth failure |
+    | **Claims & loss** | AWS | FNOL intake backlog, photo damage estimate timeout, claims disbursement failure |
+    | **Policy & underwriting** | AWS | Policy renewal batch failure, rules engine error, VA loan rate lock failure |
+    | **Identity & access** | Azure | Biometric auth degradation, MFA delivery failure |
+    | **Fraud & member channel** | GCP | Fraud false-positive surge, member session timeout cascade |
+    | **Documents & data** | Azure | Document upload failure, DB replication lag, certificate expiration cascade |
 
-    Start with **Channel 12 — Auction Bid Latency Spike** for the clearest end-to-end demo.
+    **Recommended:** **Channel 4 — ACH Direct Deposit Delay** (payments + member impact) or **Channel 6 — Wire Transfer OFAC Block** (treasury / compliance story). **Channel 1 — Mobile App API Timeout** is also a strong **digital banking** demo.
 tabs:
 - id: slqip2bp1bjo
   title: Demo App
@@ -109,7 +108,7 @@ Trigger a fault from the **Demo App**, then watch Elastic automatically investig
 1. Open the **Demo App** tab. On your running deployment, click **Chaos** (opens the incident simulator).
 2. Select any fault channel and click **Inject Fault**
 
-> **Recommended:** Start with **Channel 12 — Auction Bid Latency Spike** for the clearest end-to-end demo.
+> **Recommended:** Start with **Channel 4 — ACH Direct Deposit Delay** or **Channel 6 — Wire Transfer OFAC Block** for a clear **retail banking** payments story; **Channel 1 — Mobile App API Timeout** highlights the **mobile / API** path.
 
 While the fault propagates, run this query in **Elastic Serverless → Discover → ES|QL** to watch the error spike in real time:
 

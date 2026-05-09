@@ -17,7 +17,7 @@ notes:
 
     **By the end of this challenge you will:**
 
-    - ✅ Confirm your chosen scenario is deployed and sending telemetry
+    - ✅ Confirm **Retail Banking Platform** is deployed and sending telemetry (or the scenario you switched to in the Demo App)
     - ✅ Open your Elastic Serverless project — no login required
     - ✅ Verify logs, metrics, and traces are flowing from 9 microservices
     - ✅ Review the auto-provisioned AI agent, alert rules, and workflows
@@ -35,9 +35,9 @@ notes:
     | **Demo App** | Control panel — view service health, manage deployments, inject faults |
     | **Elastic Serverless** | Your Observability project — pre-logged in, data already flowing |
 
-    **Default for this track:** the sandbox auto-launches **`banking`** — **Retail Banking Platform** (financial operations with **insurance claims and policy** themes). In the **Demo App** you can **Stop & Teardown** and pick any other card (**Healthcare Systems**, **Financial Trading Platform**, **Global Commerce Platform**, and so on); set `DEMO_SCENARIO_ID` on the `es3-api` host in Instruqt if you want a different default for another customer.
+    **Default for this track:** the sandbox auto-launches **`banking`** — **Retail Banking Platform** (digital banking, **payments** (ACH, wires, bill pay), **claims**, **policy**, **fraud**, and **document** flows). That default fits **regulated retail banking and member-services** workshops; you can still **Stop & Teardown** in the Demo App and pick another card, or set `DEMO_SCENARIO_ID` on the `es3-api` VM for a different auto-launch.
 
-    **The demo simulates nine instrumented microservices across three clouds** (exact service names depend on the scenario you run).
+    **Retail Banking runs nine instrumented microservices across three clouds**, for example **`mobile-gateway`**, **`payment-engine`**, **`claims-processor`**, **`policy-manager`**, **`fraud-sentinel`**, **`member-portal`**, **`auth-gateway`**, **`document-vault`**, and **`quote-engine`** (plus shared infra such as nginx and MySQL in the generators).
 
     Every service emits **real OpenTelemetry** logs, metrics, and traces — no synthetic data.
 - type: text
@@ -108,7 +108,7 @@ enhanced_loading: null
 
 # Connect to Elastic Cloud & Deploy
 
-Everything was **automatically provisioned** when this lab started — your Elastic Cloud project is live, 9 microservices are sending telemetry, and the AI observability stack is configured. Nothing to set up.
+Everything was **automatically provisioned** when this lab started — your Elastic Cloud project is live, the **Retail Banking** stack is sending telemetry (unless you changed the scenario), and the AI observability stack is configured. Nothing to set up.
 
 ---
 
@@ -122,7 +122,7 @@ For the rest of this track, treat everything the deployer created as **declared 
 
 ## Explore the Demo App
 
-Open the **Demo App** tab: choose a scenario, launch a deployment, and use the banner on an active run for **Systems Operations** / **Executive** Kibana links and the **Chaos** button (fault injection opens from there — no separate browser tab needed).
+Open the **Demo App** tab: a **Retail Banking** run should already be active; if not, launch **Retail Banking Platform** from the card. Use the banner on an active run for **Systems Operations** / **Executive** Kibana links and the **Chaos** button (fault injection opens from there — no separate browser tab needed).
 
 ---
 
@@ -130,9 +130,9 @@ Open the **Demo App** tab: choose a scenario, launch a deployment, and use the b
 
 Click the **Elastic Serverless** tab — you're already logged in. Navigate to:
 
-- **Discover → ES|QL** — query live logs from your scenario’s services (names vary by vertical)
+- **Discover → ES|QL** — query live logs from retail-banking services (`payment-engine`, `claims-processor`, `mobile-gateway`, …)
 - **Applications → Service inventory** — distributed traces from the instrumented application tier
-- **Observability → Infrastructure** — simulated hosts per cloud (host name prefixes match your scenario)
+- **Observability → Infrastructure** — simulated hosts per cloud (for banking, names look like `banking-aws-host-01`, `banking-gcp-host-01`, `banking-azure-host-01`)
 - **Observability → SLOs** — auto-created SLOs tied to the running scenario
 - **Observability → Workflows** — pre-configured AI response workflows for your deployment
 

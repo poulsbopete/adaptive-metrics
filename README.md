@@ -4,7 +4,7 @@ Canonical **Instruqt** track: **[elastic / elastic-adaptive-metrics](https://pla
 
 ## Workshop goal
 
-Use **live Elastic Serverless** data to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Kibana Workflows** in this demo are **incident- and SLO-oriented** (alerts, remediation, reports); they make the “what actually fired in production?” question objective. **Automated unused-metric catalogs** are built on the same stack with **ES|QL**, **Streams**, **downsampling**, and **optional custom workflows** you author—not a separate pre-installed tile in the Workflows list. See **`instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`** for a **5-minute scheduled loop** (Streams `GET`/`PUT`, AI, Case, optional Fleet) blueprint.
+Use **live Elastic Serverless** data — track default **Retail Banking Platform** (payments, claims, policy, fraud) — to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Kibana Workflows** in this demo are **incident- and SLO-oriented** (alerts, remediation, reports); they make the “what actually fired in production?” question objective. **Automated unused-metric catalogs** are built on the same stack with **ES|QL**, **Streams**, **downsampling**, and **optional custom workflows** you author—not a separate pre-installed tile in the Workflows list. See **`instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md`** for a **5-minute scheduled loop** (Streams `GET`/`PUT`, AI, Case, optional Fleet) blueprint.
 
 **Elastic differentiation in this story:** **downsampling** for metrics at scale, **server-side** policy (Streams, retention tiers), and **workflows** that prove which signals matter when incidents fire—so **TCO** and reliability stay aligned on one platform.
 
@@ -28,7 +28,7 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | Path | Purpose |
 |------|---------|
 | `instruqt/elastic-adaptive-metrics/` | **Source of truth** for the live Instruqt track (challenges, `config.yml`, `track.yml`, lifecycle scripts). |
-| `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (Retail Banking: financial + claims/policy). Override per customer in Instruqt Sandbox → VM environment. |
+| `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (**Retail Banking Platform**: ACH/wires/bill pay, claims, policy, fraud, mobile). Override per customer in Instruqt Sandbox → VM environment. |
 | Sandbox secrets | `config.yml` lists **`LLM_PROXY_PROD`** and **`ESS_CLOUD_API_KEY`** by name only. Set values in Instruqt (**Sandbox → Secrets**); Git never stores secret material. |
 | `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` | Blueprint: **scheduled Workflow → Streams API → AI → Case → Agent/Fleet** for metric governance. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |

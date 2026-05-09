@@ -28,6 +28,14 @@ What it does: `git add -A`, commit (if there are changes), `git push` to `origin
 
 To push **Git only** (skip Instruqt): `SKIP_INSTRUQT=1 ./scripts/publish.sh`.
 
+## Troubleshooting: `Entity not found` on `instruqt track push`
+
+1. **Version control (GitHub)** — If this track has [Version control](https://docs.instruqt.com/tracks/manage/version-control.md) enabled and is connected to GitHub, Instruqt expects changes through that pipeline. The docs note that **CLI pushes are not recorded in version control** and recommend **not mixing CLI push with version control**. Use **Publish** in the Instruqt UI after GitHub sync, or turn off version control for CLI-only authoring.
+
+2. **Wrong or stale `id` in `track.yml`** — Refresh from the server: `./scripts/fetch-instruqt-track-id.sh` (pulls `elastic/elastic-adaptive-metrics` to a temp dir and prints `id` / `checksum`). Merge the printed `id` into `instruqt/elastic-adaptive-metrics/track.yml`. If the script’s pull also fails with Entity not found, the slug or team does not match your login (`instruqt config get team`).
+
+3. **Manage URL** — [elastic-adaptive-metrics](https://play.instruqt.com/manage/elastic/tracks/elastic-adaptive-metrics) (confirm the track exists and your account can edit it).
+
 ## Push and test (Instruqt only)
 
 ```bash

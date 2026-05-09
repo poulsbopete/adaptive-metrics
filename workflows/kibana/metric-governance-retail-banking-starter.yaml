@@ -34,7 +34,7 @@ steps:
     with:
       format: json
       query: |
-        TS metrics*
+        FROM metrics*
         | WHERE @timestamp > NOW() - 15 minutes
         | STATS
             metric_points = COUNT(*),

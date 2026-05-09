@@ -289,12 +289,12 @@ You already have the **same sandbox** as a full observability workshop. Use it t
 Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
 
 ```esql
-TS metrics*
+FROM metrics*
 | WHERE @timestamp > NOW() - 15 MINUTES
 | STATS metric_points = COUNT(*)
 ```
 
-If you see a large number, that is the kind of volume finance cares about when you compare Elastic Serverless to “free” self-hosted scrapes.
+> **TS + `COUNT(*)`:** Under **`TS metrics*`**, the first **`STATS`** must follow [time series aggregation rules](https://www.elastic.co/docs/reference/query-languages/esql/commands/ts) — plain **`COUNT(*)`** there is rejected (verification error). Use **`FROM metrics* … | STATS … COUNT(*)`** for document counts, or use **`AVG_OVER_TIME`** / **`RATE`** patterns under **`TS`**.
 
 ---
 

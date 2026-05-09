@@ -62,6 +62,19 @@ flowchart TD
 
 ---
 
+## Heuristic “% saved” in the starter Case (demo)
+
+The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yaml` adds two derived fields on the ES|QL snapshot row:
+
+| Field | Meaning |
+|--------|--------|
+| **streams_eligible_pct** | `100 * (metric_points - points_core_services) / metric_points`, where `points_core_services` counts documents whose `service.name` is one of the nine retail-banking app services. This is a **proxy for volume eligible** for Streams child routes, coarser rollups, or shorter hot retention—not a guarantee every point should be dropped. |
+| **modeled_policy_savings_pct** | `ROUND(streams_eligible_pct * 0.35, 2)` — an **illustrative** fraction of that eligible share (tune `0.35`) until you connect real downsampling factors and **declared usage** from SLOs, dashboards, and alert rules instead of the fixed `IN (...)` list. |
+
+Replace the service allowlist and the `0.35` factor with **your** governance model before production.
+
+---
+
 ## Prompt sketch (AI step)
 
 Ask the assistant to:

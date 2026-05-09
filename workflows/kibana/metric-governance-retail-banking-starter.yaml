@@ -38,10 +38,13 @@ steps:
         | WHERE @timestamp > NOW() - 15 minutes
         | STATS
             metric_points = COUNT(*),
+            points_core_services = COUNT(*) WHERE service.name IN ("payment-engine", "claims-processor", "mobile-gateway", "member-portal", "fraud-sentinel", "policy-manager", "auth-gateway", "document-vault", "quote-engine"),
             pay_tps = AVG(payment_engine.transactions_per_sec),
             ach_q = AVG(payment_engine.ach_queue_depth),
             claims_q = AVG(claims_processor.queue_depth),
             fraud_score = AVG(fraud_sentinel.avg_risk_score)
+        | EVAL streams_eligible_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * (metric_points - COALESCE(points_core_services, 0)) / metric_points, 2))
+        | EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)
 
   - name: governance_case
     type: cases.createCase
@@ -53,6 +56,11 @@ steps:
         **Intent:** Compare this run to **Systems Operations**, **Executive**, and **SLOs**
         as *declared usage*; identify high-volume series that never appear there; propose
         downsampling, Streams child routes, or retention - then approve changes out-of-band.
+
+        The workflow attaches an ES|QL row that includes **streams_eligible_pct** (share of
+        metric points *outside* the nine core retail-banking `service.name` values) and
+        **modeled_policy_savings_pct** (illustrative 35% of that share if routed to coarser
+        tiers / rollups / Streams child paths—tune the factor when you wire real policy).
 
         Next iteration: add an [AI step](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps)
         and optional `kibana.request` to `PUT /api/streams/{name}` after approval.
@@ -76,3 +84,12 @@ steps:
 
         **Streams:** `list_streams` completed; inspect full JSON in the workflow run
         detail in Kibana if the editor does not surface step payloads in comments.
+
+        **Savings columns (same ES|QL row):**
+        - **streams_eligible_pct** — estimated share of ingest volume *not* tagged to the nine
+          core retail-banking services (candidate for Streams routing, coarser rollups, or
+          shorter hot retention). Replace the `IN (...)` list with your real *declared usage*
+          join (SLOs, dashboards, alert rules) when you graduate this from the demo heuristic.
+        - **modeled_policy_savings_pct** — `ROUND(streams_eligible_pct * 0.35, 2)` as a
+          **placeholder** for “% of total points you might shed or coarsen” after policy;
+          set the `0.35` factor from your own TCO model once Streams / downsampling rules exist.

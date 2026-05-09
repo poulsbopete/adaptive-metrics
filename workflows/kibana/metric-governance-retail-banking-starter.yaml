@@ -1,34 +1,33 @@
 # =============================================================================
-# Retail Banking — Metric governance loop (starter)
+# Retail Banking - Metric governance loop (starter)
 #
-# Purpose: Scheduled (or manual) snapshot for **declared-usage / volume** work:
-#   1) List Observability Streams (named step — preview; see Elastic docs).
-#   2) ES|QL aggregate over retail-banking OTLP gauges (tune fields to your mapping).
-#   3) Open an Observability **Case** as the human gate; extend with AI steps and
-#      `kibana.request` PUT /api/streams/{name} after your review process.
+# Kibana 9.5+ expects: version: "1", top-level name/enabled/description, triggers, steps.
+# Import: Observability - Workflows - Create workflow - paste YAML, or:
+#   PUT /api/workflows/workflow/{id}  with JSON {"yaml": "<this file>"}
 #
-# Import: Observability → Workflows → Create workflow → paste YAML, or POST
-#   POST /api/workflows/workflow  with JSON { "yaml": "<this file>" }
-#   See .cursor/skills/kibana-observability-workflows-api/SKILL.md
-#
-# WARNING: With `every: "5m"` and a Case on every run, you will create many cases.
-#   For first tests, switch triggers to `manual` only (see bottom comment block).
+# For a 5m schedule, replace the manual trigger with:
+#   triggers:
+#     - type: scheduled
+#       with:
+#         every: "5m"
+# WARNING: scheduled + Case each run creates many cases - validate on manual first.
 # =============================================================================
 
-name: "Retail Banking — Metric governance snapshot"
+version: "1"
+name: Retail Banking Metric governance snapshot
+enabled: false
 description: >
   Lists Streams, captures a retail-banking ES|QL metric snapshot, and opens an
   Observability case for governance review. Extend with AI classification and
   Streams updates (kibana.request or Streams steps) per your runbook.
 
 triggers:
-  - type: scheduled
-    with:
-      every: "5m"
+  - type: manual
 
 steps:
   - name: list_streams
     type: kibana.streams.list
+    with: {}
 
   - name: metrics_snapshot
     type: elasticsearch.esql.query
@@ -53,7 +52,7 @@ steps:
 
         **Intent:** Compare this run to **Systems Operations**, **Executive**, and **SLOs**
         as *declared usage*; identify high-volume series that never appear there; propose
-        downsampling, Streams child routes, or retention — then approve changes out-of-band.
+        downsampling, Streams child routes, or retention - then approve changes out-of-band.
 
         Next iteration: add an [AI step](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps)
         and optional `kibana.request` to `PUT /api/streams/{name}` after approval.
@@ -77,11 +76,3 @@ steps:
 
         **Streams:** `list_streams` completed; inspect full JSON in the workflow run
         detail in Kibana if the editor does not surface step payloads in comments.
-
-# -----------------------------------------------------------------------------
-# First-time testing: use manual trigger only (uncomment below, comment schedule)
-# -----------------------------------------------------------------------------
-# triggers:
-#   - type: manual
-#
-# steps: [ ... same steps ... ]

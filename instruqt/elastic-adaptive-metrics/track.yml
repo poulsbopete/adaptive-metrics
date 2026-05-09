@@ -1,7 +1,10 @@
 slug: elastic-adaptive-metrics
 id: xrcnbkazo3u6
-title: elastic-adaptive-metrics
-description: ""
+title: 'Adaptive metrics: workflows, downsampling & TCO'
+description: 'Use Elastic Serverless telemetry and Kibana Workflows like an “adaptive
+  metrics” story: which metrics are unused vs tied to dashboards, SLOs, and alerts—then
+  tier retention, aggregate, or drop with governance. Position against Grafana Adaptive
+  Metrics; highlight Elastic downsampling and server-side Streams-style controls.'
 icon: ""
 tags:
 - co.elastic.workshops.production
@@ -25,5 +28,5 @@ lab_config:
     name: modern-dark
   override_challenge_layout: false
   hideStopButton: false
-checksum: "13506966943530453554"
+checksum: "10171456669393518273"
 enhanced_loading: false

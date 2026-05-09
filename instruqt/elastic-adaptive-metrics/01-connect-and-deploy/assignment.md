@@ -3,13 +3,15 @@ slug: connect-and-deploy
 id: zcj2ykfryvmc
 type: challenge
 title: Connect to Elastic Cloud & Deploy
-teaser: Wire the demo platform to your Elastic Cloud project, launch 9 microservices
-  sending live OpenTelemetry telemetry, and frame how dashboards and SLOs define “declared
-  usage” for adaptive metrics and TCO.
+teaser: Deploy the demo, then connect Grafana-style “adaptive metrics” (unused series,
+  aggregation, drops) to what Elastic already gives you—workflows plus downsampling
+  for governed TCO.
 notes:
 - type: text
   contents: |
     ## Lab 1 — Connect to Elastic Cloud & Deploy
+
+    **Workshop through-line:** Vendors such as Grafana ship **[Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)** to spot unused time series and suggest aggregation, trimming dimensions, or drops. In Elastic you tell the same **TCO / cardinality** story with **downsampling** (not something Grafana positions the same way on Mimir) and **workflows + server-side** policy—this lab uses live OTel data and pre-built **Workflows** so you can *see* which signals are load-bearing.
 
     **What's happening right now:**
     Your Elastic Cloud Serverless Observability project is being provisioned and the Fanatics Live demo platform is being configured with your credentials.
@@ -115,9 +117,9 @@ Everything was **automatically provisioned** when this lab started — your Elas
 
 ## TCO, adaptive metrics, and “declared usage”
 
-“Free” metrics stacks often look cheap until **cardinality and retention** grow without governance. Elastic Serverless pairs a columnar time series store with **downsampling** and **server-side shaping** (for example **Elastic Streams**) so cost stays predictable.
+“Free” metrics stacks often look cheap until **cardinality and retention** grow without governance. **Grafana Cloud Adaptive Metrics** automates finding **unused** series and suggests **aggregation, dimension trims, or drops**—see [their docs](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/). This workshop’s Elastic story is the same *buyer problem* with a different *architecture*: **downsampling** for metrics at scale (position this against **Grafana / Mimir** stacks in competitive conversations) plus **Kibana Workflows** and **server-side shaping** (for example **Elastic Streams**) so policy is enforceable where the data lives—not only at the edge.
 
-For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter hot tiers, rollups, or human-approved policy**—not silent deletion. Vendors often call this pattern [Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/); on Elastic you pair the same idea with **downsampling** and **Streams-style** controls on the server.
+For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter hot tiers, coarser rollups, downsampling, or human-approved policy**—not silent deletion.
 
 ---
 

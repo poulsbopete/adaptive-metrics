@@ -2,7 +2,13 @@
 
 Canonical **Instruqt** track: **[elastic / elastic-adaptive-metrics](https://play.instruqt.com/manage/elastic/tracks/elastic-adaptive-metrics)**.
 
-The directory `instruqt/elastic-adaptive-metrics/` is a **pulled copy** of that track (same `id` and `checksum` as Instruqt). Edit there, then publish with Git and/or the Instruqt CLI as described below.
+## Workshop goal
+
+Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investigate → case) the way vendors frame **“adaptive metrics”**: discover which metrics are *not* driving dashboards or operations, then **suggest** aggregation, dropping high-cardinality dimensions, or dropping unused series—always with governance, not silent surprises. [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/) is the familiar name for that pattern on Grafana Cloud.
+
+**Elastic differentiation in this story:** **downsampling** for metrics at scale (a capability this workshop positions alongside Grafana / Mimir stacks) plus **server-side** policy (Streams, retention tiers) and **workflows** that show which signals actually matter when incidents fire—so TCO and reliability stay aligned.
+
+The directory `instruqt/elastic-adaptive-metrics/` is the **track root** you edit and push (see `track.yml` / `config.yml` / challenges). Sync with Instruqt via Git and/or the CLI as below.
 
 An earlier **offline sandbox lab** (fixtures + five challenges on a container host) is preserved under `archive/adaptive-metrics-sandbox-prototype/` if you want to port pieces into this track or a new slug later.
 

@@ -3,12 +3,14 @@ slug: inject-fault
 id: idjcheiijoey
 type: challenge
 title: Inject a Fault and Watch Elastic Detect It
-teaser: Inject a multi-cloud fault, watch ES|QL alerts and the AI agent respond—then
-  tie that RCA window to retention and server-side shaping (adaptive metrics in practice).
+teaser: 'Fault → alert → workflow → case: see the signals Grafana Adaptive Metrics
+  would call “in use,” then tie RCA windows to downsampling and retention on Elastic.'
 notes:
 - type: text
   contents: |
     ## Lab 3 — Inject a Fault and Watch Elastic Detect It
+
+    **Workshop payoff:** The **Significant Event Notification** workflow is a concrete **Elastic Workflow**: it shows which logs, metrics, and traces participate when something breaks—the same operational surface you would *never* silently drop in an “adaptive metrics” program. Pair that with **downsampling** for everything *not* on that path.
 
     **By the end of this challenge you will:**
 
@@ -152,6 +154,6 @@ A new case will appear automatically with:
 
 ## After the incident — retention, downsampling, and Streams
 
-Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, and dashboards** (everything you touched in Challenges 1–2), and use **shorter hot windows or coarser rollups** for high-cardinality metrics that never appear in those surfaces.
+Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the “used” side of [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)), and use **shorter hot windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** is the differentiated line when buyers compare to **Grafana / Mimir**: same *TCO* conversation, stronger *storage economics* story on Elastic.
 
-**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. Pair that story with [Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)–style positioning when you talk to finance: you are not “deleting observability,” you are **tiering cost** to the signals that actually drive incidents and customer outcomes.
+**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. When you talk to finance, you are not “deleting observability,” you are **tiering cost** to the signals that actually drive incidents and customer outcomes—**workflows** make that list objective, not guessed.

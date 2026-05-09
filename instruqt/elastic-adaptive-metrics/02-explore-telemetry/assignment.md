@@ -39,8 +39,7 @@ notes:
   contents: |
     ## What's Generating Telemetry
 
-    **9 scenario microservices** (application logs + traces):
-    Auction Engine · Card Printing · Payment Processing · Fan Engagement · Loyalty Rewards · Streaming CDN · Navigation · Fraud Detection · Fulfillment
+    **Nine instrumented microservices** (application logs + traces)—**names and domains depend on the scenario** you launched (Retail Banking, Healthcare, financial trading, and so on).
 
     **Background generators** (infrastructure telemetry):
     - 3 cloud hosts (AWS, GCP, Azure) — CPU, memory, disk, network
@@ -112,7 +111,7 @@ The platform runs several background generators simultaneously:
 
 | Generator | What It Produces |
 |-----------|-----------------|
-| **9 scenario services** | Application logs, traces, errors |
+| **9 scenario services** | Application logs, traces, errors (service mix depends on vertical) |
 | **Host metrics** | CPU, memory, disk, network for 3 cloud hosts |
 | **Kubernetes metrics** | Node, pod, container metrics |
 | **Nginx metrics + logs** | Access logs, error logs, request spans |
@@ -147,13 +146,15 @@ FROM logs*
 ```
 
 **Things to notice:**
-- `service.name`: `auction-engine`, `card-printing-system`, `digital-marketplace`, `packaging-fulfillment`, `cloud-inventory-scanner`, `nginx-proxy`, `mysql-primary`, and more
+- `service.name`: values depend on your scenario (e.g. banking, healthcare, finserv)
 - `severity_text`: `INFO`, `WARN`, `ERROR`
 - `body.text` contains the raw log message and error type
 
 ---
 
 ## Explore #2 — ES|QL Time Series Queries
+
+> **Note:** Sample `TS metrics*` queries below use **example field names** from one vertical’s gauges. If you launched **Retail Banking** or another scenario, open **Systems Operations** or run `FROM metrics* | WHERE @timestamp > NOW() - 15 minutes | KEEP * | LIMIT 3` to discover field names, then substitute.
 
 In the **Elastic Serverless** tab → **Discover** → **ES|QL** mode, try these queries against the live metrics stream.
 
@@ -237,7 +238,7 @@ FROM logs*
 
 ## Explore #3 — Dashboards
 
-The deployer creates **two** Kibana saved dashboards for **every** scenario. Open the **Elastic Serverless** tab → **Dashboards** → search by your **scenario name** (e.g. *Fanatics Collectibles*).
+The deployer creates **two** Kibana saved dashboards for **every** scenario. Open the **Elastic Serverless** tab → **Dashboards** → search by your **scenario name** (for example *Retail Banking Platform* or *Healthcare Systems*).
 
 ### Systems Operations
 
@@ -249,7 +250,7 @@ Saved object id ends in **`-business-exec-dashboard`**. This is a **synthetic ex
 
 **How the data is produced**
 
-- Each scenario designates **one** microservice to emit all `business.*` gauges each telemetry cycle (so KPIs are not duplicated across services). For **Fanatics Collectibles**, that service is **`digital-marketplace`**; other verticals follow the same pattern with their own emitter service.
+- Each scenario designates **one** microservice to emit all `business.*` gauges each telemetry cycle (so KPIs are not duplicated across services). The emitter **service name differs by vertical**—confirm yours from **Systems Operations** or **Executive** dashboard panels, or from **Applications → Service inventory**.
 - Values are **real-time generated** for the lab (plausible ranges), then shipped like any other metric so you can correlate dips with chaos, latency, or errors on **Systems Operations**.
 
 **What to scan on the dashboard** (grouped the way leadership lenses usually run the business)
@@ -288,7 +289,7 @@ If you see a large number, that is the kind of volume finance cares about when y
 ## Explore #4 — APM / Services
 
 1. In the **Elastic Serverless** tab → **Applications → Service inventory**
-2. You should see **7 services** — the 5 application services plus `nginx-proxy` and `mysql-primary`
+2. You should see **several application services** plus shared infrastructure services such as `nginx-proxy` and `mysql-primary` when the scenario emits traces for them
    > The remaining 2 network/infrastructure services (`wifi-controller`, `network-controller`, `firewall-gateway`, `dns-dhcp-service`) emit logs only — no traces — so they won't appear here
 3. Click any service to see latency, throughput, and error rate
 4. Open a transaction to see the **distributed trace waterfall**
@@ -298,10 +299,7 @@ If you see a large number, that is the kind of volume finance cares about when y
 ## Explore #5 — Infrastructure / Hosts
 
 1. In the **Elastic Serverless** tab → **Observability → Infrastructure**
-2. You should see 3 hosts — one per cloud provider:
-   - `fanatics-aws-host-01`
-   - `fanatics-gcp-host-01`
-   - `fanatics-azure-host-01`
+2. You should see **3 hosts** — one per simulated cloud provider (names use your scenario prefix, e.g. `…-aws-host-01`, `…-gcp-host-01`, `…-azure-host-01`)
 3. Click a host to see CPU, memory, disk, and network metrics
 
 > **Note:** If hosts don't appear immediately, wait 1–2 minutes for the host metrics generator to send its first batch.

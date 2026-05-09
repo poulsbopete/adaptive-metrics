@@ -129,7 +129,7 @@ FROM logs*
 
 In the **Elastic Serverless** tab, go to **Observability → Workflows**.
 
-Within 1–2 minutes of injecting the fault, the **Fanatics Collectibles Significant Event Notification** workflow will show a recent execution. Click it to see each step:
+Within 1–2 minutes of injecting the fault, the **Significant Event Notification** workflow for **your running scenario** will show a recent execution (the workflow title includes the scenario name). Click it to see each step:
 
 - **count_errors** — ES|QL query counting recent errors from the affected service
 - **run_rca** — AI agent root-cause analysis

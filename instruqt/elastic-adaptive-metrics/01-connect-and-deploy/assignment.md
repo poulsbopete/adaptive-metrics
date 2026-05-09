@@ -13,11 +13,11 @@ notes:
     **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows**, and **server-side shaping** (for example **Elastic Streams**). This lab uses live OTel data and pre-built **Workflows** so you can *see* which signals are load-bearing when something breaks—then tie the same surfaces to **what stays hot in retention**.
 
     **What's happening right now:**
-    Your Elastic Cloud Serverless Observability project is being provisioned and the Fanatics Live demo platform is being configured with your credentials.
+    Your Elastic Cloud Serverless Observability project is being provisioned and the **Elastic Observability Demo Platform** is being configured with your credentials.
 
     **By the end of this challenge you will:**
 
-    - ✅ Confirm the Fanatics Live scenario is deployed and sending telemetry
+    - ✅ Confirm your chosen scenario is deployed and sending telemetry
     - ✅ Open your Elastic Serverless project — no login required
     - ✅ Verify logs, metrics, and traces are flowing from 9 microservices
     - ✅ Review the auto-provisioned AI agent, alert rules, and workflows
@@ -35,11 +35,9 @@ notes:
     | **Demo App** | Control panel — view service health, manage deployments, inject faults |
     | **Elastic Serverless** | Your Observability project — pre-logged in, data already flowing |
 
-    **The Fanatics Live scenario simulates 9 microservices across 3 clouds:**
+    **Default for this track:** the sandbox auto-launches **`banking`** — **Retail Banking Platform** (financial operations with **insurance claims and policy** themes). In the **Demo App** you can **Stop & Teardown** and pick any other card (**Healthcare Systems**, **Financial Trading Platform**, **Global Commerce Platform**, and so on); set `DEMO_SCENARIO_ID` on the `es3-api` host in Instruqt if you want a different default for another customer.
 
-    - ☁️ **AWS** — Auction Engine, Card Printing, Payment Processing
-    - ☁️ **GCP** — Fan Engagement, Loyalty Rewards, Streaming CDN
-    - ☁️ **Azure** — Navigation, Fraud Detection, Fulfillment
+    **The demo simulates nine instrumented microservices across three clouds** (exact service names depend on the scenario you run).
 
     Every service emits **real OpenTelemetry** logs, metrics, and traces — no synthetic data.
 - type: text
@@ -132,11 +130,11 @@ Open the **Demo App** tab: choose a scenario, launch a deployment, and use the b
 
 Click the **Elastic Serverless** tab — you're already logged in. Navigate to:
 
-- **Discover → ES|QL** — query live logs from `auction-engine`, `card-printing-system`, `digital-marketplace`, and more
-- **Applications → Service inventory** — distributed traces from 7 services
-- **Observability → Infrastructure** — 3 simulated hosts (AWS, GCP, Azure)
-- **Observability → SLOs** — 21 auto-created SLOs, one per service per signal type
-- **Observability → Workflows** — 4 pre-configured AI response workflows
+- **Discover → ES|QL** — query live logs from your scenario’s services (names vary by vertical)
+- **Applications → Service inventory** — distributed traces from the instrumented application tier
+- **Observability → Infrastructure** — simulated hosts per cloud (host name prefixes match your scenario)
+- **Observability → SLOs** — auto-created SLOs tied to the running scenario
+- **Observability → Workflows** — pre-configured AI response workflows for your deployment
 
 > **Tip:** Set the time range to **Last 15 minutes** to see the freshest data.
 
@@ -150,7 +148,7 @@ Click the **Elastic Serverless** tab — you're already logged in. Navigate to:
 | AI agent | Investigation tools + system prompt |
 | Workflows | Alert → investigate → create case → remediate |
 | Dashboards | Systems Operations + Executive (all scenarios) + OTel signal dashboards |
-| SLOs | 21 SLOs auto-created across all services |
+| SLOs | Auto-created SLOs for your running scenario |
 | Data views | `logs.otel`, `logs.otel.*`, `metrics-*` |
 
 ✅ **You're ready for the next challenge when** you can see logs, services, or SLOs in the Elastic Serverless tab.

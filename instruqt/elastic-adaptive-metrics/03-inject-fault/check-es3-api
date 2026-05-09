@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Challenge 3 check: verify the Fanatics scenario is deployed and sending telemetry.
+# Challenge 3 check: verify a scenario is deployed and sending telemetry.
 # The AI agent automatically resolves faults and creates cases — if the deployment
 # is running, the learner has everything they need to complete this challenge.
 
@@ -23,9 +23,9 @@ except:
 " 2>/dev/null)" || DEP_COUNT="0"
 
 if [[ "${DEP_COUNT:-0}" == "0" ]]; then
-  echo "FAIL: No active deployment found. Open the Demo App tab and make sure the Fanatics Collectibles scenario is running."
+  echo "FAIL: No active deployment found. Open the Demo App tab and make sure a scenario is running (Launch on the card you chose)."
   exit 1
 fi
 
-echo "PASS: Fanatics scenario is deployed and running. Check Observability → Cases and Workflows to see the AI agent's autonomous response."
+echo "PASS: Demo scenario is deployed and running. Check Observability → Cases and Workflows to see the AI agent's autonomous response."
 exit 0

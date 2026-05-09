@@ -28,6 +28,7 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | Path | Purpose |
 |------|---------|
 | `instruqt/elastic-adaptive-metrics/` | **Source of truth** for the live Instruqt track (challenges, `config.yml`, `track.yml`, lifecycle scripts). |
+| `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (Retail Banking: financial + claims/policy). Override per customer in Instruqt Sandbox → VM environment. |
 | Sandbox secrets | `config.yml` lists **`LLM_PROXY_PROD`** and **`ESS_CLOUD_API_KEY`** by name only. Set values in Instruqt (**Sandbox → Secrets**); Git never stores secret material. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |
 | `scripts/publish.sh` | Git commit/push + `instruqt track push` for the track above. |

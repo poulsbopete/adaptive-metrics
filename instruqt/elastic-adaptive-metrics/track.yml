@@ -3,9 +3,9 @@ id: xrcnbkazo3u6
 title: 'Adaptive metrics: workflows, downsampling & TCO'
 description: 'Governed OTel metrics on Elastic Serverless: declared usage from dashboards
   and SLOs, downsampling and retention, incident-oriented Kibana Workflows, plus Streams.
-  Metric drop/aggregate automation is custom (ES|QL + workflows you build), not a
-  stock demo tile. Enterprise TCO for regulated buyers (financial services, insurance,
-  and similar).'
+  Metric drop/aggregate automation is custom (ES|QL + workflows you build); see repo
+  docs/metric-streams-governance-workflow.md for a scheduled Streams+AI blueprint. Enterprise
+  TCO for regulated buyers (financial services, insurance, and similar).'
 icon: ""
 tags:
 - co.elastic.workshops.production

@@ -109,7 +109,17 @@ Now that your scenario is running, let's explore the data flowing into Elastic. 
 
 Under **Observability → Workflows** you will see **six operational workflows** for your scenario (titles are prefixed with the scenario name). They cover **SLO maintenance**, **significant event notification**, **remediation**, **escalation**, and **daily reporting**—the same surfaces that prove **declared usage** when production breaks.
 
-You will **not** see a built-in workflow whose only job is to “automatically determine which metrics are unused and suggest dropping or aggregating dimensions.” That outcome is not a single stock tile in this demo; on Elastic it is typically delivered by combining **(1)** **Streams** and ingest rules **(2)** **downsampling / rollup** settings **(3)** **ES|QL** or ML jobs that compare metric volume to dashboard and SLO references **(4)** optional **custom** Kibana workflows you create (for example a **scheduled** run that writes recommendations to a **Case** for human approval). This workshop teaches the discovery and positioning; a follow-on lab can implement step (4) via **Create a new workflow**.
+You will **not** see a built-in workflow whose only job is to “automatically determine which metrics are unused and suggest dropping or aggregating dimensions.” That outcome is not a single stock tile in this demo; on Elastic it is typically delivered by combining **(1)** **Streams** and ingest rules **(2)** **downsampling / rollup** settings **(3)** **ES|QL** or ML jobs that compare metric volume to dashboard and SLO references **(4)** optional **custom** Kibana workflows you create (for example a **scheduled** run that writes recommendations to a **Case** for human approval). This workshop teaches the discovery and positioning; the **implementation** of step (4) is a **custom** Kibana workflow you author (see below).
+
+---
+
+## Stretch design: Streams governance loop (Workflows + AI + Agent)
+
+**Goal:** A workflow that runs **every five minutes** (or on your chosen schedule), **lists Streams** (`GET /api/streams`), identifies **wired** parents that can accept **child routes** (“sub-streams”), gathers **ES|QL + declared-usage** context, calls an **AI** step for a JSON-safe plan, optionally opens a **Case** for approval, then **`PUT /api/streams/{name}`** to create/update child streams and processing—**not** silent deletes.
+
+**Elastic Agent:** The workflow runs **inside Kibana** (scheduled + `kibana.request` steps per [Kibana workflow steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/kibana)). Agents keep shipping under **Fleet** policy; **Streams** changes affect **routing/processing of ingested documents**. Narrowing **what** agents collect is a **separate Fleet policy** branch—only after approval.
+
+**Authoring reference:** See the blueprint in this repository: `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` (API links for [list streams](https://www.elastic.co/docs/api/doc/kibana/operation/operation-get-streams) and [create/update stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name), mermaid graph, safety checklist).
 
 ---
 

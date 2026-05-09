@@ -8,7 +8,7 @@ Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investi
 
 **Elastic differentiation in this story:** **downsampling** for metrics at scale (a capability this workshop positions alongside Grafana / Mimir stacks) plus **server-side** policy (Streams, retention tiers) and **workflows** that show which signals actually matter when incidents fire—so TCO and reliability stay aligned.
 
-### Competitive context (e.g. USAA-style evaluations)
+### Competitive context (regulated enterprises)
 
 Large **financial institutions**, insurers, and similarly **regulated** enterprises often run **VictoriaMetrics** for “cheap metrics” and **Datadog** for SaaS depth. This lab is written so you can show **Elastic as the metrics leader** on dimensions those bake-offs actually score:
 

@@ -1,0 +1,11 @@
+version: "3"
+containers:
+  - name: sandbox
+    image: ubuntu:22.04
+    shell: /bin/bash
+    memory: 4096
+    environment:
+      LAB_ROOT: /opt/adaptive-metrics-lab
+secrets:
+  - name: ELASTIC_URL
+  - name: ELASTIC_API_KEY

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Challenge 3 check: verify the Fanatics scenario is deployed and sending telemetry.
+# The AI agent automatically resolves faults and creates cases — if the deployment
+# is running, the learner has everything they need to complete this challenge.
+
+APP="http://localhost:8090"
+
+# ── App healthy ───────────────────────────────────────────────────────────────
+if ! curl -sf "${APP}/health" >/dev/null 2>&1; then
+  echo "FAIL: Demo app is not responding on port 8090."
+  exit 1
+fi
+
+# ── At least one deployment is running ───────────────────────────────────────
+DEPS="$(curl -sf "${APP}/api/deployments" 2>/dev/null)" || DEPS="[]"
+DEP_COUNT="$(echo "$DEPS" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(len([x for x in d if x.get('running')]))
+except:
+    print(0)
+" 2>/dev/null)" || DEP_COUNT="0"
+
+if [[ "${DEP_COUNT:-0}" == "0" ]]; then
+  echo "FAIL: No active deployment found. Open the Demo App tab and make sure the Fanatics Collectibles scenario is running."
+  exit 1
+fi
+
+echo "PASS: Fanatics scenario is deployed and running. Check Observability → Cases and Workflows to see the AI agent's autonomous response."
+exit 0

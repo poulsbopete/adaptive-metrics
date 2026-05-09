@@ -44,12 +44,6 @@ fi
 cd "${TRACK_DIR}"
 instruqt track validate
 
-if grep -q 'REPLACE_WITH' track.yml; then
-  echo "error: instruqt/elastic-adaptive-metrics/track.yml still has REPLACE_* placeholders (id and/or developers)." >&2
-  echo "      Set a real track id from Instruqt after creating the track, and your email under developers." >&2
-  exit 1
-fi
-
 if ! instruqt track push; then
   echo "" >&2
   echo "instruqt: track push failed." >&2

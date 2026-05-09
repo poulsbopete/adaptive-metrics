@@ -15,3 +15,8 @@ virtualmachines:
   - http
   - https
   - high-ports
+# Declared here so Git + CLI pushes keep the same sandbox contract as the Instruqt UI.
+# Values are configured only in Instruqt (Sandbox → Secrets), never committed to Git.
+secrets:
+  - name: LLM_PROXY_PROD
+  - name: ESS_CLOUD_API_KEY

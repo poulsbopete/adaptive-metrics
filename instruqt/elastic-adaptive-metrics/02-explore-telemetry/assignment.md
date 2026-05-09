@@ -3,10 +3,8 @@ slug: explore-telemetry
 id: 98kwdohjlsof
 type: challenge
 title: Explore Live OpenTelemetry Data
-teaser: >-
-  Navigate Elastic Serverless for logs, traces, and metrics—then map which
-  signals are tied to dashboards and SLOs (declared usage) for adaptive metrics
-  thinking.
+teaser: Navigate Elastic Serverless for logs, traces, and metrics—then map which signals
+  are tied to dashboards and SLOs (declared usage) for adaptive metrics thinking.
 notes:
 - type: text
   contents: |

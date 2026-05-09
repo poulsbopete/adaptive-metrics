@@ -3,9 +3,8 @@ slug: inject-fault
 id: idjcheiijoey
 type: challenge
 title: Inject a Fault and Watch Elastic Detect It
-teaser: >-
-  Inject a multi-cloud fault, watch ES|QL alerts and the AI agent respond—then tie
-  that RCA window to retention and server-side shaping (adaptive metrics in practice).
+teaser: Inject a multi-cloud fault, watch ES|QL alerts and the AI agent respond—then
+  tie that RCA window to retention and server-side shaping (adaptive metrics in practice).
 notes:
 - type: text
   contents: |

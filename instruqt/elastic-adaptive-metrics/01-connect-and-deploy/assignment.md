@@ -3,10 +3,9 @@ slug: connect-and-deploy
 id: zcj2ykfryvmc
 type: challenge
 title: Connect to Elastic Cloud & Deploy
-teaser: >-
-  Wire the demo platform to your Elastic Cloud project, launch 9 microservices
-  sending live OpenTelemetry telemetry, and frame how dashboards and SLOs define
-  “declared usage” for adaptive metrics and TCO.
+teaser: Wire the demo platform to your Elastic Cloud project, launch 9 microservices
+  sending live OpenTelemetry telemetry, and frame how dashboards and SLOs define “declared
+  usage” for adaptive metrics and TCO.
 notes:
 - type: text
   contents: |

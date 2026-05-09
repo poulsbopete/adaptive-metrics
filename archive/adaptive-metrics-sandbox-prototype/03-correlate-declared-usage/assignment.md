@@ -19,7 +19,7 @@ timelimit: 900
 
 Produce an **adaptive metrics report**: each metric is tagged against **declared usage** derived from `declared-usage.ndjson` (dashboards, alerts, SLOs).
 
-This is the same *class* of signal described in Grafana’s **Adaptive Metrics** documentation for unused time series discovery—useful positioning when comparing to VictoriaMetrics-style “free” storage that still carries operational and cardinality risk ([Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)).
+This is the same *class* of signal used for unused time series discovery in adaptive-metrics approaches—declared usage from dashboards, alerts, and SLOs—without requiring a live cluster.
 
 ## Steps
 

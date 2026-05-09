@@ -4,18 +4,18 @@ Canonical **Instruqt** track: **[elastic / elastic-adaptive-metrics](https://pla
 
 ## Workshop goal
 
-Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investigate → case) the way vendors frame **“adaptive metrics”**: discover which metrics are *not* driving dashboards or operations, then **suggest** aggregation, dropping high-cardinality dimensions, or dropping unused series—always with governance, not silent surprises. [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/) is the familiar name for that pattern on Grafana Cloud.
+Use **live Elastic Serverless** data and **Kibana Workflows** (alert → investigate → case) to show **governed metrics at scale**: discover which metrics are *not* driving dashboards or operations, then **recommend** aggregation, trimming high-cardinality dimensions, or retiring unused series—with **human governance**, not silent surprises. **Elastic Workflows** make the “what actually fired in production?” question objective: they tie **declared usage** (dashboards, SLOs, alert rules) to the same store as logs and traces.
 
-**Elastic differentiation in this story:** **downsampling** for metrics at scale (a capability this workshop positions alongside Grafana / Mimir stacks) plus **server-side** policy (Streams, retention tiers) and **workflows** that show which signals actually matter when incidents fire—so TCO and reliability stay aligned.
+**Elastic differentiation in this story:** **downsampling** for metrics at scale, **server-side** policy (Streams, retention tiers), and **workflows** that prove which signals matter when incidents fire—so **TCO** and reliability stay aligned on one platform.
 
 ### Competitive context (regulated enterprises)
 
-Large **financial institutions**, insurers, and similarly **regulated** enterprises often run **VictoriaMetrics** for “cheap metrics” and **Datadog** for SaaS depth. This lab is written so you can show **Elastic as the metrics leader** on dimensions those bake-offs actually score:
+Large **financial institutions**, insurers, and similarly **regulated** enterprises often evaluate **lean metrics-only stacks** (low $/ingest) alongside **full-stack SaaS observability**. This lab is written so you can show **Elastic as the metrics leader** on dimensions those bake-offs typically score:
 
 | If the buyer brings up… | Elastic answer (what this track demonstrates) |
 |-------------------------|-----------------------------------------------|
-| **VictoriaMetrics** — low ingest $/GB | **TCO is not only storage.** VM excels at lean ingestion; Elastic wins on **governed cardinality** (downsampling, retention tiers, Streams), **one platform** for metrics + logs + traces + security analytics on the same store, and **predictable** enterprise pricing when volume spikes—without your team owning every scaling and HA edge case. |
-| **Datadog** — feature-rich SaaS | Same signals, **controlled cost**: custom metrics and high-cardinality bills are a known pain. Elastic **Serverless** + **ES\|QL** + **downsampling** + **workflows** tie spend to **declared usage** (dashboards, SLOs, alerts)—so you lead on **metrics economics and governance**, not only on “more charts.” |
+| **Cheap raw ingest** | **TCO is not only storage.** Elastic wins on **governed cardinality** (downsampling, retention tiers, Streams), **one platform** for metrics + logs + traces + security analytics on the same store, and **predictable** enterprise posture when volume spikes—without your team owning every scaling and HA edge case for a separate metrics tier. |
+| **SaaS depth and charts** | Same signals, **controlled cost**: high-cardinality and custom-metric bill risk is a common buyer pain. Elastic **Serverless** + **ES\|QL** + **downsampling** + **workflows** tie spend to **declared usage** (dashboards, SLOs, alerts)—so you lead on **metrics economics and governance**, not only on more widgets. |
 
 You are not arguing Elastic is the cheapest raw scraper—you are showing **why Elastic wins the metrics decision** for regulated enterprises that need **reliability, auditability, and cost discipline** in one stack.
 

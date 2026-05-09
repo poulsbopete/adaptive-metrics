@@ -2,7 +2,7 @@
 """
 Correlate metric names from fixtures with declared usage (dashboards, alerts, SLOs).
 
-This models Grafana-style adaptive metrics "declared usage" without requiring a live cluster.
+This models adaptive-style metrics "declared usage" without requiring a live cluster.
 """
 
 from __future__ import annotations
@@ -99,9 +99,8 @@ def main() -> None:
         "versus unconstrained open-source stacks."
     )
     lines.append(
-        "- **Downsampling and rollups** complement \"adaptive\" classification—similar positioning to "
-        "[Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/), "
-        "with Elastic-native storage and Streams-style governance."
+        "- **Downsampling and rollups** complement adaptive-style classification—Elastic-native "
+        "storage, downsampling, and Streams-style governance complete the TCO story."
     )
     lines.append("")
 

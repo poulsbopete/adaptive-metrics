@@ -3,15 +3,14 @@ slug: connect-and-deploy
 id: zcj2ykfryvmc
 type: challenge
 title: Connect to Elastic Cloud & Deploy
-teaser: Deploy the demo, then connect Grafana-style “adaptive metrics” (unused series,
-  aggregation, drops) to what Elastic already gives you—workflows plus downsampling
-  for governed TCO.
+teaser: Deploy the demo, then connect **declared usage** (dashboards, SLOs, alerts,
+  workflows) to **downsampling** and **retention** for governed TCO on Elastic.
 notes:
 - type: text
   contents: |
     ## Lab 1 — Connect to Elastic Cloud & Deploy
 
-    **Workshop through-line:** Vendors such as Grafana ship **[Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)** to spot unused time series and suggest aggregation, trimming dimensions, or drops. In Elastic you tell the same **TCO / cardinality** story with **downsampling** (not something Grafana positions the same way on Mimir) and **workflows + server-side** policy—this lab uses live OTel data and pre-built **Workflows** so you can *see* which signals are load-bearing. Use the same narrative when buyers compare **VictoriaMetrics** (cheap metrics ingest) and **Datadog** (SaaS metrics depth): Elastic leads where **governed metrics + unified telemetry + predictable cost** matter.
+    **Workshop through-line:** Many teams need to find **unused** time series and decide on **aggregation, dimension trims, or policy-driven drops**—without surprise data loss. On Elastic you tell that **TCO / cardinality** story with **downsampling**, **Kibana Workflows**, and **server-side shaping** (for example **Elastic Streams**). This lab uses live OTel data and pre-built **Workflows** so you can *see* which signals are load-bearing when something breaks—then tie the same surfaces to **what stays hot in retention**.
 
     **What's happening right now:**
     Your Elastic Cloud Serverless Observability project is being provisioned and the Fanatics Live demo platform is being configured with your credentials.
@@ -117,7 +116,7 @@ Everything was **automatically provisioned** when this lab started — your Elas
 
 ## TCO, adaptive metrics, and “declared usage”
 
-“Free” or **low-cost metrics** stacks (**VictoriaMetrics** is the usual example) often win a spreadsheet line item until **cardinality, retention, and operational load** show up. **SaaS APM vendors** (**Datadog**) win feature demos until **custom metrics and tag cardinality** drive invoice shock. **Grafana Cloud Adaptive Metrics** automates finding **unused** series and suggests **aggregation, dimension trims, or drops**—see [their docs](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/). This workshop’s Elastic story is the same *buyer problem* with a different *architecture*: **downsampling** for metrics at scale (position against **Grafana / Mimir** and “metrics-only” stacks) plus **Kibana Workflows** and **server-side shaping** (for example **Elastic Streams**) so policy is enforceable where the data lives—and **logs, traces, metrics, and security** stay on **one** platform for **financial services** and other regulated buyers.
+**Low-cost metrics-only** stacks often win a spreadsheet line item until **cardinality, retention, and operational load** show up. **SaaS observability suites** can win feature demos until **custom metrics and tag cardinality** drive invoice growth. Elastic answers the same *buyer problem* with a different *architecture*: **downsampling** for metrics at scale plus **Kibana Workflows** and **server-side shaping** (for example **Elastic Streams**) so policy is enforceable where the data lives—and **logs, traces, metrics, and security** stay on **one** platform for **financial services** and other regulated buyers.
 
 For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter hot tiers, coarser rollups, downsampling, or human-approved policy**—not silent deletion.
 

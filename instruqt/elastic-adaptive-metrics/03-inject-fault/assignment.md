@@ -3,8 +3,8 @@ slug: inject-fault
 id: idjcheiijoey
 type: challenge
 title: Inject a Fault and Watch Elastic Detect It
-teaser: 'Fault → alert → workflow → case: see the signals Grafana Adaptive Metrics
-  would call “in use,” then tie RCA windows to downsampling and retention on Elastic.'
+teaser: 'Fault → alert → workflow → case: see the signals that define **declared usage**,
+  then tie RCA windows to downsampling and retention on Elastic.'
 notes:
 - type: text
   contents: |
@@ -154,6 +154,6 @@ A new case will appear automatically with:
 
 ## After the incident — retention, downsampling, and Streams
 
-Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the “used” side of [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/)), and use **shorter hot windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** is the differentiated line when buyers compare to **Grafana / Mimir**; **one correlated store + workflows** is the line when they compare to **VictoriaMetrics** (metrics-only economics) or **Datadog** (invoice-driven custom metrics growth).
+Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the **declared usage** surface), and use **shorter hot windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** plus **one correlated store and workflows** is how you answer finance and architecture reviewers without splitting observability across silos.
 
 **Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. When you talk to finance or architecture reviewers at **large banks and insurers**, you are not “deleting observability,” you are **tiering cost** to the signals that actually drive incidents and customer outcomes—**workflows** make that list objective, not guessed.

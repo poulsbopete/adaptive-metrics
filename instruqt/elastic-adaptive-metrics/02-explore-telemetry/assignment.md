@@ -3,14 +3,14 @@ slug: explore-telemetry
 id: 98kwdohjlsof
 type: challenge
 title: Explore Live OpenTelemetry Data
-teaser: Map live metrics to dashboards and SLOs—the “used” signal Grafana Adaptive
-  Metrics automates—then relate volume to downsampling and retention on Elastic.
+teaser: Map live metrics to dashboards and SLOs—that **declared usage** signal—then
+  relate **write volume** to **downsampling** and **retention** on Elastic Serverless.
 notes:
 - type: text
   contents: |
     ## Lab 2 — Explore Live OpenTelemetry Data
 
-    **Adaptive metrics lens:** Grafana’s product finds **unused** series and proposes **aggregation / dimension reduction / drops**. You will do the *discovery* step manually here—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—so you can explain why **Elastic downsampling** plus **workflows** is a complete TCO answer, not only “drop more.”
+    **Declared usage lens:** Products that automate “adaptive” metrics discovery look for **unused** series and propose **aggregation / dimension reduction / drops**. You will do the *discovery* step manually here—**which metric families show up on shipped dashboards and SLOs vs raw generator volume**—so you can explain why **Elastic downsampling** plus **Kibana Workflows** is a complete **TCO** answer, not only “drop more.”
 
     **By the end of this challenge you will:**
 
@@ -267,11 +267,11 @@ Use **Executive** for stakeholder-style storytelling; use **Systems Operations**
 
 ## Adaptive metrics — declared usage and tiers (same sandbox)
 
-You already have the **same sandbox** as a full observability workshop. Use it to practice **governance** the way [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/adaptive-telemetry/adaptive-metrics/) describes on their side—**unused vs used series**—mapped to Elastic:
+You already have the **same sandbox** as a full observability workshop. Use it to practice **governance**—**unused vs declared-used** series—entirely on Elastic:
 
-1. **Declared usage** — Open **Dashboards** and list which metric charts your scenario ships. Those (and **SLOs** / **alert rules**) are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* Grafana surfaces, executed with Elastic **downsampling** and **Streams**-style server policy.
+1. **Declared usage** — Open **Dashboards** and list which metric charts your scenario ships. Those (and **SLOs** / **alert rules**) are the series you treat as **in use** when proposing retention or rollups; everything else is a candidate for **aggregation, dimension trimming, or shorter retention**—the same *decision classes* buyers expect from adaptive-metrics stories, executed here with Elastic **downsampling** and **Streams**-style server policy.
 2. **Hot vs cold** — High-volume generators (Kubernetes pod metrics, nginx access patterns, etc.) are where **downsampling** and **tiered retention** pay off first, while SLO-driving series stay hot at full resolution for incident and executive views.
-3. **Why Elastic in RFPs** — Pair the Adaptive Metrics *narrative* with **downsampling** (vs **Grafana / Mimir**) and **workflows** that prove which signals fire in incidents. Against **VictoriaMetrics**, stress **governance + unified stack** (metrics are not an island). Against **Datadog**, stress **cost predictability** and **declared usage** (dashboards, SLOs, alerts) driving what stays hot—without splitting observability across unrelated SKUs.
+3. **Why Elastic in evaluations** — Lead with **downsampling** plus **workflows** that prove which signals fire in incidents, **one correlated store** for logs + metrics + traces, and **declared usage** (dashboards, SLOs, alerts) driving what stays hot—governance plus automation, not only cardinality reports.
 
 Optional — get a feel for **metric write volume** over the last few minutes (tune time range if empty):
 

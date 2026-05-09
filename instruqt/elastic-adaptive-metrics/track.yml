@@ -1,10 +1,10 @@
 slug: elastic-adaptive-metrics
 id: xrcnbkazo3u6
 title: 'Adaptive metrics: workflows, downsampling & TCO'
-description: 'Elastic as metrics leader vs VictoriaMetrics (cheap ingest) and Datadog
-  (SaaS depth): governed OTel metrics with downsampling, ES|QL, Serverless, and Workflows—same
-  adaptive-metrics story as Grafana Cloud, with enterprise TCO and one-platform strength
-  for regulated buyers (financial services, insurance, and similar).'
+description: 'Governed OTel metrics on Elastic Serverless: map dashboards and SLOs
+  to declared usage, drive downsampling and retention, and use Kibana Workflows for
+  adaptive-style metrics governance. Enterprise TCO for regulated buyers (financial
+  services, insurance, and similar).'
 icon: ""
 tags:
 - co.elastic.workshops.production
@@ -28,5 +28,5 @@ lab_config:
     name: modern-dark
   override_challenge_layout: false
   hideStopButton: false
-checksum: "8759883700267316528"
+checksum: "6933244072703143488"
 enhanced_loading: false

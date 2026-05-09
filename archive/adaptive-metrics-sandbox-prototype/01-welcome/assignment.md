@@ -3,7 +3,7 @@ slug: welcome
 type: challenge
 title: Welcome — adaptive metrics & TCO
 teaser: >-
-  Connect this lab to autonomous observability positioning and Grafana-style adaptive metrics.
+  Connect this lab to autonomous observability positioning and adaptive-style metrics governance on Elastic.
 notes:
   - type: text
     contents: >-

@@ -62,7 +62,7 @@ enhanced_loading: null
 | Control | Role in the lab |
 |---------|-------------------|
 | **Inject Fault** / **Resolve** | Scripted **fault channels** tied to ES|QL alert rules → **Significant Event Notification** workflows → **Cases**. This is the path we grade around. |
-| **Infrastructure spikes** (CPU, memory, K8s OOM, latency) | Broad stress on hosts/clusters; useful to watch **Infrastructure** / metrics while narrating. They are **not** the same control as an active **fault channel**, so **Resolve** stays aligned with **channel** faults. |
+| **Infrastructure spikes** (CPU, memory, K8s OOM, latency) | Broad stress on hosts/clusters; useful to watch **Infrastructure** / metrics while narrating. **You can move these sliders as soon as the deployment is running**—no fault injection required. When a fault channel *is* active, spikes preferentially track those services’ infrastructure; with **no** fault active, stress applies platform-wide (see the note under the sliders). |
 
 **Practice:** After exploring sliders, **reset them toward zero/low**. For the **Elastic workflow story**, complete **Inject Fault** → watch Kibana → **Resolve** on the channel when the simulator enables it.
 

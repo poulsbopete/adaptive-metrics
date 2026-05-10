@@ -8,10 +8,6 @@ teaser: Confirm Retail Banking is live — one ES|QL query + one dashboard in **
 notes:
 - type: text
   contents: |
-    First boot usually takes **3–4 minutes**. If a tab spins, wait and refresh.
-
-    **[Open slides in a new tab](https://poulsbopete.github.io/adaptive-metrics/)** · Navigate with **←** **→** · Space · Home · End
-
     <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: qchxpuxaamyj
@@ -44,6 +40,8 @@ enhanced_loading: null
 # Connect to Elastic Cloud & Deploy
 
 Your Serverless project and demo stack are **already running**.
+
+First boot usually takes **3–4 minutes**. If a tab spins, wait and refresh.
 
 ---
 

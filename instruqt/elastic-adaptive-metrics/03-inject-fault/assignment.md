@@ -7,8 +7,6 @@ teaser: One fault from **Demo App** → see alerts, workflow, and **Case** in Ki
 notes:
 - type: text
   contents: |
-    Fault / Chaos steps are in the assignment → **[Slides — new tab](https://poulsbopete.github.io/adaptive-metrics/)**
-
     <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: slqip2bp1bjo

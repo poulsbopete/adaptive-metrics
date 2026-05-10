@@ -8,8 +8,6 @@ teaser: Follow a **short checklist** — Discover, dashboards (including **Adapt
 notes:
 - type: text
   contents: |
-    Lab checklist is in the assignment → Use **[Adaptive Metrics slides](https://poulsbopete.github.io/adaptive-metrics/)** full window if the embed is tight.
-
     <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: v7hvexx2xbyr

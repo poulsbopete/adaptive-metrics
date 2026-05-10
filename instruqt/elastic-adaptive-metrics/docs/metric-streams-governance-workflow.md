@@ -16,7 +16,7 @@ The track VM may start **`noisy-metrics-otlp`** (`instruqt/elastic-adaptive-metr
 
 ## Metric governance dashboard (Kibana)
 
-Use [`dashboards/metric-governance-retail-banking-as-code.json`](../../../dashboards/metric-governance-retail-banking-as-code.json) as the **`kibana_create_dashboard`** payload (Observability MCP) when your **MCP `KIBANA_URL`** is the same project you want to update. **Instruqt lab** hosts often use a different URL than MCP; for those, use [`dashboards/instruqt-metric-governance-dashboard.json`](../../../dashboards/instruqt-metric-governance-dashboard.json) with **`scripts/push_governance_dashboard.py`** (`POST /api/dashboards`, **Elastic-Api-Version: 1** by default unless **`KIBANA_DASHBOARDS_API_VERSION`** is set) — KPI **metric** tiles, **gauge**, **area**/**bar** charts for **Retail Banking — Streams savings & metric governance (TCO)**.
+Use [`dashboards/metric-governance-retail-banking-as-code.json`](../../../dashboards/metric-governance-retail-banking-as-code.json) as the **`kibana_create_dashboard`** payload (Observability MCP) when your **MCP `KIBANA_URL`** is the same project you want to update. **Instruqt lab** hosts often use a different URL than MCP; for those, use [`dashboards/instruqt-metric-governance-dashboard.json`](../../../dashboards/instruqt-metric-governance-dashboard.json) with **`scripts/push_governance_dashboard.py`** (`POST /api/dashboards`, **`Elastic-Api-Version`** must be a **YYYY-MM-DD** string — default **2023-10-31**, override with **`KIBANA_DASHBOARDS_API_VERSION`**) — KPI **metric** tiles, **gauge**, **area**/**bar** charts for **Retail Banking — Streams savings & metric governance (TCO)**.
 
 ---
 

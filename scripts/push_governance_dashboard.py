@@ -2,11 +2,11 @@
 """
 Create the metric governance dashboard on Elastic Serverless / Instruqt Kibana.
 
-Uses POST /api/dashboards with Elastic-Api-Version **1** by default (dashboard-as-code: **metric**,
-**gauge**, **xy** area/bar + **DASHBOARD_MARKDOWN** — closer to Systems Operations KPI layout).
+Uses POST /api/dashboards with **Elastic-Api-Version** set to a **YYYY-MM-DD** string (Kibana rejects
+bare ``1``). Default **2023-10-31**; override with **KIBANA_DASHBOARDS_API_VERSION** if your stack
+documents a newer dashboards API date.
 
-Set **KIBANA_DASHBOARDS_API_VERSION=2023-10-31** only if your Kibana rejects v1 (legacy `vis` +
-`data_table` only).
+Payload: dashboard-as-code panels (**metric**, **gauge**, **xy**, **DASHBOARD_MARKDOWN**).
 
 Environment:
   KIBANA_URL or ES_URL  — Kibana base URL (Instruqt often uses the same host for both)
@@ -28,7 +28,7 @@ import sys
 import urllib.error
 import urllib.request
 
-API_VERSION = os.environ.get("KIBANA_DASHBOARDS_API_VERSION", "1")
+API_VERSION = os.environ.get("KIBANA_DASHBOARDS_API_VERSION", "2023-10-31")
 
 
 def decode(raw: bytes) -> str:

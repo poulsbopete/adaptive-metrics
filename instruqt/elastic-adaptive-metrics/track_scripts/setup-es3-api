@@ -863,8 +863,9 @@ _resolve_track_scripts_dir() {
     (cd "$(dirname "$(dirname "${hit}")")" && pwd)
     return 0
   done
+  # Fallback: must exit 0 — with `set -e`, `TRACK_SCRIPT_DIR=$(this)` aborts if we return 1.
   printf '%s\n' "${script_home}"
-  return 1
+  return 0
 }
 
 _SCRIPT_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -90,12 +90,14 @@ Default scenario: **Retail Banking**. Use **Elastic Serverless** with **Last 15 
 
 ✅ **Continue** after steps **1–3** (minimum). Steps 4–5 recommended.
 
+**Bonus:** **Observability → Workflows** → search **`governance`** → **Retail Banking Metric governance snapshot** (Adaptive Metrics / Cases — installed by lab setup).
+
 > **Tip:** If ES|QL errors on `TS metrics*` time-series rules, use `FROM metrics*` + `STATS` for counts — see [ES\|QL TS docs](https://www.elastic.co/docs/reference/query-languages/esql/commands/ts).
 
 ---
 
 ## Optional next steps
 
-- **Workflows:** **Observability → Workflows** — look for **Retail Banking Platform** titles (incident playbooks). Governance automation: import [`metric-governance-retail-banking-starter.yaml`](https://github.com/poulsbopete/adaptive-metrics/blob/main/workflows/kibana/metric-governance-retail-banking-starter.yaml).
+- **Workflows:** **Observability → Workflows** — six **Retail Banking Platform** demos ship from the launcher; **Retail Banking Metric governance snapshot** (Adaptive Metrics / Cases / ES|QL) is **installed by track setup** (`adaptive-metrics-metric-governance-starter`). Re-import from repo only if you edit YAML: [`metric-governance-retail-banking-starter.yaml`](https://github.com/poulsbopete/adaptive-metrics/blob/main/workflows/kibana/metric-governance-retail-banking-starter.yaml).
 - **Cases:** **`[Governance]`** cases appear if that workflow is enabled — tie **modeled_policy_savings_pct** to FinOps narrative with **Observability AI Assistant**.
 - **Deep dive:** [`metric-streams-governance-workflow.md`](https://github.com/poulsbopete/adaptive-metrics/blob/main/instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md) — Streams API, safety checklist, K8s retention example.

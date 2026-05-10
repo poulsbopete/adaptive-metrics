@@ -875,6 +875,63 @@ except urllib.error.HTTPError as e:
 PY
 }
 
+# POST workflows/kibana/metric-governance-retail-banking-starter.yaml (bundled under track_scripts/workflows/).
+_push_metric_governance_workflow() {
+  local yaml_file="${TRACK_SCRIPT_DIR}/workflows/metric-governance-retail-banking-starter.yaml"
+  local wf_id="${METRIC_GOVERNANCE_WORKFLOW_ID:-adaptive-metrics-metric-governance-starter}"
+  if [[ ! -f "$yaml_file" ]]; then
+    echo "WARN: Metric governance workflow YAML missing at $yaml_file — skipping POST."
+    return 0
+  fi
+  echo "Installing Adaptive Metrics governance workflow (POST /api/workflows/workflow id=${wf_id})..."
+  export METRIC_GOV_YAML_PATH="$yaml_file"
+  export METRIC_GOV_WORKFLOW_ID="$wf_id"
+  KIBANA_URL="$DEMO_KIBANA_URL" ES_API_KEY="$DEMO_API_KEY" python3 <<'PY'
+import json, os, pathlib, urllib.request, urllib.error
+
+def decode(raw: bytes) -> str:
+    return raw.decode("utf-8", errors="replace")
+
+def req(method: str, url: str, data: bytes | None, headers: dict) -> tuple[int, str]:
+    r = urllib.request.Request(url, data=data, method=method, headers=headers)
+    try:
+        with urllib.request.urlopen(r, timeout=120) as resp:
+            return resp.status, decode(resp.read())
+    except urllib.error.HTTPError as e:
+        return e.code, decode(e.read())
+
+kb = (os.environ.get("KIBANA_URL") or "").rstrip("/")
+key = os.environ.get("ES_API_KEY") or ""
+path = pathlib.Path(os.environ.get("METRIC_GOV_YAML_PATH", ""))
+wid = os.environ.get("METRIC_GOV_WORKFLOW_ID", "adaptive-metrics-metric-governance-starter")
+if not kb or not key or not path.is_file():
+    print("WARN: skip governance workflow — missing Kibana URL, API key, or YAML path")
+    raise SystemExit(0)
+yaml_text = path.read_text(encoding="utf-8")
+headers = {
+    "Authorization": f"ApiKey {key}",
+    "kbn-xsrf": "true",
+    "Content-Type": "application/json; charset=utf-8",
+}
+post_url = f"{kb}/api/workflows/workflow"
+put_url = f"{kb}/api/workflows/workflow/{wid}"
+body_post = json.dumps({"id": wid, "yaml": yaml_text}).encode("utf-8")
+body_put = json.dumps({"yaml": yaml_text}).encode("utf-8")
+code, text = req("POST", post_url, body_post, headers)
+if code in (200, 201):
+    print(f"✅ Metric governance workflow created — HTTP {code}")
+    raise SystemExit(0)
+if code in (400, 409):
+    code2, text2 = req("PUT", put_url, body_put, headers)
+    if code2 == 200:
+        print(f"✅ Metric governance workflow updated — HTTP {code2}")
+        raise SystemExit(0)
+    print(f"WARN: workflow PUT failed HTTP {code2}: {text2[:1500]}")
+    raise SystemExit(0)
+print(f"WARN: workflow POST failed HTTP {code}: {text[:1500]}")
+PY
+}
+
 _do_launch() {
   local attempt="$1"
   local scenario_id="${DEMO_SCENARIO_ID:-banking}"
@@ -963,9 +1020,11 @@ except: print('  (could not parse progress)')
       echo "✅ Workflows confirmed: $WF_COUNT"
     fi
 
-    echo "Waiting for Kibana saved-object APIs (dashboard deploy)..."
+    echo "Waiting for Kibana saved-object APIs (dashboard + workflow deploy)..."
     sleep 8
     _push_metric_governance_dashboard
+    sleep 3
+    _push_metric_governance_workflow
   fi
 else
   echo "WARN: Missing Kibana URL or API key — skipping auto-launch."

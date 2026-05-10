@@ -21,6 +21,9 @@ Body defaults to dashboards/instruqt-metric-governance-dashboard.json. Legacy **
 
 Optional:
   GOVERNANCE_DASHBOARD_JSON — path to override JSON spec
+  GOVERNANCE_DASHBOARD_ID — existing Kibana dashboard saved-object id to **update** via PUT (same URL as in the browser).
+    When unset, POST **creates a new dashboard every run** (new id / link). Use this env after the first import so
+    you overwrite the dashboard you actually open instead of spawning duplicates.
 """
 from __future__ import annotations
 
@@ -41,12 +44,21 @@ def decode(raw: bytes) -> str:
     return raw.decode("utf-8", errors="replace")
 
 
-def kibana_post_dashboard(base: str, key: str, body: dict) -> tuple[int, str]:
+def kibana_dashboard_request(
+    base: str,
+    key: str,
+    body: dict,
+    *,
+    method: str,
+    path_suffix: str,
+) -> tuple[int, str]:
+    """path_suffix is '' for POST create, or '/{id}' for PUT update."""
     data = json.dumps(body).encode("utf-8")
+    url = f"{base.rstrip('/')}/api/dashboards{path_suffix}"
     req = urllib.request.Request(
-        f"{base.rstrip('/')}/api/dashboards",
+        url,
         data=data,
-        method="POST",
+        method=method,
         headers={
             "Authorization": f"ApiKey {key}",
             "kbn-xsrf": "true",
@@ -83,19 +95,48 @@ def main() -> int:
     # POST /api/dashboards (2023-10-31) allows time_range only, not legacy time_from / time_to.
     spec.pop("time_from", None)
     spec.pop("time_to", None)
-    code, text = kibana_post_dashboard(base, key, spec)
+    # Avoid sending a stale id in the body when POST creates a new dashboard.
+    spec.pop("id", None)
+
+    dash_id = (os.environ.get("GOVERNANCE_DASHBOARD_ID") or "").strip()
+
+    if dash_id:
+        code, text = kibana_dashboard_request(
+            base, key, spec, method="PUT", path_suffix=f"/{dash_id}"
+        )
+        action = "updated"
+        if code == 404:
+            print(
+                f"WARN: PUT returned 404 — dashboard id not found: {dash_id}\n"
+                "Retry without GOVERNANCE_DASHBOARD_ID to create a new one, then set the env to that id.",
+                file=sys.stderr,
+            )
+            return 1
+    else:
+        code, text = kibana_dashboard_request(
+            base, key, spec, method="POST", path_suffix=""
+        )
+        action = "created"
+
     if code not in (200, 201):
         print(f"HTTP {code}", text[:4000], file=sys.stderr)
         return 1
-    try:
-        out = json.loads(text)
-    except json.JSONDecodeError:
-        print(text[:2000])
-        return 0
-    did = out.get("id", "?")
-    print("Dashboard created.")
+    did = dash_id or "?"
+    if text.strip():
+        try:
+            out = json.loads(text)
+            did = out.get("id", did)
+        except json.JSONDecodeError:
+            print(text[:2000])
+            return 0
+    print(f"Dashboard {action}.")
     print("id:", did)
     print("open:", f"{base.rstrip('/')}/app/dashboards#/view/{did}")
+    if action == "created":
+        print(
+            "\nTip: POST creates a **new** dashboard each run. To overwrite this same dashboard next time:\n"
+            f'  export GOVERNANCE_DASHBOARD_ID="{did}"',
+        )
     return 0
 
 

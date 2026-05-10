@@ -40,7 +40,7 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | `.cursor/skills/kibana-observability-workflows-api/` | Project skill: create **Kibana** workflows via `POST /api/workflows/workflow` vs MCP YAML. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |
 | `scripts/push-to-serverless.sh` | Push `metric-governance-retail-banking-starter.yaml` to **Kibana Workflows** (`POST`/`PUT` `/api/workflows/workflow`). Needs `KIBANA_URL` or `ES_URL` + `ES_API_KEY` or `ELASTIC_API_KEY`. |
-| `scripts/push_governance_dashboard.py` | Push `dashboards/instruqt-metric-governance-dashboard.json` to **Kibana** (`POST /api/dashboards`, **Elastic-Api-Version: 2023-10-31** by default). Needs `KIBANA_URL` or `ES_URL` + API key. |
+| `scripts/push_governance_dashboard.py` | Push `dashboards/instruqt-metric-governance-dashboard.json` to **Kibana** (`POST /api/dashboards` creates a **new** id each run unless **`GOVERNANCE_DASHBOARD_ID`** is set — then **`PUT /api/dashboards/{id}`** updates in place). Needs `KIBANA_URL` or `ES_URL` + API key. |
 | `instruqt/.../track_scripts/noisy_otlp_metrics.py` | **Instruqt VM**: optional systemd **`noisy-metrics-otlp`** ships high-cardinality OTLP metrics (`noisy-governance-shipper`) for **Streams** retention / aggregation labs (needs **mOTLP** URL — see `metric-streams-governance-workflow.md`). |
 | `scripts/publish.sh` | Git commit/push + `instruqt track push` for the track above. |
 | `scripts/fetch-instruqt-track-id.sh` | Prints `id` / `checksum` from Instruqt after a temp pull (debugging). |

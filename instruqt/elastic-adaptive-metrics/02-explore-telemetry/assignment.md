@@ -82,7 +82,7 @@ Default scenario: **Retail Banking**. Use **Elastic Serverless** with **Last 15 
 
 | Step | Where | What |
 |:---:|:---|:---|
-| 1 | **Discover** → **ES|QL** | Run: `FROM logs* \| WHERE @timestamp > NOW() - 15 MINUTES \| LIMIT 50` — confirm rows |
+| 1 | **Discover** → ES\|QL | Run: `FROM logs* \| WHERE @timestamp > NOW() - 15 MINUTES \| LIMIT 50` — confirm rows |
 | 2 | **Dashboards** | Search **`Retail Banking`** → open **Systems Operations** *or* **Executive** |
 | 3 | **Dashboards** | Search **`Adaptive`** or **`governance`** → open **Adaptive Metrics · Streams savings & governance (TCO)** |
 | 4 | **Applications** → **Service inventory** | Click any retail service → open **one transaction / trace** |

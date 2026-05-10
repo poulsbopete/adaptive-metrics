@@ -8,7 +8,9 @@ teaser: Confirm Retail Banking is live — one ES|QL query + one dashboard in **
 notes:
 - type: text
   contents: |
+    <div style="width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);box-sizing:border-box;">
     <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
+    </div>
 tabs:
 - id: qchxpuxaamyj
   title: Demo App

@@ -19,12 +19,12 @@ version: "1"
 name: Retail Banking Metric governance snapshot
 enabled: true
 description: >
-  Adaptive-metrics governance: lists Streams, runs ES|QL for savings-style scores and pretend
-  dollar amounts, and opens an Observability Case whose **description is written in plain English**
-  (field names stay in the JSON comment for adults). Includes a gated **ai.prompt** branch (off by
-  default) for structured retention / routing ideas—apply **PUT /api/streams/{name}** only after
-  **kibana.streams.get** + human merge + approved **kibana.request**. Optional **waitForInput** HITL
-  inside the AI gate. Pair with the Executive dashboard exercise in the Instruqt track.
+  Metric governance for Adaptive Metrics: list Streams, run ES|QL for modeled savings and FinOps
+  USD proxies, and open an Observability Case with an executive/SRE-friendly narrative. JSON in
+  comments carries analyst fields. Optional gated **ai.prompt** (off by default) for structured
+  retention/routing recommendations—apply **PUT /api/streams/{name}** only after **kibana.streams.get**,
+  human merge, and approved **kibana.request**. Optional **waitForInput** for HITL. Pair with the
+  Adaptive Metrics dashboard in the Instruqt track.
 
 triggers:
   - type: scheduled
@@ -67,19 +67,24 @@ steps:
   - name: governance_case
     type: cases.createCase
     with:
-      title: "[Governance] TCO snapshot — adaptive-metrics (modeled savings % in body)"
+      title: "[Governance] TCO snapshot — Adaptive Metrics (modeled savings in Case body)"
       description: |
-        ### Could we save money by cleaning up extra data? (practice story)
+        ### Metric governance — modeled TCO snapshot
 
-        Think of your apps sending **lots of tiny messages** into Elastic, like filling jars with marbles.
+        **Scope:** Summarize the latest ES|QL run for Retail Banking: volume outside nine declared
+        core services (Streams-eligible share), **modeled_policy_savings_pct** after capture
+        assumptions, and **USD FinOps proxies** for modeled monthly observe vs reclaim.
 
-        **The headline number** is a **practice score** for “how much messy stuff we *might* tidy if we kept less junk, split traffic smarter, or squashed noisy metrics.” In this lab we use a demo knob so the score often lands around **“7 out of 10”** (like **70¢** on a pretend dollar) — **not** your real Elastic Cloud bill.
+        **How to read it**
+        - **Percentages** are **scenario indices** (capped), not contracted SLAs or finance sign-off.
+        - **USD fields** use an illustrative **$/million metric points/month** rate for order-of-magnitude
+          comparison; replace inputs with **approved chargeback** before external commitments.
 
-        **The two dollar amounts** are **pretend monthly bills**: we multiply “how many marbles” by a made‑up “price per million marbles.” They are good for **comparing bigger vs smaller**, not for paying a vendor.
+        **Next steps:** Use Observability AI Assistant for a leadership narrative; compare to the
+        **`list_streams`** inventory. This workflow **does not** change policy—**PUT /api/streams/{name}**
+        requires human review and merge.
 
-        **What to do next:** open **Observability AI Assistant** on this Case and ask it to explain the numbers **in normal words** for a leader. Grown‑ups can still read the **exact fields** in the comment with the JSON.
-
-        **Safety:** this starter **does not** auto‑change your data rules. A person still says yes or no before anything serious happens. **Streams** (where data lives and how long we keep it) is the lever — on Serverless you don’t fiddle with old‑school “hot/warm/cold” knobs.
+        Structured fields for SREs and FinOps are in the following Case comment (JSON).
       owner: observability
       severity: low
       tags:
@@ -94,32 +99,33 @@ steps:
     with:
       case_id: "{{ steps.governance_case.output.case.id }}"
       comment: |
-        ### Cheat sheet (picture → grown‑up name)
+        ### Field reference — `metrics_snapshot` output
 
-        | If you picture… | The field name in the JSON |
-        |-----------------|----------------------------|
-        | **“How much could we tidy?” score** (capped so it never says above **88**) | `modeled_policy_savings_pct` |
-        | **Share of messages that are “extra”** (not the nine main bank apps), after we set aside practice traffic | `streams_eligible_pct` |
-        | **Count of practice “noise” messages** from the lab shipper | `points_governance_lab` |
-        | **What percent of *all* messages are that practice noise** | `streams_governance_lab_pct` |
-        | **Practice tidy‑score just for that noise slice** | `modeled_governance_lab_savings_pct` |
-        | **Pretend “full jar” monthly cost** (not a real invoice) | `estimated_monthly_observe_bill_usd` |
-        | **Pretend “money back if we tidy” monthly amount** (still not a real invoice) | `estimated_monthly_reclaim_usd` |
-        | **“How much of the pretend bill we get back,” in percent** | `pct_savings_of_estimated_observe_bill` |
+        | Business meaning | Field |
+        |------------------|-------|
+        | Modeled governance savings % (capped) | `modeled_policy_savings_pct` |
+        | Share of retail-modeled points outside core services (eligibility) | `streams_eligible_pct` |
+        | Lab OTLP points (`noisy-governance-shipper`) | `points_governance_lab` |
+        | Lab traffic as % of all points | `streams_governance_lab_pct` |
+        | Modeled savings % on lab slice | `modeled_governance_lab_savings_pct` |
+        | Modeled monthly observe cost — USD proxy | `estimated_monthly_observe_bill_usd` |
+        | Modeled monthly reclaim — USD proxy | `estimated_monthly_reclaim_usd` |
+        | Reclaim as % of observe proxy | `pct_savings_of_estimated_observe_bill` |
 
-        **Try this with the AI:** “Explain the pretend **observe** and **reclaim** dollars like I’m eleven, and say what we’d still need a real finance person to check.”
+        **AI Assistant:** Ask for assumption stress-testing and a checklist of what Finance must validate
+        for a board-ready business case.
 
         ---
 
-        **Exact numbers** (from the workflow step `metrics_snapshot`):
+        **`metrics_snapshot` JSON:**
 
         ```json
         {{ steps.metrics_snapshot.output | json }}
         ```
 
-        **Streams list:** the workflow also ran **`list_streams`** — open the workflow run in Kibana to see that JSON.
+        **Streams:** This run also executed **`list_streams`** — inspect the workflow execution in Kibana for full inventory JSON.
 
-        **Optional smart helper:** a gated **AI** step in the YAML is **off** until you wire a GenAI connector and flip its `condition` to `${{ true }}`. When on, a human must still **approve** before live stream JSON is pasted here.
+        **Optional GenAI step:** A gated **AI** branch in this YAML stays **off** until you enable a connector and set its `condition` to `${{ true }}`. Approved owners still gate any **`PUT`** to Streams.
 
   # ---------------------------------------------------------------------------
   # Gated AI: structured FinOps plan for Streams (retention / routing / drops).
@@ -202,31 +208,32 @@ steps:
         with:
           case_id: "{{ steps.governance_case.output.case.id }}"
           comment: |
-            ### AI plan — read this before changing anything
+            ### AI plan — review before any change
 
-            **In plain English:** {{ steps.ai_streams_plan.output.content.summary }}
+            **Summary:** {{ steps.ai_streams_plan.output.content.summary }}
 
-            **Machine‑readable plan** (for adults who will apply it):
+            **Structured output** (for merge with live stream documents):
 
             ```json
             {{ steps.ai_streams_plan.output.content | json }}
             ```
 
-            **Safety:** fetch the **current** stream with **`kibana.streams.get`**, merge by hand (or in another workflow), then **`PUT /api/streams/{name}`** only when a human is happy — see [Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name). Never paste half a JSON into production.
+            **Procedure:** Fetch current config with **`kibana.streams.get`**, merge deliberately with this plan,
+            then **`PUT /api/streams/{name}`** only after approval — see [Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name).
 
       # --- Human-in-the-loop: pause for approval, then attach live stream body for merge ---
       - name: hitl_streams_gate
         type: waitForInput
         with:
           message: |
-            ## One last check before we copy live settings
+            ## Approval — attach live stream document
 
-            **What the AI said (short):** {{ steps.ai_streams_plan.output.content.summary }}
+            **AI summary:** {{ steps.ai_streams_plan.output.content.summary }}
 
-            - **Approve** = we will **look up** the stream you type and **paste the real settings** into this Case so someone can merge them carefully.
-            - **Reject** = we **do nothing**; no lookup, no change.
+            - **Approve** — fetch the stream named below and attach its **current** JSON to this Case for merge review.
+            - **Reject** — no fetch; no automated change.
 
-            This is like asking “show me the recipe card” before you cook — it does **not** auto‑apply changes.
+            **Does not** apply changes automatically—prepares a controlled merge against **`PUT /api/streams/{name}`**.
           schema:
             type: object
             properties:
@@ -255,7 +262,7 @@ steps:
         with:
           case_id: "{{ steps.governance_case.output.case.id }}"
           comment: |
-            ### Live “recipe card” for stream **{{ steps.hitl_streams_gate.output.streamName }}**
+            ### Stream document — **{{ steps.hitl_streams_gate.output.streamName }}**
 
             **Reviewer notes:** {{ steps.hitl_streams_gate.output.notes }}
 
@@ -263,7 +270,7 @@ steps:
             {{ steps.fetch_stream_for_merge.output | json }}
             ```
 
-            A grown‑up should **merge** this with the AI plan above, then **`PUT /api/streams/{name}`** only when they mean it.
+            Merge with the AI plan above; **`PUT /api/streams/{name}`** only after authorized approval.
 
       - name: attach_hitl_rejected
         type: cases.addComment

@@ -1,6 +1,6 @@
 {
   "title": "Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)",
-  "description": "Streams / TCO governance (demo): ES|QL uses demo_streams_capture_on_eligible=1.28 (~60-88% modeled % on typical eligible mix). vis+data_table+esql for POST /api/dashboards 2023-10-31. Aligned with metric-governance-retail-banking-starter.yaml.",
+  "description": "Adaptive Metrics / Streams governance: ES|QL FinOps proxies (modeled savings %, USD chargeback assumptions). vis+data_table+esql for POST /api/dashboards 2023-10-31. Paired with metric-governance-retail-banking-starter.yaml.",
   "tags": [
     "metric-governance",
     "retail-banking",
@@ -34,7 +34,7 @@
         "h": 9
       },
       "config": {
-        "content": "# 🎯 About **7 in 10** — practice “tidy score” *(last 15 minutes)*\n\nWe look at recent **measurement messages** from the demo bank. This number answers a **what‑if game**: *If we threw away more junk data and sorted traffic smarter, how big could the win **look**?*\n\n- **💚 Not a real bill** — think **video‑game meter**, not something you pay Elastic for.\n- **💵 The dollar amounts** on the next row are **play money** so you can see **bigger vs smaller**; a real finance person still checks true costs.\n- **⚙️ Dial up or down** — the story uses a built‑in “savings dial” in the queries; change it only if you are editing the dashboard pack in Git.\n\n---\n\n**For adults / builders:** Markdown here **cannot** show embedded pictures (so no gradient bar). Color comes from **emoji** and **panel titles** instead. Math lives in **`vis` + `data_table` + ES|QL`** on **`Elastic-Api-Version: 2023-10-31`** — same family of API as the Systems Operations dashboard, but those big green **metric** tiles use **`data_view_reference`**, not ES|QL.",
+        "content": "# Modeled governance savings — executive readout *(rolling 15 minutes)*\n\nThis view estimates **eligible metric volume** for Streams-oriented policy (retention, child-stream routing, downsampling) relative to **nine declared core retail services**. Headline percentages describe **scenario savings** if configured governance captured eligible traffic at the modeled capture rate—not an Elastic invoice or contracted outcome.\n\n**Executive**\n- **USD columns are FinOps proxies**, scaled from recent sample rates using **$/million metric points per month**. Use them for **relative sizing, prioritization, and variance review** before Finance applies contracted unit economics.\n- **Do not book savings** from this dashboard without validating assumptions (`demo_streams_capture_on_eligible`, `assumed_usd_per_million_points_month`) against your chargeback model.\n\n**SRE / platform**\n- KPIs use **`vis` + `data_table` + ES|QL** (`Elastic-Api-Version: 2023-10-31`). That API shape matches automation in this repo; native Lens **metric** tiles from ES|QL may require a different export contract.\n- Kibana markdown sanitizes rich HTML; rely on panel titles and tables for scanability.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -51,7 +51,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "💵 KPI — % of proxy observe bill saved (15m)",
+        "title": "Est. savings % of modeled observe proxy (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -80,7 +80,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "🎯 KPI — modeled retail savings % (15m)",
+        "title": "Modeled policy savings % — retail (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -109,7 +109,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "💸 KPI — reclaim $ / mo proxy (15m)",
+        "title": "Modeled monthly reclaim — USD proxy (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -138,7 +138,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "📊 KPI — observe $ / mo proxy (15m)",
+        "title": "Modeled monthly observe — USD proxy (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -167,7 +167,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "✨ Headline — modeled retail % (15m)",
+        "title": "Primary KPI — modeled savings % (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -196,7 +196,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "📉 Volume & eligible / lab (15m)",
+        "title": "Volume, eligibility, lab shipper share (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -234,7 +234,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "⚖️ Core vs other retail (15m)",
+        "title": "Core services vs non-core retail volume (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -274,7 +274,7 @@
         "h": 3
       },
       "config": {
-        "content": "### 🛠 Streams levers (Serverless)\n\n**Retention** · **Routing / child streams** · **Downsampling** — headline % uses **`demo_streams_capture_on_eligible`** in ES|QL; tune **`assumed_usd_per_million_points_month`** for $ proxies.",
+        "content": "### Streams controls (Elastic Serverless)\n\n**Retention** · **routing / child streams** · **downsampling** — the modeled savings percentage multiplies eligible share by **`demo_streams_capture_on_eligible`** in ES|QL (workshop tuning). Align USD proxies with internal chargeback by editing **`assumed_usd_per_million_points_month`** in the dashboard source.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -291,7 +291,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "📑 Finance proxies — full snapshot (15m)",
+        "title": "FinOps proxy snapshot — all fields (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -338,7 +338,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "📈 Hourly trend — modeled % & eligible % (48h, table)",
+        "title": "Hourly trend — modeled savings % & eligibility (48h)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -385,7 +385,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "🧩 Top services — metric volume (24h)",
+        "title": "Top services by metric volume (24h)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -417,7 +417,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "📦 Top OTel datasets — Streams targets (15m)",
+        "title": "Top OTel datasets — routing targets (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -449,7 +449,7 @@
       },
       "config": {
         "hide_title": false,
-        "title": "⏱ Metric ingest rate (docs / hour, 48h)",
+        "title": "Metric ingest rate — docs per hour (48h)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -480,7 +480,7 @@
         "h": 6
       },
       "config": {
-        "content": "**Cases** `[Governance]` · **Streams** · **AI Assistant** — proxies only. **API:** **`vis` + `data_table` + `esql`** on **2023-10-31**. **Color:** Kibana markdown strips HTML and does not render **`data:`** image links — this dashboard uses **emoji** and **panel title icons** instead.",
+        "content": "**Integration:** Cases `[Governance]` · **Streams** · **Observability AI Assistant** — FinOps proxies only. **Saved-object API:** **`vis` + `data_table` + `esql`**, **`Elastic-Api-Version: 2023-10-31`**. **Markdown:** sanitization limits HTML styling; concise panel titles carry executive scanability.",
         "settings": {
           "open_links_in_new_tab": true
         }

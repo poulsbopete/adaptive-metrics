@@ -1,6 +1,6 @@
 {
   "title": "Retail Banking — Streams savings & metric governance (TCO)",
-  "description": "Streams / TCO governance: ES|QL via vis+data_table (POST /api/dashboards 2023-10-31). Same math as workflows/kibana/metric-governance-retail-banking-starter.yaml. Contrast with Systems Operations: native metric/xy tiles use data_view_reference + field aggregations; arbitrary ES|QL pipelines (modeled %, proxy $) stay in data_table.",
+  "description": "Streams / TCO governance (demo): ES|QL uses demo_streams_capture_on_eligible=1.28 (~60-88% modeled % on typical eligible mix). vis+data_table+esql for POST /api/dashboards 2023-10-31. Aligned with metric-governance-retail-banking-starter.yaml.",
   "tags": [
     "metric-governance",
     "retail-banking",
@@ -13,7 +13,7 @@
   },
   "options": {
     "use_margins": true,
-    "sync_colors": false,
+    "sync_colors": true,
     "sync_cursor": true,
     "sync_tooltips": false,
     "hide_panel_titles": false,
@@ -31,10 +31,10 @@
         "x": 0,
         "y": 0,
         "w": 48,
-        "h": 5
+        "h": 9
       },
       "config": {
-        "content": "## Streams savings — **TCO** (Elastic **Serverless**)\n\n**Native dashboard JSON (same endpoint as Systems Operations):** on **Elastic-Api-Version: 2023-10-31**, **`vis` + `metric`** and **`vis` + `xy`** expect **`data_source.type: data_view_reference`** (plus `count` / `average` / `date_histogram` / KQL `query` on the panel). The Ops dashboard JSON you export does that for traces and metrics.\n\n**This dashboard:** **`vis` + `data_table` + `data_source.type: esql`** — the only path in that API version for **arbitrary ES|QL** (`modeled_policy_savings_pct`, proxy **$**, `DATE_TRUNC` trends). The **KPI row** is four tight one-column tables (15m). Tune **`assumed_usd_per_million_points_month`** and **0.35** in each panel query.",
+        "content": "<div style=\"background:linear-gradient(135deg,#0a7a6f,#17c964);color:#fff;padding:14px 18px;border-radius:8px;margin:0 0 14px 0;\">\n<div style=\"font-size:11px;opacity:0.9;letter-spacing:0.05em;text-transform:uppercase;\">Demo scenario — full Streams program</div>\n<div style=\"font-size:26px;font-weight:700;margin-top:6px;line-height:1.2;\">~<strong>72%</strong> modeled savings on eligible metric volume</div>\n<div style=\"font-size:13px;margin-top:8px;opacity:0.95;\">ES|QL uses <code style=\"background:rgba(0,0,0,0.18);padding:2px 8px;border-radius:4px;\">demo_streams_capture_on_eligible = 1.28</code> (cap <strong>88%</strong>) — narrative for routing, retention, and downsampling beyond a flat <code>0.35</code> lever. <strong>Not</strong> an Elastic Cloud invoice — tune <code>assumed_usd_per_million_points_month</code> in queries.</div>\n</div>\n\n## Streams savings — **TCO** (Elastic **Serverless**)\n\n**Native dashboard JSON** (same endpoint as Systems Operations): on **Elastic-Api-Version: 2023-10-31**, **`vis` + `metric`** / **`xy`** use **`data_source.type: data_view_reference`**. This dashboard uses **`vis` + `data_table` + `esql`** for arbitrary ES|QL (`modeled_policy_savings_pct`, proxy **$**, trends). **KPI row:** four one-column tables (15m).",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -45,7 +45,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 5,
+        "y": 9,
         "w": 12,
         "h": 9
       },
@@ -55,7 +55,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP pct_savings_of_estimated_observe_bill"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP pct_savings_of_estimated_observe_bill"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -74,7 +74,7 @@
     {
       "grid": {
         "x": 12,
-        "y": 5,
+        "y": 9,
         "w": 12,
         "h": 9
       },
@@ -84,7 +84,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP modeled_policy_savings_pct"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP modeled_policy_savings_pct"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -103,7 +103,7 @@
     {
       "grid": {
         "x": 24,
-        "y": 5,
+        "y": 9,
         "w": 12,
         "h": 9
       },
@@ -113,7 +113,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_reclaim_usd"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_reclaim_usd"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -132,7 +132,7 @@
     {
       "grid": {
         "x": 36,
-        "y": 5,
+        "y": 9,
         "w": 12,
         "h": 9
       },
@@ -142,7 +142,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_observe_bill_usd"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_observe_bill_usd"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -161,7 +161,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 14,
+        "y": 18,
         "w": 14,
         "h": 8
       },
@@ -171,7 +171,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP modeled_policy_savings_pct"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP modeled_policy_savings_pct"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -190,7 +190,7 @@
     {
       "grid": {
         "x": 14,
-        "y": 14,
+        "y": 18,
         "w": 22,
         "h": 8
       },
@@ -200,7 +200,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP metric_points, streams_eligible_pct, streams_governance_lab_pct, points_governance_lab"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP metric_points, streams_eligible_pct, streams_governance_lab_pct, points_governance_lab"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -228,7 +228,7 @@
     {
       "grid": {
         "x": 36,
-        "y": 14,
+        "y": 18,
         "w": 12,
         "h": 8
       },
@@ -269,12 +269,12 @@
     {
       "grid": {
         "x": 0,
-        "y": 22,
+        "y": 26,
         "w": 48,
         "h": 3
       },
       "config": {
-        "content": "### Streams levers (Serverless)\n\n**Retention** · **Routing / child streams** · **Downsampling**",
+        "content": "### Streams levers (Serverless)\n\n**Retention** · **Routing / child streams** · **Downsampling** — headline % uses **`demo_streams_capture_on_eligible`** (1.28) in ES|QL; tune **`assumed_usd_per_million_points_month`** for $ proxies.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -285,7 +285,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 25,
+        "y": 29,
         "w": 48,
         "h": 9
       },
@@ -295,7 +295,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_reclaim_usd, estimated_monthly_observe_bill_usd, pct_savings_of_estimated_observe_bill, modeled_policy_savings_pct, points_in_savings_envelope, assumed_usd_per_million_points_month, periods_per_month"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_reclaim_usd, estimated_monthly_observe_bill_usd, pct_savings_of_estimated_observe_bill, modeled_policy_savings_pct, points_in_savings_envelope, assumed_usd_per_million_points_month, periods_per_month"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -332,7 +332,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 34,
+        "y": 38,
         "w": 48,
         "h": 14
       },
@@ -342,7 +342,7 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 48 hours\n| EVAL hour = DATE_TRUNC(1 hour, @timestamp)\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\" BY hour\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)\n| SORT hour DESC\n| LIMIT 48"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 48 hours\n| EVAL hour = DATE_TRUNC(1 hour, @timestamp)\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\" BY hour\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL demo_streams_capture_on_eligible = 1.28\n| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)\n| SORT hour DESC\n| LIMIT 48"
         },
         "sampling": 1,
         "ignore_global_filters": false,
@@ -379,7 +379,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 48,
+        "y": 52,
         "w": 24,
         "h": 12
       },
@@ -411,7 +411,7 @@
     {
       "grid": {
         "x": 24,
-        "y": 48,
+        "y": 52,
         "w": 24,
         "h": 12
       },
@@ -443,7 +443,7 @@
     {
       "grid": {
         "x": 0,
-        "y": 60,
+        "y": 64,
         "w": 48,
         "h": 11
       },
@@ -475,12 +475,12 @@
     {
       "grid": {
         "x": 0,
-        "y": 71,
+        "y": 75,
         "w": 48,
         "h": 6
       },
       "config": {
-        "content": "**Cases** `[Governance]` · **Streams** · **AI Assistant** — proxies only. **API note:** ES|QL on **2023-10-31** `POST /api/dashboards` uses **`vis` + `data_table`** only (not `vis`+`metric`+`esql`). For native **metric/xy** from code, use a stack/MCP path that documents a matching **Elastic-Api-Version**.",
+        "content": "**Cases** `[Governance]` · **Streams** · **AI Assistant** — proxies only. **API note:** ES|QL on **2023-10-31** `POST /api/dashboards` uses **`vis` + `data_table`** only. **Demo %** uses **`demo_streams_capture_on_eligible`** in panel queries (not `vis`+`metric`+`esql`).",
         "settings": {
           "open_links_in_new_tab": true
         }

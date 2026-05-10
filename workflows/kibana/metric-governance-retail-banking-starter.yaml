@@ -56,10 +56,11 @@ steps:
             fraud_score = AVG(fraud_sentinel.avg_risk_score)
         | EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)
         | EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))
-        | EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)
+        | EVAL demo_streams_capture_on_eligible = 1.28
+        | EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)
         | EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))
-        | EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)
-        | EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)
+        | EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)
+        | EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)
         | EVAL assumed_usd_per_million_points_month = 2.50
         | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
         | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
@@ -73,11 +74,11 @@ steps:
       description: |
         ### Modeled ingest savings — adaptive-metrics workflow
 
-        **What leadership should read first:** **`modeled_policy_savings_pct`** (retail: **0.35 × eligible %**,
+        **What leadership should read first:** **`modeled_policy_savings_pct`** (retail: **eligible % × `demo_streams_capture_on_eligible` (1.28)**, capped **88%**;
         denominator excludes lab **`noisy-governance-shipper`**), **`estimated_monthly_reclaim_usd`** and
         **`estimated_monthly_observe_bill_usd`** (same **$/M-point** constant scaled from the 15m window),
         and **`pct_savings_of_estimated_observe_bill`** (reclaim ÷ observe bill × 100 — **pedagogical**).
-        **`modeled_governance_lab_savings_pct`** applies the same **0.35** lever to the lab’s share of total ingest.
+        **`modeled_governance_lab_savings_pct`** applies the same capture factor to the lab’s share of total ingest.
 
         **Why this is an “AI saves money” story:** the **deterministic workflow** produces the %;
         **Observability AI Assistant** on this Case turns the JSON into **$/month** language using
@@ -107,11 +108,11 @@ steps:
 
         | Field | One-line meaning |
         |-------|------------------|
-        | **modeled_policy_savings_pct** | **Retail headline** — **0.35 × streams_eligible_pct** where eligible % uses **`metric_points_retail_model`** = total minus **`noisy-governance-shipper`** (lab traffic does not dilute retail banking eligible share). |
+        | **modeled_policy_savings_pct** | **Retail headline** — **`LEAST(88, streams_eligible_pct × demo_streams_capture_on_eligible)`** with **`demo_streams_capture_on_eligible = 1.28`** (demo: **~60–80%** story vs flat **0.35**). Eligible % uses **`metric_points_retail_model`** = total minus **`noisy-governance-shipper`**. |
         | **streams_eligible_pct** | Non-core share **within the retail model slice** (denominator excludes lab shipper). |
         | **points_governance_lab** | Docs from **`noisy-governance-shipper`** (Instruqt lab OTLP — **Streams practice** surface). |
         | **streams_governance_lab_pct** | Lab docs ÷ **all** metric docs × 100 (share of total ingest). |
-        | **modeled_governance_lab_savings_pct** | **0.35 × streams_governance_lab_pct** — same reclaim factor on **governance-only** lab volume. |
+        | **modeled_governance_lab_savings_pct** | **`LEAST(95, streams_governance_lab_pct × demo_streams_capture_on_eligible)`** — same capture factor on **governance-only** lab volume. |
         | **estimated_monthly_observe_bill_usd** | **Observe $ proxy** — all metric docs in the window × **$/M points** × `periods_per_month` (same constant as reclaim; **not** a Cloud bill). |
         | **estimated_monthly_reclaim_usd** | **Reclaim $ proxy** — modeled reclaim points × **$/M points** × `periods_per_month`. |
         | **pct_savings_of_estimated_observe_bill** | **% of that proxy bill** attributed to modeled reclaim (**reclaim ÷ observe × 100**). |

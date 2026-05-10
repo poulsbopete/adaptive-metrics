@@ -302,7 +302,7 @@ The **Retail Banking Metric governance snapshot** workflow (repo: `workflows/kib
 
 1. Open **Dashboards** → **Retail Banking Platform Executive** (or your scenario’s Executive dashboard) → **Edit**.
 2. **Create visualization** → **Lens** → switch data source to **ES|QL**.
-3. Paste this query (same logic as the workflow; tune the `0.35` factor to match your TCO model):
+3. Paste this query (same logic as the workflow; tune **`demo_streams_capture_on_eligible`** or revert to `* 0.35` for conservative math):
 
 ```esql
 FROM metrics*
@@ -313,10 +313,11 @@ FROM metrics*
     points_governance_lab = COUNT(*) WHERE service.name == "noisy-governance-shipper"
 | EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)
 | EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))
-| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)
+| EVAL demo_streams_capture_on_eligible = 1.28
+| EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)
 | EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))
-| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)
-| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)
+| EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)
+| EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)
 | EVAL assumed_usd_per_million_points_month = 2.50
 | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
 | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)

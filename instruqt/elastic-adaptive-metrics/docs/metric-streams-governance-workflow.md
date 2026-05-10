@@ -20,6 +20,8 @@ Use [`dashboards/metric-governance-retail-banking-as-code.json`](../../../dashbo
 
 A **Retail Banking Systems Operations** dashboard export illustrates the **native** pattern on the same API date: **`vis`** with **`config.type: metric`** or **`xy`**, **`data_source.type: data_view_reference`** (for example **`traces-*`**, **`metrics-*`**, **`logs.otel.banking`**), panel **`query`** in KQL, and aggregations such as **`count`**, **`average`**, **`percentile`**, **`formula`**, **`date_histogram`**, **`terms`**. **Governance math** (modeled savings **%**, proxy **$**, `DATE_TRUNC` trends) is easier as **ES|QL** in **`data_table`** than as a single **`metric`** aggregation on a pre-mapped field — so the Instruqt JSON follows **`data_table` + `esql`** for those panels.
 
+**Markdown and color:** Kibana sanitizes styled HTML in markdown panels, so the governance dashboard avoids `<div style=…>` heroes; it uses **emoji**, an optional **`![](data:image/svg+xml,…)`** gradient bar, and **emoji in panel titles** for color that survives sanitization.
+
 ---
 
 ## Example: Kubernetes metrics — shorter retention (Streams)

@@ -31,10 +31,10 @@
         "x": 0,
         "y": 0,
         "w": 48,
-        "h": 9
+        "h": 10
       },
       "config": {
-        "content": "<div style=\"background:linear-gradient(135deg,#0a7a6f,#17c964);color:#fff;padding:14px 18px;border-radius:8px;margin:0 0 14px 0;\">\n<div style=\"font-size:11px;opacity:0.9;letter-spacing:0.05em;text-transform:uppercase;\">Demo scenario — full Streams program</div>\n<div style=\"font-size:26px;font-weight:700;margin-top:6px;line-height:1.2;\">~<strong>72%</strong> modeled savings on eligible metric volume</div>\n<div style=\"font-size:13px;margin-top:8px;opacity:0.95;\">ES|QL uses <code style=\"background:rgba(0,0,0,0.18);padding:2px 8px;border-radius:4px;\">demo_streams_capture_on_eligible = 1.28</code> (cap <strong>88%</strong>) — narrative for routing, retention, and downsampling beyond a flat <code>0.35</code> lever. <strong>Not</strong> an Elastic Cloud invoice — tune <code>assumed_usd_per_million_points_month</code> in queries.</div>\n</div>\n\n## Streams savings — **TCO** (Elastic **Serverless**)\n\n**Native dashboard JSON** (same endpoint as Systems Operations): on **Elastic-Api-Version: 2023-10-31**, **`vis` + `metric`** / **`xy`** use **`data_source.type: data_view_reference`**. This dashboard uses **`vis` + `data_table` + `esql`** for arbitrary ES|QL (`modeled_policy_savings_pct`, proxy **$**, trends). **KPI row:** four one-column tables (15m).",
+        "content": "![](data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='14' viewBox='0 0 1600 14'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2300665b'/%3E%3Cstop offset='1' stop-color='%2300bfb3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1600' height='14' fill='url(%23a)' rx='4'/%3E%3C/svg%3E)\n\n# 🎯 ~**72%** modeled retail savings *(15m demo)*\n\n| | |\n|:--|:--|\n| 💚 **What this is** | **Headline** = **`modeled_policy_savings_pct`** — eligible metric volume after a **full Streams program** (retention · child routes · downsampling · aggregation). |\n| ⚙️ **Tune this** | **`demo_streams_capture_on_eligible = 1.28`** (cap **88%**) in every governance ES|QL panel; **`assumed_usd_per_million_points_month`** drives **$** proxies. |\n| ☁️ **Not** | An Elastic Cloud invoice — pedagogy only. |\n\n---\n\n## Streams savings — **TCO** (Elastic **Serverless**)\n\n**Native dashboard JSON** (same endpoint as Systems Operations): on **Elastic-Api-Version: 2023-10-31**, **`vis` + `metric`** / **`xy`** use **`data_source.type: data_view_reference`**. This dashboard uses **`vis` + `data_table` + `esql`** for arbitrary ES|QL. **KPI row:** four one-column tables (15m).",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -45,13 +45,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 9,
+        "y": 10,
         "w": 12,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "KPI — % of proxy observe bill saved (15m)",
+        "title": "💵 KPI — % of proxy observe bill saved (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -74,13 +74,13 @@
     {
       "grid": {
         "x": 12,
-        "y": 9,
+        "y": 10,
         "w": 12,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "KPI — modeled retail savings % (15m)",
+        "title": "🎯 KPI — modeled retail savings % (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -103,13 +103,13 @@
     {
       "grid": {
         "x": 24,
-        "y": 9,
+        "y": 10,
         "w": 12,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "KPI — reclaim $ / mo proxy (15m)",
+        "title": "💸 KPI — reclaim $ / mo proxy (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -132,13 +132,13 @@
     {
       "grid": {
         "x": 36,
-        "y": 9,
+        "y": 10,
         "w": 12,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "KPI — observe $ / mo proxy (15m)",
+        "title": "📊 KPI — observe $ / mo proxy (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -161,13 +161,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 18,
+        "y": 19,
         "w": 14,
         "h": 8
       },
       "config": {
         "hide_title": false,
-        "title": "Headline — modeled retail % (15m)",
+        "title": "✨ Headline — modeled retail % (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -190,13 +190,13 @@
     {
       "grid": {
         "x": 14,
-        "y": 18,
+        "y": 19,
         "w": 22,
         "h": 8
       },
       "config": {
         "hide_title": false,
-        "title": "Volume & eligible / lab (15m)",
+        "title": "📉 Volume & eligible / lab (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -228,13 +228,13 @@
     {
       "grid": {
         "x": 36,
-        "y": 18,
+        "y": 19,
         "w": 12,
         "h": 8
       },
       "config": {
         "hide_title": false,
-        "title": "Core vs other retail (15m)",
+        "title": "⚖️ Core vs other retail (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -269,12 +269,12 @@
     {
       "grid": {
         "x": 0,
-        "y": 26,
+        "y": 27,
         "w": 48,
         "h": 3
       },
       "config": {
-        "content": "### Streams levers (Serverless)\n\n**Retention** · **Routing / child streams** · **Downsampling** — headline % uses **`demo_streams_capture_on_eligible`** (1.28) in ES|QL; tune **`assumed_usd_per_million_points_month`** for $ proxies.",
+        "content": "### 🛠 Streams levers (Serverless)\n\n**Retention** · **Routing / child streams** · **Downsampling** — headline % uses **`demo_streams_capture_on_eligible`** in ES|QL; tune **`assumed_usd_per_million_points_month`** for $ proxies.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -285,13 +285,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 29,
+        "y": 30,
         "w": 48,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "Finance proxies — full snapshot (15m)",
+        "title": "📑 Finance proxies — full snapshot (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -332,13 +332,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 38,
+        "y": 39,
         "w": 48,
         "h": 14
       },
       "config": {
         "hide_title": false,
-        "title": "Hourly trend — modeled % & eligible % (48h, table)",
+        "title": "📈 Hourly trend — modeled % & eligible % (48h, table)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -379,13 +379,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 52,
+        "y": 53,
         "w": 24,
         "h": 12
       },
       "config": {
         "hide_title": false,
-        "title": "Top services — metric volume (24h)",
+        "title": "🧩 Top services — metric volume (24h)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -411,13 +411,13 @@
     {
       "grid": {
         "x": 24,
-        "y": 52,
+        "y": 53,
         "w": 24,
         "h": 12
       },
       "config": {
         "hide_title": false,
-        "title": "Top OTel datasets — Streams targets (15m)",
+        "title": "📦 Top OTel datasets — Streams targets (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -443,13 +443,13 @@
     {
       "grid": {
         "x": 0,
-        "y": 64,
+        "y": 65,
         "w": 48,
         "h": 11
       },
       "config": {
         "hide_title": false,
-        "title": "Metric ingest rate (docs / hour, 48h)",
+        "title": "⏱ Metric ingest rate (docs / hour, 48h)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -475,12 +475,12 @@
     {
       "grid": {
         "x": 0,
-        "y": 75,
+        "y": 76,
         "w": 48,
         "h": 6
       },
       "config": {
-        "content": "**Cases** `[Governance]` · **Streams** · **AI Assistant** — proxies only. **API note:** ES|QL on **2023-10-31** `POST /api/dashboards` uses **`vis` + `data_table`** only. **Demo %** uses **`demo_streams_capture_on_eligible`** in panel queries (not `vis`+`metric`+`esql`).",
+        "content": "**Cases** `[Governance]` · **Streams** · **AI Assistant** — proxies only. **API:** **`vis` + `data_table` + `esql`** on **2023-10-31**. **Color:** Kibana markdown strips HTML — this dashboard uses **emoji + SVG bar** + **panel title icons** instead.",
         "settings": {
           "open_links_in_new_tab": true
         }

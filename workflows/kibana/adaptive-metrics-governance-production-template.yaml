@@ -59,11 +59,10 @@ steps:
             fraud_score = AVG(fraud_sentinel.avg_risk_score)
         | EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)
         | EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))
-        | EVAL demo_streams_capture_on_eligible = 1.28
-        | EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)
+        | EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)
         | EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))
-        | EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)
-        | EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)
+        | EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)
+        | EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)
         | EVAL assumed_usd_per_million_points_month = 2.50
         | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
         | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
@@ -73,16 +72,16 @@ steps:
   - name: governance_case
     type: cases.createCase
     with:
-      title: "[Governance] Adaptive Metrics — daily TCO snapshot (modeled savings in Case body)"
+      title: "[Governance] Adaptive Metrics — daily TCO snapshot (observed volume + USD proxies in Case body)"
       description: |
-        ### Metric governance — modeled TCO snapshot
+        ### Metric governance — TCO snapshot
 
-        **Scope:** Summarize the latest ES|QL run for Retail Banking: volume outside nine declared
-        core services (Streams-eligible share), **modeled_policy_savings_pct** after capture
-        assumptions, and **USD FinOps proxies** for modeled monthly observe vs reclaim.
+        **Scope:** Summarize the latest ES|QL run for Retail Banking: **observed** metric-point counts
+        outside nine declared core services (`points_in_savings_envelope`), eligible retail slice
+        (`streams_eligible_pct`), lab OTLP share, and **USD FinOps proxies** for monthly observe vs reclaim.
 
         **How to read it**
-        - **Percentages** are **scenario indices** (capped), not contracted SLAs or finance sign-off.
+        - **Percentages** are derived from **Elasticsearch counts** in the window (no synthetic capture multiplier).
         - **USD fields** use an illustrative **$/million metric points/month** rate for order-of-magnitude
           comparison; replace inputs with **approved chargeback** before external commitments.
 
@@ -111,14 +110,13 @@ steps:
 
         | Business meaning | Field |
         |------------------|-------|
-        | Modeled governance savings % (capped) | `modeled_policy_savings_pct` |
-        | Share of retail-modeled points outside core services (eligibility) | `streams_eligible_pct` |
+        | Eligible retail slice % (alias = `modeled_policy_savings_pct`) | `streams_eligible_pct` |
+        | Doc count outside nine core services | `points_in_savings_envelope` |
         | Lab OTLP points (`noisy-governance-shipper`) | `points_governance_lab` |
-        | Lab traffic as % of all points | `streams_governance_lab_pct` |
-        | Modeled savings % on lab slice | `modeled_governance_lab_savings_pct` |
-        | Modeled monthly observe cost — USD proxy | `estimated_monthly_observe_bill_usd` |
-        | Modeled monthly reclaim — USD proxy | `estimated_monthly_reclaim_usd` |
-        | Reclaim as % of observe proxy | `pct_savings_of_estimated_observe_bill` |
+        | Lab traffic as % of all points (alias `modeled_governance_lab_savings_pct`) | `streams_governance_lab_pct` |
+        | Monthly observe cost — USD proxy | `estimated_monthly_observe_bill_usd` |
+        | Monthly reclaim — USD proxy | `estimated_monthly_reclaim_usd` |
+        | Reclaim as % of observe proxy (non-core volume share if $/point is flat) | `pct_savings_of_estimated_observe_bill` |
 
         **AI Assistant:** Ask for assumption stress-testing and a checklist of what Finance must validate
         for a board-ready business case.

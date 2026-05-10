@@ -119,7 +119,7 @@ flowchart TD
 
 ---
 
-## Heuristic “% saved” in the starter Case (demo)
+## Snapshot fields in the starter Case (observed counts)
 
 The **Case description** is written in **plain language** on purpose. The **first comment** has a small **“picture → field name”** table so adults can match words to the JSON block.
 
@@ -130,17 +130,17 @@ The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yam
 | **points_governance_lab** | Documents with **`service.name == "noisy-governance-shipper"`** (Instruqt **governance-lab** OTLP shipper when enabled). |
 | **metric_points_retail_model** | `metric_points - points_governance_lab` — retail-banking **denominator** for eligible % (lab traffic does not dilute the retail share). |
 | **streams_eligible_pct** | `100 * (metric_points_retail_model - points_core_services) / metric_points_retail_model`, where `points_core_services` counts the nine core retail-banking `service.name` values. **Eligible** = non-core **within the retail slice** only. |
-| **modeled_policy_savings_pct** | `ROUND(LEAST(88, streams_eligible_pct * demo_streams_capture_on_eligible), 2)` with **`demo_streams_capture_on_eligible = 1.28`** in the lab dashboard — **~60–80%** demo story (tune or revert to `* 0.35` for conservative math). |
+| **modeled_policy_savings_pct** | **Same numeric value as `streams_eligible_pct`** (alias kept for dashboard compatibility — **no** synthetic multiplier). |
 | **streams_governance_lab_pct** | Lab docs ÷ **all** metric docs × 100 (lab’s share of total ingest). |
-| **modeled_governance_lab_savings_pct** | `ROUND(LEAST(95, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)` — same capture factor on **governance-only** lab volume. |
-| **points_in_savings_envelope** | Modeled reclaim **document count** proxy (retail modeled % on slice + lab docs × **`modeled_governance_lab_savings_pct` / 100**). |
+| **modeled_governance_lab_savings_pct** | **Same numeric value as `streams_governance_lab_pct`** (alias — lab series row). |
+| **points_in_savings_envelope** | **Observed** doc count **`metric_points - points_core_services`** — traffic whose `service.name` is **outside** the nine declared core services. |
 | **estimated_monthly_observe_bill_usd** | **Observe $ proxy** — all metric docs × **$/M points/month** × `periods_per_month` (pedagogical). |
 | **estimated_monthly_reclaim_usd** | **Reclaim $ proxy** — `points_in_savings_envelope` × same rate. |
-| **pct_savings_of_estimated_observe_bill** | **% of proxy observe bill** saved (**reclaim ÷ observe × 100**, zero-guarded). |
+| **pct_savings_of_estimated_observe_bill** | **% of proxy observe bill** saved (**reclaim ÷ observe × 100**) — equals non-core **volume share** when $/point is uniform. |
 
-Replace the service allowlist and **`demo_streams_capture_on_eligible`** (or revert to a flat **`0.35`**) with **your** governance model before production.
+Replace the nine core **`service.name`** values and **`assumed_usd_per_million_points_month`** with **your** governance model before production finance use.
 
-**Workshop UX:** mirror **`modeled_policy_savings_pct`** on the **Executive** dashboard with the same ES|QL in a **Lens** metric (Challenge 2), then use **Observability AI Assistant** on the Case for **$/month** language so the savings story is obvious to finance.
+**Workshop UX:** mirror **`streams_eligible_pct`** / **`pct_savings_of_estimated_observe_bill`** on the **Executive** dashboard with the same ES|QL in a **Lens** metric (Challenge 2), then use **Observability AI Assistant** on the Case for **$/month** language so the savings story is obvious to finance.
 
 ---
 

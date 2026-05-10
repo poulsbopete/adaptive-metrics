@@ -197,11 +197,10 @@ steps:
             fraud_score = AVG(fraud_sentinel.avg_risk_score)
         | EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)
         | EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))
-        | EVAL demo_streams_capture_on_eligible = 1.28
-        | EVAL modeled_policy_savings_pct = ROUND(LEAST(88.0, streams_eligible_pct * demo_streams_capture_on_eligible), 2)
+        | EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)
         | EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))
-        | EVAL modeled_governance_lab_savings_pct = ROUND(LEAST(95.0, streams_governance_lab_pct * demo_streams_capture_on_eligible), 2)
-        | EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * modeled_governance_lab_savings_pct / 100.0, 0)
+        | EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)
+        | EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)
         | EVAL assumed_usd_per_million_points_month = 2.50
         | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
         | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
@@ -231,7 +230,7 @@ steps:
 
         ## About “50% savings” and the numbers below
 
-        The next Case comment includes **ES|QL modeled** fields (`estimated_monthly_*`, `pct_savings_of_estimated_observe_bill`).
+        The next Case comment includes **ES|QL-derived** fields (`estimated_monthly_*`, `pct_savings_of_estimated_observe_bill`).
         Those are **FinOps proxies** for prioritization—**not** Finance-approved bill forecasts. To aim higher modeled
         reclaim, tighten retention days in this workflow’s YAML or add forks for additional noisy partitions.
 
@@ -250,16 +249,18 @@ steps:
     with:
       case_id: "{{ steps.governance_case.output.case.id }}"
       comment: |
-        ### Modeled savings snapshot (ES|QL — illustrative USD, not an invoice)
+        ### Governance snapshot (ES|QL — illustrative USD, not an invoice)
 
         | Field | Meaning |
         |-------|-----------|
-        | `modeled_policy_savings_pct` | Scenario index — % band if governance captured eligible traffic |
-        | `streams_eligible_pct` | Share of modeled metric points outside nine declared core services |
-        | `points_governance_lab` / `streams_governance_lab_pct` | Synthetic OTLP lab shipper volume |
+        | `modeled_policy_savings_pct` | Same value as **`streams_eligible_pct`** (eligible retail slice — alias kept for dashboards) |
+        | `streams_eligible_pct` | Share of retail-modeled metric points outside nine declared core services |
+        | `modeled_governance_lab_savings_pct` | Same value as **`streams_governance_lab_pct`** (lab shipper share of all points) |
+        | `points_in_savings_envelope` | **Observed** doc count: **`metric_points - points_core_services`** |
+        | `points_governance_lab` / `streams_governance_lab_pct` | OTLP lab shipper (`noisy-governance-shipper`) volume |
         | `estimated_monthly_observe_bill_usd` | Order-of-magnitude **proxy** bill from metric-point rate |
-        | `estimated_monthly_reclaim_usd` | Same proxy applied to “in savings envelope” points |
-        | `pct_savings_of_estimated_observe_bill` | Reclaim ÷ observe proxy — **lab scenario**, not a promise |
+        | `estimated_monthly_reclaim_usd` | Same proxy applied to **`points_in_savings_envelope`** |
+        | `pct_savings_of_estimated_observe_bill` | Reclaim ÷ observe proxy — equals non-core **volume share** when $/point is flat |
 
         **Logs volume (top services, last 30m):**
 

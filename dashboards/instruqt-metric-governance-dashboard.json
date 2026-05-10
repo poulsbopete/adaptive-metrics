@@ -34,7 +34,7 @@
         "h": 9
       },
       "config": {
-        "content": "# Governance savings \u2014 executive readout *(rolling 15 minutes)*\n\n**Scan the row below this note first:** **Before** vs **After Adaptive Metrics** explains what the four headline numbers mean (baseline proxy \u2192 core-only proxy \u2192 addressable \u2192 reduction %). **Vendor TCO scenario** (below FinOps snapshot) applies the **same non-optimized footprint** to the competitor options from [GitHub Pages](https://poulsbopete.github.io/adaptive-metrics/) using **illustrative multipliers**\u2014not vendor quotes.\n\nCounts come from **Elasticsearch** in the window\u2014**no** synthetic capture multiplier. **`points_in_savings_envelope`** = **`metric_points - points_core_services`**. **`pct_savings_of_estimated_observe_bill`** = addressable share of the baseline proxy under a flat **$/metric-point** rate\u2014**not** an Elastic invoice.\n\n**Executive**\n- **USD columns are FinOps proxies** via **`assumed_usd_per_million_points_month`**. Replace with **your** blend rate or map to **GB \u00d7** [Serverless Observability pricing](https://www.elastic.co/pricing/serverless-observability) before Finance sign-off.\n\n**SRE / platform**\n- Panels use **`vis` + `data_table` + ES|QL** (`Elastic-Api-Version: 2023-10-31`). Markdown sanitizes HTML; rely on titles + tables.",
+        "content": "# Governance savings \u2014 executive readout *(rolling 15 minutes)*\n\n**Two numbers:** **before adaptive-metrics** (full-ingest proxy $) and **after adaptive-metrics** (core-only proxy $ after the governance split). Same **`assumed_usd_per_million_points_month`** \u2014 not an Elastic invoice.\n\nDetail tables and **vendor comparison** are below. Tune **`assumed_usd_per_million_points_month`** or map GB to [Observability Serverless pricing](https://www.elastic.co/pricing/serverless-observability). Panels use **`vis` + `data_table` + ES|QL** (`Elastic-Api-Version: 2023-10-31`).",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -50,7 +50,7 @@
         "h": 5
       },
       "config": {
-        "content": "### Before vs After Adaptive Metrics *(how to read the top row)*\n\n**Before (baseline)** \u2014 Monthly **FinOps proxy** if **every** metric document is priced at **`assumed_usd_per_million_points_month`** with **no** Streams differentiation\u2014**full-ingest** footprint.\n\n**After (Adaptive Metrics / Streams governance)** \u2014 Proxy monthly cost if **only declared core** series (`points_core_services`) carry the baseline rate; mathematically **`baseline \u2212 addressable`** at the same flat **$/point**. Represents **core-only** proxy bill **after** routing shorter retention / forks on noisy paths.\n\n**Addressable $** \u2014 Proxy tied to **`metric_points \u2212 points_core_services`** (lab + non-core retail). **Reduction %** \u2014 Share of the **baseline** proxy from that volume\u2014**not** an Elastic Cloud invoice. Map to GB ingest/retention using [Observability Serverless pricing](https://www.elastic.co/pricing/serverless-observability) for finance-grade estimates.",
+        "content": "### Before adaptive-metrics vs after adaptive-metrics\n\n**Before adaptive-metrics** \u2014 Estimated **$/month** if every metric document uses the same **`assumed_usd_per_million_points_month`** rate (no governance split yet).\n\n**After adaptive-metrics** \u2014 Estimated **$/month** on **declared core** traffic after governance math (\u2248 **before** minus addressable non-core volume), same rate.\n\nFor reclaim $ and % of baseline, see **FinOps proxy snapshot** below.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -62,99 +62,12 @@
       "grid": {
         "x": 0,
         "y": 14,
-        "w": 12,
+        "w": 24,
         "h": 9
       },
       "config": {
         "hide_title": false,
-        "title": "Proxy reduction % of baseline \u2014 non-core share (15m)",
-        "type": "data_table",
-        "data_source": {
-          "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)\n| EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP pct_savings_of_estimated_observe_bill"
-        },
-        "sampling": 1,
-        "ignore_global_filters": false,
-        "rows": [
-          {
-            "column": "pct_savings_of_estimated_observe_bill"
-          }
-        ],
-        "styling": {
-          "paging": 10
-        }
-      },
-      "id": "f78f1ae3-c103-5488-b045-0aff62338145",
-      "type": "vis"
-    },
-    {
-      "grid": {
-        "x": 12,
-        "y": 14,
-        "w": 12,
-        "h": 9
-      },
-      "config": {
-        "hide_title": false,
-        "title": "After \u00b7 core-only proxy $ / month (15m)",
-        "type": "data_table",
-        "data_source": {
-          "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)\n| EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_bill_after_governance_usd"
-        },
-        "sampling": 1,
-        "ignore_global_filters": false,
-        "rows": [
-          {
-            "column": "estimated_monthly_bill_after_governance_usd"
-          }
-        ],
-        "styling": {
-          "paging": 10
-        }
-      },
-      "id": "726530e3-47cf-593c-a9d0-60ff7dc2394d",
-      "type": "vis"
-    },
-    {
-      "grid": {
-        "x": 24,
-        "y": 14,
-        "w": 12,
-        "h": 9
-      },
-      "config": {
-        "hide_title": false,
-        "title": "Addressable non-core \u00b7 proxy $ / month (15m)",
-        "type": "data_table",
-        "data_source": {
-          "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)\n| EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_reclaim_usd"
-        },
-        "sampling": 1,
-        "ignore_global_filters": false,
-        "rows": [
-          {
-            "column": "estimated_monthly_reclaim_usd"
-          }
-        ],
-        "styling": {
-          "paging": 10
-        }
-      },
-      "id": "95c8dd8e-0b53-5520-b9b9-e2bd994881e7",
-      "type": "vis"
-    },
-    {
-      "grid": {
-        "x": 36,
-        "y": 14,
-        "w": 12,
-        "h": 9
-      },
-      "config": {
-        "hide_title": false,
-        "title": "Before \u00b7 baseline proxy $ / month (15m)",
+        "title": "Before adaptive-metrics \u2014 est. $/month (15m)",
         "type": "data_table",
         "data_source": {
           "type": "esql",
@@ -172,6 +85,35 @@
         }
       },
       "id": "66469918-e44c-5c2f-855a-ce94f00e92dd",
+      "type": "vis"
+    },
+    {
+      "grid": {
+        "x": 24,
+        "y": 14,
+        "w": 24,
+        "h": 9
+      },
+      "config": {
+        "hide_title": false,
+        "title": "After adaptive-metrics \u2014 est. $/month (15m)",
+        "type": "data_table",
+        "data_source": {
+          "type": "esql",
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)\n| EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))\n| EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct, 2)\n| EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))\n| EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct, 2)\n| EVAL points_in_savings_envelope = ROUND(COALESCE(metric_points, 0) - COALESCE(points_core_services, 0), 0)\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)\n| EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))\n| KEEP estimated_monthly_bill_after_governance_usd"
+        },
+        "sampling": 1,
+        "ignore_global_filters": false,
+        "rows": [
+          {
+            "column": "estimated_monthly_bill_after_governance_usd"
+          }
+        ],
+        "styling": {
+          "paging": 10
+        }
+      },
+      "id": "726530e3-47cf-593c-a9d0-60ff7dc2394d",
       "type": "vis"
     },
     {

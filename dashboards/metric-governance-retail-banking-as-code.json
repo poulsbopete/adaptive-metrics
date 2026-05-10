@@ -7,8 +7,10 @@
     "adaptive-metrics",
     "tco"
   ],
-  "time_from": "now-48h",
-  "time_to": "now",
+  "time_range": {
+    "from": "now-48h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "DASHBOARD_MARKDOWN",

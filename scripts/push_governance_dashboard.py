@@ -16,8 +16,8 @@ Environment:
   KIBANA_URL or ES_URL  — Kibana base URL (Instruqt often uses the same host for both)
   ES_API_KEY or ELASTIC_API_KEY or KIBANA_API_KEY
 
-Body defaults to dashboards/instruqt-metric-governance-dashboard.json (title + panels only;
-the script merges time_range, options, query, filters).
+Body defaults to dashboards/instruqt-metric-governance-dashboard.json. Legacy **time_from** /
+**time_to** keys are stripped before POST (use **time_range** only, like a Kibana dashboard export).
 
 Optional:
   GOVERNANCE_DASHBOARD_JSON — path to override JSON spec
@@ -80,6 +80,9 @@ def main() -> int:
         )
     )
     spec = json.loads(path.read_text(encoding="utf-8"))
+    # POST /api/dashboards (2023-10-31) allows time_range only, not legacy time_from / time_to.
+    spec.pop("time_from", None)
+    spec.pop("time_to", None)
     code, text = kibana_post_dashboard(base, key, spec)
     if code not in (200, 201):
         print(f"HTTP {code}", text[:4000], file=sys.stderr)

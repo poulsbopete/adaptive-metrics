@@ -17,7 +17,7 @@ notes:
     - Open Retail Banking **and** **Adaptive Metrics / governance** dashboards
     - Peek at **APM** and **SLOs**
 
-    Keep **Last 15 minutes** everywhere.
+    Keep **Last 15 minutes** everywhere. Challenge steps use **copy boxes** for ES|QL and search strings — paste into Kibana as shown.
 
     **Adaptive Metrics dashboard:** Search **`Adaptive`** or **`Streams savings`** — title contains **Adaptive Metrics · Streams savings & governance (TCO)**.
 
@@ -80,17 +80,73 @@ Default scenario: **Retail Banking**. Use **Elastic Serverless** with **Last 15 
 
 ## Checklist (do in order)
 
-| Step | Where | What |
-|:---:|:---|:---|
-| 1 | **Discover** → ES\|QL | Run: `FROM logs* \| WHERE @timestamp > NOW() - 15 MINUTES \| LIMIT 50` — confirm rows |
-| 2 | **Dashboards** | Search **`Retail Banking`** → open **Systems Operations** *or* **Executive** |
-| 3 | **Dashboards** | Search **`Adaptive`** or **`governance`** → open **Adaptive Metrics · Streams savings & governance (TCO)** |
-| 4 | **Applications** → **Service inventory** | Click any retail service → open **one transaction / trace** |
-| 5 | **Observability** → **SLOs** | Open **one** SLO |
+Use the **copy boxes** — click inside the gray block, select all (`⌘A` / `Ctrl+A`), copy (`⌘C` / `Ctrl+C`), paste into Kibana.
 
-✅ **Continue** after steps **1–3** (minimum). Steps 4–5 recommended.
+### Step 1 — Discover → ES|QL
 
-**Bonus:** **Observability → Workflows** → search **`governance`** → **Retail Banking Metric governance snapshot** (Adaptive Metrics / Cases — installed by lab setup).
+1. Open **Discover** and switch to **ES|QL**.
+2. Paste:
+
+```
+FROM logs*
+| WHERE @timestamp > NOW() - 15 MINUTES
+| LIMIT 50
+```
+
+3. Run the query and confirm you see rows.
+
+### Step 2 — Dashboards (Retail Banking)
+
+1. Open **Dashboards**.
+2. Paste into the dashboard search field:
+
+```
+Retail Banking
+```
+
+3. Open **Systems Operations** or **Executive**.
+
+### Step 3 — Dashboards (Adaptive Metrics)
+
+1. Open **Dashboards** again (or stay on the list).
+2. Paste **one** of these into search:
+
+```
+Adaptive
+```
+
+```
+governance
+```
+
+3. Open **Adaptive Metrics · Streams savings & governance (TCO)**.  
+   *(Optional — paste the full title if the list is long:)*
+
+```
+Adaptive Metrics · Streams savings & governance (TCO)
+```
+
+### Step 4 — Applications → Service inventory
+
+1. Open **Applications** → **Service inventory**.
+2. Click any retail banking service and open **one** transaction or trace.
+
+### Step 5 — SLOs
+
+1. Open **Observability** → **SLOs** and open **one** SLO.
+
+✅ **Continue** after steps **1–3** (minimum). Steps **4–5** recommended.
+
+### Bonus — Workflows
+
+1. Open **Observability** → **Workflows**.
+2. Paste into search:
+
+```
+governance
+```
+
+3. Open **Retail Banking Metric governance snapshot** (Adaptive Metrics / Cases — installed by lab setup).
 
 > **Tip:** If ES|QL errors on `TS metrics*` time-series rules, use `FROM metrics*` + `STATS` for counts — see [ES\|QL TS docs](https://www.elastic.co/docs/reference/query-languages/esql/commands/ts).
 

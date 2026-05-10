@@ -356,7 +356,7 @@
         "h": 5
       },
       "config": {
-        "content": "### Vendor TCO scenario *(same non-optimized metric volume \u00b7 illustrative only)*\n\nThis row applies **one shared ingest footprint** \u2014 **`nonoptimized_monthly_proxy_usd`** (same math as **Before \u00b7 baseline proxy** / `estimated_monthly_observe_bill_usd`) \u2014 then **scenario multipliers** per row in [GitHub Pages \u00b7 Choosing a metrics architecture](https://poulsbopete.github.io/adaptive-metrics/) (VictoriaMetrics, Prometheus+Mimir, Grafana, Datadog, Dynatrace, New Relic, Chronosphere, Splunk O11y, CloudWatch, Google Cloud Ops vs **Elastic Observability**).\n\n**Elastic** is the **1.00\u00d7 reference** (lowest). Other columns are **FinOps workshop indices**, not vendor quotes or invoices\u2014replace multipliers in dashboard ES|QL after your procurement model. For Elastic **GB-based** public rates see [Observability Serverless pricing](https://www.elastic.co/pricing/serverless-observability).",
+        "content": "### Vendor TCO scenario *(same non-optimized metric volume \u00b7 illustrative only)*\n\nThe **table below lists one vendor per row**: **`shared_nonoptimized_proxy_usd`** is the **same footprint** for everyone (same math as **Before \u00b7 baseline** / `estimated_monthly_observe_bill_usd`). **`scenario_mult`** is the workshop index; **`monthly_tc_proxy_usd`** = footprint \u00d7 mult. Options align with [GitHub Pages \u00b7 Choosing a metrics architecture](https://poulsbopete.github.io/adaptive-metrics/). **Elastic** is **1.00\u00d7** (lowest). Values are **not** vendor quotes\u2014tune `CASE` multipliers in ES|QL. [Observability Serverless pricing](https://www.elastic.co/pricing/serverless-observability) for GB-based Elastic estimates.",
         "settings": {
           "open_links_in_new_tab": true
         }
@@ -377,46 +377,22 @@
         "type": "data_table",
         "data_source": {
           "type": "esql",
-          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL nonoptimized_monthly_proxy_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL scen_elastic_obs_o11y_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.00, 2)\n| EVAL scen_victoriametrics_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.14, 2)\n| EVAL scen_prometheus_mimir_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.18, 2)\n| EVAL scen_grafana_mimir_cloud_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.20, 2)\n| EVAL scen_datadog_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.72, 2)\n| EVAL scen_dynatrace_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.65, 2)\n| EVAL scen_new_relic_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.44, 2)\n| EVAL scen_chronosphere_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.36, 2)\n| EVAL scen_splunk_o11y_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.52, 2)\n| EVAL scen_aws_cloudwatch_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.38, 2)\n| EVAL scen_google_cloud_ops_usd = ROUND(nonoptimized_monthly_proxy_usd * 1.32, 2)\n| KEEP nonoptimized_monthly_proxy_usd, scen_elastic_obs_o11y_usd, scen_victoriametrics_usd, scen_prometheus_mimir_usd, scen_grafana_mimir_cloud_usd, scen_datadog_usd, scen_dynatrace_usd, scen_new_relic_usd, scen_chronosphere_usd, scen_splunk_o11y_usd, scen_aws_cloudwatch_usd, scen_google_cloud_ops_usd"
+          "query": "FROM metrics*\n| WHERE @timestamp > NOW() - 15 minutes\n| STATS metric_points = COUNT(*), points_core_services = COUNT(*) WHERE service.name IN (\"payment-engine\", \"claims-processor\", \"mobile-gateway\", \"member-portal\", \"fraud-sentinel\", \"policy-manager\", \"auth-gateway\", \"document-vault\", \"quote-engine\"), points_governance_lab = COUNT(*) WHERE service.name == \"noisy-governance-shipper\"\n| EVAL assumed_usd_per_million_points_month = 2.50\n| EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0\n| EVAL shared_nonoptimized_proxy_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)\n| EVAL vendor_idx = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n| MV_EXPAND vendor_idx\n| EVAL vendor_label = CASE(vendor_idx == 0, \"Elastic Observability\", vendor_idx == 1, \"VictoriaMetrics\", vendor_idx == 2, \"Prometheus + Mimir\", vendor_idx == 3, \"Grafana (Mimir Cloud)\", vendor_idx == 4, \"Datadog\", vendor_idx == 5, \"Dynatrace\", vendor_idx == 6, \"New Relic\", vendor_idx == 7, \"Chronosphere\", vendor_idx == 8, \"Splunk Observability\", vendor_idx == 9, \"AWS CloudWatch\", vendor_idx == 10, \"Google Cloud Ops\", \"Other\")\n| EVAL scenario_mult = CASE(vendor_idx == 0, 1.00, vendor_idx == 1, 1.14, vendor_idx == 2, 1.18, vendor_idx == 3, 1.20, vendor_idx == 4, 1.72, vendor_idx == 5, 1.65, vendor_idx == 6, 1.44, vendor_idx == 7, 1.36, vendor_idx == 8, 1.52, vendor_idx == 9, 1.38, vendor_idx == 10, 1.32, 1.0)\n| EVAL monthly_tc_proxy_usd = ROUND(shared_nonoptimized_proxy_usd * scenario_mult, 2)\n| SORT vendor_idx ASC\n| KEEP vendor_label, scenario_mult, monthly_tc_proxy_usd, shared_nonoptimized_proxy_usd"
         },
         "sampling": 1,
         "ignore_global_filters": false,
         "rows": [
           {
-            "column": "nonoptimized_monthly_proxy_usd"
+            "column": "vendor_label"
           },
           {
-            "column": "scen_elastic_obs_o11y_usd"
+            "column": "scenario_mult"
           },
           {
-            "column": "scen_victoriametrics_usd"
+            "column": "monthly_tc_proxy_usd"
           },
           {
-            "column": "scen_prometheus_mimir_usd"
-          },
-          {
-            "column": "scen_grafana_mimir_cloud_usd"
-          },
-          {
-            "column": "scen_datadog_usd"
-          },
-          {
-            "column": "scen_dynatrace_usd"
-          },
-          {
-            "column": "scen_new_relic_usd"
-          },
-          {
-            "column": "scen_chronosphere_usd"
-          },
-          {
-            "column": "scen_splunk_o11y_usd"
-          },
-          {
-            "column": "scen_aws_cloudwatch_usd"
-          },
-          {
-            "column": "scen_google_cloud_ops_usd"
+            "column": "shared_nonoptimized_proxy_usd"
           }
         ],
         "styling": {

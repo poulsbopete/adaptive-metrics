@@ -2,11 +2,12 @@
 """
 Create the metric governance dashboard on Elastic Serverless / Instruqt Kibana.
 
-Uses POST /api/dashboards with **Elastic-Api-Version** set to a **YYYY-MM-DD** string (Kibana rejects
-bare ``1``). Default **2023-10-31**; override with **KIBANA_DASHBOARDS_API_VERSION** if your stack
-documents a newer dashboards API date.
+Uses POST /api/dashboards with **Elastic-Api-Version** set to a **YYYY-MM-DD** string (default **2023-10-31**;
+Kibana rejects bare ``1``). Override with **KIBANA_DASHBOARDS_API_VERSION** if your stack documents a newer date.
 
-Payload: dashboard-as-code panels (**metric**, **gauge**, **xy**, **DASHBOARD_MARKDOWN**).
+Payload for **2023-10-31**: panel types **`markdown`** and **`vis`** only. ES|QL charts are **`type: "vis"`** with
+**`config.type`** **`metric`**, **`gauge`**, or **`xy`** (see `dashboards/instruqt-metric-governance-dashboard.json`).
+Top-level **`metric`** / **`DASHBOARD_MARKDOWN`** is a different MCP / newer API shape—not valid for this POST.
 
 Environment:
   KIBANA_URL or ES_URL  — Kibana base URL (Instruqt often uses the same host for both)

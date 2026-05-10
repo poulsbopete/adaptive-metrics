@@ -943,6 +943,7 @@ _discover_motlp_url() {
 
 if [[ "${DISABLE_NOISY_METRICS_SHIPPER:-0}" != "1" ]]; then
   TRACK_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  TRACK_ROOT="$(cd "$TRACK_SCRIPT_DIR/.." && pwd)"
   MOTLP_URL_EFFECTIVE="${MOTLP_URL:-}"
   if [[ -z "$MOTLP_URL_EFFECTIVE" ]]; then
     MOTLP_URL_EFFECTIVE="$(_discover_motlp_url || true)"
@@ -954,7 +955,7 @@ if [[ "${DISABLE_NOISY_METRICS_SHIPPER:-0}" != "1" ]]; then
     curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3 - --target="$NOISY_DIR/pkg" --quiet 2>/dev/null || true
     PYTHONPATH="$NOISY_DIR/pkg" python3 -m pip install \
       --target="$NOISY_DIR/pkg" --prefer-binary --quiet \
-      -r "$TRACK_SCRIPT_DIR/requirements-noisy-metrics.txt"
+      -r "$TRACK_ROOT/noisy-metrics-requirements.txt"
     cp -f "$TRACK_SCRIPT_DIR/noisy_otlp_metrics.py" "$NOISY_DIR/"
     chmod +x "$NOISY_DIR/noisy_otlp_metrics.py"
 

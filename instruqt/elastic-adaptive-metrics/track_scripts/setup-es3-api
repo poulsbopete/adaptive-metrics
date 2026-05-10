@@ -825,8 +825,45 @@ done
 DEMO_KIBANA_URL="${KIBANA_URL:-}"
 DEMO_API_KEY="${ELASTICSEARCH_API_KEY:-}"
 
-TRACK_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRACK_ROOT="$(cd "$TRACK_SCRIPT_DIR/.." && pwd)"
+# Instruqt may execute this script from a staged path (e.g. under /tmp) without copying
+# bundled assets. Resolve the directory that contains track_scripts/dashboards and workflows/.
+_resolve_track_scripts_dir() {
+  local script_home="$1"
+  local dash_rel="dashboards/instruqt-metric-governance-dashboard.json"
+  if [[ -f "${script_home}/${dash_rel}" ]]; then
+    printf '%s\n' "${script_home}"
+    return 0
+  fi
+  local d="$script_home"
+  local _
+  for _ in $(seq 1 24); do
+    if [[ -f "${d}/track_scripts/${dash_rel}" ]]; then
+      (cd "${d}/track_scripts" && pwd)
+      return 0
+    fi
+    [[ "${d}" == "/" ]] && break
+    d="$(dirname "${d}")"
+  done
+  local hit=""
+  local root
+  for root in /tmp /root /home /opt /var/lib /usr/local /instruqt "${HOME:-}"; do
+    [[ -d "${root}" ]] || continue
+    hit="$(find "${root}" -maxdepth 16 -path '*/track_scripts/dashboards/instruqt-metric-governance-dashboard.json' 2>/dev/null | head -n1)"
+    [[ -n "${hit}" ]] || continue
+    (cd "$(dirname "$(dirname "${hit}")")" && pwd)
+    return 0
+  done
+  printf '%s\n' "${script_home}"
+  return 1
+}
+
+_SCRIPT_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TRACK_SCRIPT_DIR="$(_resolve_track_scripts_dir "${_SCRIPT_HOME}")"
+if [[ ! -f "${TRACK_SCRIPT_DIR}/dashboards/instruqt-metric-governance-dashboard.json" ]]; then
+  echo "WARN: Bundled governance dashboard JSON not found under TRACK_SCRIPT_DIR=${TRACK_SCRIPT_DIR} (script_home=${_SCRIPT_HOME})"
+fi
+TRACK_ROOT="$(cd "${TRACK_SCRIPT_DIR}/.." && pwd)"
+echo "INFO: TRACK_SCRIPT_DIR=${TRACK_SCRIPT_DIR}"
 
 # POST dashboards/instruqt-metric-governance-dashboard.json (bundled under track_scripts/dashboards/).
 _push_metric_governance_dashboard() {
@@ -1054,8 +1091,12 @@ except: print('  (could not parse progress)')
     DASH_PUSHED=0
     for attempt in $(seq 1 15); do
       echo "--- Adaptive Metrics governance dashboard: attempt ${attempt}/15 ---"
-      _push_metric_governance_dashboard
-      rc=$?
+      rc=0
+      if _push_metric_governance_dashboard; then
+        rc=0
+      else
+        rc=$?
+      fi
       if [[ "$rc" -eq 0 ]]; then
         DASH_PUSHED=1
         break
@@ -1075,8 +1116,12 @@ except: print('  (could not parse progress)')
     WF_GOV_PUSHED=0
     for attempt in $(seq 1 12); do
       echo "--- Metric governance workflow (Adaptive Metrics): attempt ${attempt}/12 ---"
-      _push_metric_governance_workflow
-      rc=$?
+      rc=0
+      if _push_metric_governance_workflow; then
+        rc=0
+      else
+        rc=$?
+      fi
       if [[ "$rc" -eq 0 ]]; then
         WF_GOV_PUSHED=1
         break

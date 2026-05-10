@@ -55,6 +55,7 @@ if ! instruqt track push; then
   echo "  2) Stale track id — Run: ./scripts/fetch-instruqt-track-id.sh" >&2
   echo "     then copy id (and checksum if present) into instruqt/elastic-adaptive-metrics/track.yml" >&2
   echo "  3) Wrong team — Run: instruqt config get team   (expect: elastic)" >&2
+  echo "  4) Remote track changed in UI — Run: (cd instruqt/elastic-adaptive-metrics && instruqt track push --force)" >&2
   exit 1
 fi
 echo "instruqt: track push complete."

@@ -19,6 +19,8 @@ notes:
     **Retail Banking channels** cover payments, claims, mobile, fraud, infra (20 channels). Pick any channel you like.
 
     **Suggested first run:** **ACH Direct Deposit Delay** or **Mobile App API Timeout** — easy to narrate.
+
+    **Fault vs sliders:** **Inject Fault** drives channel alerts → workflows → cases (the lab “process”). **Infrastructure spikes** are separate sliders—when finished, dial them **down** so you aren’t mixing lingering infra stress with fault demos.
 tabs:
 - id: slqip2bp1bjo
   title: Demo App
@@ -48,6 +50,21 @@ enhanced_loading: null
 ---
 
 # Inject a Fault and Watch Elastic Detect It
+
+---
+
+## Fault channels vs infrastructure spikes
+
+**In production**, you still resolve **capacity and metric stress** through the **same operational spine**: **alerts** (threshold / ML / SLO burn) → **workflows** → **Cases** → remediation — not ad-hoc tweaks without a record.
+
+**In this simulator**, there are two mechanics:
+
+| Control | Role in the lab |
+|---------|-------------------|
+| **Inject Fault** / **Resolve** | Scripted **fault channels** tied to ES|QL alert rules → **Significant Event Notification** workflows → **Cases**. This is the path we grade around. |
+| **Infrastructure spikes** (CPU, memory, K8s OOM, latency) | Broad stress on hosts/clusters; useful to watch **Infrastructure** / metrics while narrating. They are **not** the same control as an active **fault channel**, so **Resolve** stays aligned with **channel** faults. |
+
+**Practice:** After exploring sliders, **reset them toward zero/low**. For the **Elastic workflow story**, complete **Inject Fault** → watch Kibana → **Resolve** on the channel when the simulator enables it.
 
 ---
 
@@ -89,3 +106,5 @@ Skim steps: count errors → AI RCA → **create case**.
 ## Why operators care (optional)
 
 Incidents stress **the same signals** you declared as important (**alerts, SLOs, dashboards, workflows**). Keep rich retention there; trim **high-cardinality** volume that never appears on those surfaces — **downsampling**, **Streams**, shorter tiers — so cost tracks operational reality.
+
+**Closing the loop:** Real remediation for infra spikes belongs in **alert rules and Cases** too—this demo spotlights that path via **fault channels**; extend the same pattern to **your** capacity SLOs and anomaly detectors in production.

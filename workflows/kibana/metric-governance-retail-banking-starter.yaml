@@ -16,7 +16,7 @@
 # =============================================================================
 
 version: "1"
-name: Retail Banking Metric governance snapshot
+name: Retail Banking Platform — Adaptive Metrics · Metric governance snapshot
 enabled: true
 description: >
   Metric governance for Adaptive Metrics: list Streams, run ES|QL for modeled savings and FinOps

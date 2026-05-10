@@ -66,7 +66,9 @@ def main() -> int:
     if code in (200, 201):
         print(f"workflow POST {code}", text[:500])
         return 0
-    if code in (400, 409):
+    err_lower = text.lower()
+    # Same fallback as instruqt setup-es3-api: conflict / duplicate → PUT update.
+    if code in (400, 409) or "already exists" in err_lower or "duplicate" in err_lower:
         code2, text2 = request("PUT", put_url, body_put)
         print(f"workflow PUT {code2}", text2[:800])
         return 0 if code2 == 200 else 1

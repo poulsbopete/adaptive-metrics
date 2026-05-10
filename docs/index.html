@@ -975,6 +975,62 @@
         </div>
       </section>
 
+      <!-- Governance Case: what the lab workflow records -->
+      <section class="slide">
+        <div class="slide-inner">
+          <p class="eyebrow">Observability Cases · lab workflow</p>
+          <h2 class="section-title">What the governance Case documents each run</h2>
+          <p class="lede compact-bottom" style="max-width: 44rem">
+            The workflow
+            <strong style="color: rgba(240, 240, 255, 0.92)">Adaptive metrics — Retail Banking · Metric governance snapshot</strong>
+            opens a Case whose title starts with
+            <strong>[Governance] Adaptive Metrics — what we changed (Streams)</strong>.
+            The description lists <strong>real Streams API actions</strong>, not vague savings rhetoric.
+          </p>
+          <div class="panel-grid cols-2">
+            <div class="panel">
+              <h3>Logs — fork + retention</h3>
+              <p>
+                <code style="font-size: 0.78rem">POST /api/streams/logs.otel.banking/_fork</code>
+                for child streams such as
+                <strong>logs.otel.banking.document-vault</strong>,
+                <strong>logs.otel.banking.quote-engine</strong>, and
+                <strong>logs.otel.banking.policy-manager</strong>,
+                then <code style="font-size: 0.78rem">PUT …/_ingest</code> with
+                <strong>data_retention: 14d</strong> on each child (cheaper than indefinite parent retention).
+              </p>
+            </div>
+            <div class="panel">
+              <h3>Metrics — retention only</h3>
+              <p>
+                <strong>metrics-governance.noisy.otel-default</strong> → <strong>7d</strong>
+                (lab OTLP governance shipper)
+                · <strong>metrics-generic.otel-default</strong> → <strong>14d</strong>
+                · <strong>metrics-hostmetricsreceiver.otel-default</strong> → <strong>14d</strong>
+              </p>
+            </div>
+          </div>
+          <div class="panel" style="margin-top: 0.85rem">
+            <h3>Modeled savings vs. real bills</h3>
+            <p>
+              Shorter retention reduces <strong>stored data going forward</strong>; it is not a guaranteed
+              percentage off your Serverless invoice. The Case’s follow-up comment includes ES|QL
+              <strong>FinOps proxies</strong> (e.g. <code>estimated_monthly_observe_bill_usd</code>,
+              <code>pct_savings_of_estimated_observe_bill</code>) for prioritization—not Finance-approved forecasts.
+              Tune days in
+              <a
+                href="https://github.com/poulsbopete/adaptive-metrics/blob/main/workflows/kibana/metric-governance-retail-banking-starter.yaml"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--accent2)"
+                >metric-governance-retail-banking-starter.yaml</a
+              >
+              or override in <strong>Observability → Streams</strong>.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <!-- 6 Thesis + CTA -->
       <section class="slide" data-slide="5">
         <div class="slide-inner">
@@ -1002,7 +1058,7 @@
 
     <footer class="bottom-bar">
       <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
-      <div class="counter" id="counter"><strong>1</strong> / 6</div>
+      <div class="counter" id="counter"><strong>1</strong> / 7</div>
       <div class="kbd-hint">← → Space · Home · End</div>
     </footer>
 

@@ -18,6 +18,8 @@ The track VM may start **`noisy-metrics-otlp`** (`instruqt/elastic-adaptive-metr
 
 Use [`dashboards/metric-governance-retail-banking-as-code.json`](../../../dashboards/metric-governance-retail-banking-as-code.json) as the **`kibana_create_dashboard`** payload (Observability MCP) when your **MCP `KIBANA_URL`** is the same project you want to update. **Instruqt lab** hosts often use a different URL than MCP; for those, use [`dashboards/instruqt-metric-governance-dashboard.json`](../../../dashboards/instruqt-metric-governance-dashboard.json) with **`scripts/push_governance_dashboard.py`** (`POST /api/dashboards`, **`Elastic-Api-Version`** **YYYY-MM-DD**, default **2023-10-31**). On that date, ES|QL must be wired as **`vis` + `data_table`**; **`vis` + `metric` + `esql`** is rejected (use **MCP** or a newer documented **Elastic-Api-Version** for native **metric/xy** from JSON).
 
+A **Retail Banking Systems Operations** dashboard export illustrates the **native** pattern on the same API date: **`vis`** with **`config.type: metric`** or **`xy`**, **`data_source.type: data_view_reference`** (for example **`traces-*`**, **`metrics-*`**, **`logs.otel.banking`**), panel **`query`** in KQL, and aggregations such as **`count`**, **`average`**, **`percentile`**, **`formula`**, **`date_histogram`**, **`terms`**. **Governance math** (modeled savings **%**, proxy **$**, `DATE_TRUNC` trends) is easier as **ES|QL** in **`data_table`** than as a single **`metric`** aggregation on a pre-mapped field — so the Instruqt JSON follows **`data_table` + `esql`** for those panels.
+
 ---
 
 ## Example: Kubernetes metrics — shorter retention (Streams)

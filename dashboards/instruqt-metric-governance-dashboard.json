@@ -1,6 +1,6 @@
 {
   "title": "Retail Banking — Streams savings & metric governance (TCO)",
-  "description": "Ops-style KPI strip + finance and volume tables (ES|QL via vis+data_table for POST /api/dashboards 2023-10-31). Same math as metric-governance-retail-banking-starter.",
+  "description": "Streams / TCO governance: ES|QL via vis+data_table (POST /api/dashboards 2023-10-31). Same math as workflows/kibana/metric-governance-retail-banking-starter.yaml. Contrast with Systems Operations: native metric/xy tiles use data_view_reference + field aggregations; arbitrary ES|QL pipelines (modeled %, proxy $) stay in data_table.",
   "tags": [
     "metric-governance",
     "retail-banking",
@@ -29,8 +29,6 @@
   "filters": [],
   "panels": [
     {
-      "type": "markdown",
-      "id": "ec824766-2044-5ce4-8d87-e057e6ad8414",
       "grid": {
         "x": 0,
         "y": 0,
@@ -38,15 +36,15 @@
         "h": 5
       },
       "config": {
-        "content": "## Streams savings — **ops layout** (Elastic **Serverless**)\n\n**KPI row (15m):** four tight **ES|QL tables** (same numbers as large metric tiles — `POST /api/dashboards` **2023-10-31** only binds ES|QL to **`vis` + `data_table`**, not `vis`+`metric` with `esql`).\n\n**Below:** finance row, hourly trend, services, datasets, ingest rate. Tune **`assumed_usd_per_million_points_month`** and **0.35** in ES|QL.",
+        "content": "## Streams savings — **TCO** (Elastic **Serverless**)\n\n**Native dashboard JSON (same endpoint as Systems Operations):** on **Elastic-Api-Version: 2023-10-31**, **`vis` + `metric`** and **`vis` + `xy`** expect **`data_source.type: data_view_reference`** (plus `count` / `average` / `date_histogram` / KQL `query` on the panel). The Ops dashboard JSON you export does that for traces and metrics.\n\n**This dashboard:** **`vis` + `data_table` + `data_source.type: esql`** — the only path in that API version for **arbitrary ES|QL** (`modeled_policy_savings_pct`, proxy **$**, `DATE_TRUNC` trends). The **KPI row** is four tight one-column tables (15m). Tune **`assumed_usd_per_million_points_month`** and **0.35** in each panel query.",
         "settings": {
           "open_links_in_new_tab": true
         }
-      }
+      },
+      "id": "ec824766-2044-5ce4-8d87-e057e6ad8414",
+      "type": "markdown"
     },
     {
-      "type": "vis",
-      "id": "f78f1ae3-c103-5488-b045-0aff62338145",
       "grid": {
         "x": 0,
         "y": 5,
@@ -71,11 +69,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "f78f1ae3-c103-5488-b045-0aff62338145",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "726530e3-47cf-593c-a9d0-60ff7dc2394d",
       "grid": {
         "x": 12,
         "y": 5,
@@ -100,11 +98,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "726530e3-47cf-593c-a9d0-60ff7dc2394d",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "95c8dd8e-0b53-5520-b9b9-e2bd994881e7",
       "grid": {
         "x": 24,
         "y": 5,
@@ -129,11 +127,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "95c8dd8e-0b53-5520-b9b9-e2bd994881e7",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "66469918-e44c-5c2f-855a-ce94f00e92dd",
       "grid": {
         "x": 36,
         "y": 5,
@@ -158,11 +156,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "66469918-e44c-5c2f-855a-ce94f00e92dd",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "cdb930e3-2d0a-5b30-87da-cb5765a84a44",
       "grid": {
         "x": 0,
         "y": 14,
@@ -187,11 +185,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "cdb930e3-2d0a-5b30-87da-cb5765a84a44",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "f0dfd575-7a45-5415-9ec3-079221249b2f",
       "grid": {
         "x": 14,
         "y": 14,
@@ -225,11 +223,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "f0dfd575-7a45-5415-9ec3-079221249b2f",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "4b762077-6837-5f65-aad8-897e56473af8",
       "grid": {
         "x": 36,
         "y": 14,
@@ -266,11 +264,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "4b762077-6837-5f65-aad8-897e56473af8",
+      "type": "vis"
     },
     {
-      "type": "markdown",
-      "id": "44377371-550b-591e-9718-5667b609f709",
       "grid": {
         "x": 0,
         "y": 22,
@@ -282,11 +280,11 @@
         "settings": {
           "open_links_in_new_tab": true
         }
-      }
+      },
+      "id": "44377371-550b-591e-9718-5667b609f709",
+      "type": "markdown"
     },
     {
-      "type": "vis",
-      "id": "bd1579dc-7780-54e4-867b-59a63783be3b",
       "grid": {
         "x": 0,
         "y": 25,
@@ -329,11 +327,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "bd1579dc-7780-54e4-867b-59a63783be3b",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "a20f5fd8-b153-55cb-afdd-b2cbee810877",
       "grid": {
         "x": 0,
         "y": 34,
@@ -376,11 +374,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "a20f5fd8-b153-55cb-afdd-b2cbee810877",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "f919050a-07fd-51fb-8d24-9d264d759c0d",
       "grid": {
         "x": 0,
         "y": 48,
@@ -408,11 +406,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "f919050a-07fd-51fb-8d24-9d264d759c0d",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "f16117e0-34d5-5b37-b7c8-5c062e4eabef",
       "grid": {
         "x": 24,
         "y": 48,
@@ -440,11 +438,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "f16117e0-34d5-5b37-b7c8-5c062e4eabef",
+      "type": "vis"
     },
     {
-      "type": "vis",
-      "id": "2f105401-31ab-5f1a-9f8c-5815bb01b2ee",
       "grid": {
         "x": 0,
         "y": 60,
@@ -472,11 +470,11 @@
         "styling": {
           "paging": 10
         }
-      }
+      },
+      "id": "2f105401-31ab-5f1a-9f8c-5815bb01b2ee",
+      "type": "vis"
     },
     {
-      "type": "markdown",
-      "id": "342f51ea-0969-589c-bb21-b4009dee1255",
       "grid": {
         "x": 0,
         "y": 71,
@@ -488,7 +486,14 @@
         "settings": {
           "open_links_in_new_tab": true
         }
-      }
+      },
+      "id": "342f51ea-0969-589c-bb21-b4009dee1255",
+      "type": "markdown"
     }
-  ]
+  ],
+  "refresh_interval": {
+    "pause": false,
+    "value": 30000
+  },
+  "pinned_panels": []
 }

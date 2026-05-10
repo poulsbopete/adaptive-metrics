@@ -8,7 +8,9 @@ Kibana rejects bare ``1``). Override with **KIBANA_DASHBOARDS_API_VERSION** if y
 Payload for **2023-10-31**: **`markdown`** panels plus **`vis`** panels whose **`config.type`** is **`data_table`**
 with **`data_source.type: esql`** (and **`rows`** / **`styling`**). The same API date does **not** accept
 **`vis` + `config.type: metric`** with **`esql`** (it expects **`data_view_reference`** / **`data_view_spec`** for
-that path). Use **MCP / a newer documented `Elastic-Api-Version`** if you need native **metric/xy** from JSON.
+that path — the pattern you see in a **Systems Operations**–style export: **`metric`** / **`xy`** on **`traces-*`**
+/ **`metrics-*`** with KQL **`query`** and field aggregations). Use **MCP / a newer documented `Elastic-Api-Version`**
+if you need native **metric/xy** from JSON for ES|QL-driven KPIs without **`data_table`**.
 
 Environment:
   KIBANA_URL or ES_URL  — Kibana base URL (Instruqt often uses the same host for both)

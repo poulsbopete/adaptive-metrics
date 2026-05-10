@@ -1,5 +1,5 @@
 {
-  "title": "Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)",
+  "title": "Adaptive metrics — Retail Banking · Streams savings & governance (TCO)",
   "description": "Adaptive Metrics / Streams governance: ES|QL FinOps proxies (modeled savings %, USD chargeback assumptions). vis+data_table+esql for POST /api/dashboards 2023-10-31. Paired with metric-governance-retail-banking-starter.yaml.",
   "tags": [
     "metric-governance",

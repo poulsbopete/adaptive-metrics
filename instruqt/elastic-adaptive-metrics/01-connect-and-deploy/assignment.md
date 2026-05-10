@@ -60,7 +60,7 @@ FROM logs*
 ```
 
 4. **Dashboards** → search **`Retail Banking`** → open **Systems Operations** *or* **Executive**.
-5. *(Recommended)* Search **`Adaptive`** or **`governance`** → open **Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)**.
+5. *(Recommended)* Search **`Adaptive`** or **`governance`** → open **Adaptive metrics — Retail Banking · Streams savings & governance (TCO)**.
    If it does not appear yet, wait ~1 minute and click **Refresh** on the dashboard list (track setup POSTs it after Kibana is ready). Still missing? Ask your host — the VM **`setup-es3-api`** log shows **`Adaptive Metrics dashboard created`** or retry errors.
 
 ✅ **Continue** when you see **log rows** or **any** populated dashboard.

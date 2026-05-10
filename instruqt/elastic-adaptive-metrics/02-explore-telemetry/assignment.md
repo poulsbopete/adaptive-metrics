@@ -86,11 +86,11 @@ Adaptive
 governance
 ```
 
-3. Open **Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)**.
+3. Open **Adaptive metrics — Retail Banking · Streams savings & governance (TCO)**.
    *(Optional — paste the full title if the list is long:)*
 
 ```
-Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)
+Adaptive metrics — Retail Banking · Streams savings & governance (TCO)
 ```
 
 ### Step 4 — Applications → Service inventory
@@ -113,7 +113,7 @@ Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)
 governance
 ```
 
-3. Open **Retail Banking Platform — Adaptive Metrics · Metric governance snapshot** (Cases / ES|QL — installed by track setup).
+3. Open **Adaptive metrics — Retail Banking · Metric governance snapshot** (Cases / ES|QL — installed by track setup).
 
 > **Tip:** If ES|QL errors on `TS metrics*` time-series rules, use `FROM metrics*` + `STATS` for counts — see [ES\|QL TS docs](https://www.elastic.co/docs/reference/query-languages/esql/commands/ts).
 
@@ -121,6 +121,6 @@ governance
 
 ## Optional next steps
 
-- **Workflows:** **Observability → Workflows** — **six** demos ship from the launcher; **Retail Banking Platform — Adaptive Metrics · Metric governance snapshot** (Adaptive Metrics / Cases / ES|QL) is **installed by track setup** (`adaptive-metrics-metric-governance-starter`). Re-import from repo only if you edit YAML: [`metric-governance-retail-banking-starter.yaml`](https://github.com/poulsbopete/adaptive-metrics/blob/main/workflows/kibana/metric-governance-retail-banking-starter.yaml).
+- **Workflows:** **Observability → Workflows** — **six** demos ship from the launcher; **Adaptive metrics — Retail Banking · Metric governance snapshot** (Adaptive Metrics / Cases / ES|QL) is **installed by track setup** (`adaptive-metrics-metric-governance-starter`). Re-import from repo only if you edit YAML: [`metric-governance-retail-banking-starter.yaml`](https://github.com/poulsbopete/adaptive-metrics/blob/main/workflows/kibana/metric-governance-retail-banking-starter.yaml).
 - **Cases:** **`[Governance]`** cases appear if that workflow is enabled — tie **modeled_policy_savings_pct** to FinOps narrative with **Observability AI Assistant**.
 - **Deep dive:** [`metric-streams-governance-workflow.md`](https://github.com/poulsbopete/adaptive-metrics/blob/main/instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md) — Streams API, safety checklist, K8s retention example.

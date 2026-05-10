@@ -868,11 +868,41 @@ _resolve_track_scripts_dir() {
   return 0
 }
 
+# Instruqt stages this script under /tmp without copying track_scripts/*. Pull from GitHub when missing.
+_ensure_governance_track_assets() {
+  local dash wf cache base
+  dash="${TRACK_SCRIPT_DIR}/dashboards/instruqt-metric-governance-dashboard.json"
+  wf="${TRACK_SCRIPT_DIR}/workflows/metric-governance-retail-banking-starter.yaml"
+  if [[ -f "$dash" && -f "$wf" ]]; then
+    return 0
+  fi
+  base="${ADAPTIVE_METRICS_REPO_RAW:-https://raw.githubusercontent.com/poulsbopete/adaptive-metrics/main}"
+  cache="${ADAPTIVE_METRICS_BUNDLE_CACHE:-/opt/adaptive-metrics-track-bundles}"
+  echo "INFO: Local track_scripts bundles incomplete — downloading from ${base} → ${cache}"
+  mkdir -p "${cache}/track_scripts/dashboards" "${cache}/track_scripts/workflows" || return 1
+  curl -fsSL "${base}/instruqt/elastic-adaptive-metrics/track_scripts/dashboards/instruqt-metric-governance-dashboard.json" \
+    -o "${cache}/track_scripts/dashboards/instruqt-metric-governance-dashboard.json" || return 1
+  curl -fsSL "${base}/instruqt/elastic-adaptive-metrics/track_scripts/workflows/metric-governance-retail-banking-starter.yaml" \
+    -o "${cache}/track_scripts/workflows/metric-governance-retail-banking-starter.yaml" || return 1
+  curl -fsSL "${base}/instruqt/elastic-adaptive-metrics/track_scripts/noisy_otlp_metrics.py" \
+    -o "${cache}/track_scripts/noisy_otlp_metrics.py" 2>/dev/null || true
+  curl -fsSL "${base}/instruqt/elastic-adaptive-metrics/noisy-metrics-requirements.txt" \
+    -o "${cache}/noisy-metrics-requirements.txt" 2>/dev/null || true
+  if [[ ! -f "${cache}/track_scripts/dashboards/instruqt-metric-governance-dashboard.json" ]] ||
+    [[ ! -f "${cache}/track_scripts/workflows/metric-governance-retail-banking-starter.yaml" ]]; then
+    return 1
+  fi
+  TRACK_SCRIPT_DIR="${cache}/track_scripts"
+  echo "INFO: Using TRACK_SCRIPT_DIR=${TRACK_SCRIPT_DIR} (GitHub raw fallback)"
+  return 0
+}
+
 _SCRIPT_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # `set -e` treats non-zero from `var=$(...)` as fatal. Absorb it so a fallback that
 # prints script_home (e.g. /tmp) still works even if an older resolver returns 1.
 _track_resolved="$(_resolve_track_scripts_dir "${_SCRIPT_HOME}")" || true
 TRACK_SCRIPT_DIR="${_track_resolved:-${_SCRIPT_HOME}}"
+_ensure_governance_track_assets || true
 if [[ ! -f "${TRACK_SCRIPT_DIR}/dashboards/instruqt-metric-governance-dashboard.json" ]]; then
   echo "WARN: Bundled governance dashboard JSON not found under TRACK_SCRIPT_DIR=${TRACK_SCRIPT_DIR} (script_home=${_SCRIPT_HOME})"
 fi
@@ -944,7 +974,7 @@ _push_metric_governance_workflow() {
   local wf_id="${METRIC_GOVERNANCE_WORKFLOW_ID:-adaptive-metrics-metric-governance-starter}"
   if [[ ! -f "$yaml_file" ]]; then
     echo "WARN: Metric governance workflow YAML missing at $yaml_file — skipping POST."
-    return 0
+    return 2
   fi
   echo "Installing Adaptive Metrics governance workflow (POST /api/workflows/workflow id=${wf_id})..."
   export METRIC_GOV_YAML_PATH="$yaml_file"

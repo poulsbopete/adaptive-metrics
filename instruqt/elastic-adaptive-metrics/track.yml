@@ -1,10 +1,11 @@
 slug: elastic-adaptive-metrics
 id: xrcnbkazo3u6
 title: 'Adaptive metrics: workflows, downsampling & TCO'
-description: 'Retail Banking default: governed OTel metrics on Elastic Serverless — payments,
-  claims, policy, fraud — with declared usage from dashboards and SLOs, downsampling and
-  retention, incident-oriented Kibana Workflows, plus Streams. Custom metric automation:
-  repo docs/metric-streams-governance-workflow.md. Enterprise TCO for regulated buyers.'
+description: 'Retail Banking default: governed OTel metrics on Elastic Serverless
+  — payments, claims, policy, fraud — with declared usage from dashboards and SLOs,
+  downsampling and retention, incident-oriented Kibana Workflows, plus Streams. Custom
+  metric automation: repo docs/metric-streams-governance-workflow.md. Enterprise TCO
+  for regulated buyers.'
 icon: ""
 tags:
 - co.elastic.workshops.production
@@ -28,5 +29,5 @@ lab_config:
     name: modern-dark
   override_challenge_layout: false
   hideStopButton: false
-checksum: "18334846652065825028"
+checksum: "841704525164639196"
 enhanced_loading: false

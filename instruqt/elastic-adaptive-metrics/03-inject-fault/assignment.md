@@ -18,7 +18,7 @@ notes:
     - ✅ Watch the error spike appear in Elastic's log stream within seconds
     - ✅ See an ES|QL alert rule fire within 30–60 seconds
     - ✅ Observe the AI agent begin its investigation automatically
-    - ✅ Connect incident response to **why** hot retention and governed metrics matter for TCO
+    - ✅ Connect incident response to **why** governed retention and metric policy matter for TCO
 
     **You have 20 fault channels to choose from** — for **Retail Banking** they map to **digital banking, payments, claims, policy, fraud, identity, documents, and core infra** across AWS, GCP, and Azure. Pick any channel and watch Elastic light up.
 - type: text
@@ -153,6 +153,6 @@ A new case will appear automatically with:
 
 ## After the incident — retention, downsampling, and Streams
 
-Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the **declared usage** surface), and use **shorter hot windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** plus **one correlated store and workflows** is how you answer finance and architecture reviewers without splitting observability across silos.
+Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the **declared usage** surface), and use **shorter retention windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** plus **one correlated store and workflows** is how you answer finance and architecture reviewers without splitting observability across silos.
 
-**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. When you talk to finance or architecture reviewers at **large banks and insurers**, you are not “deleting observability,” you are **tiering cost** to the signals that actually drive incidents and customer outcomes—**workflows** make that list objective, not guessed.
+**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. When you talk to finance or architecture reviewers at **large banks and insurers**, you are not “deleting observability,” you are **aligning spend** to the signals that actually drive incidents and customer outcomes—**workflows** make that list objective, not guessed.

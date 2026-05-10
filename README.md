@@ -31,10 +31,15 @@ An earlier **offline sandbox lab** (fixtures + five challenges on a container ho
 | `DEMO_SCENARIO_ID` | In `config.yml` under `es3-api` environment. Default **`banking`** (**Retail Banking Platform**: ACH/wires/bill pay, claims, policy, fraud, mobile). Override per customer in Instruqt Sandbox → VM environment. |
 | Sandbox secrets | `config.yml` lists **`LLM_PROXY_PROD`** and **`ESS_CLOUD_API_KEY`** by name only. Set values in Instruqt (**Sandbox → Secrets**); Git never stores secret material. |
 | `instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md` | Blueprint: **scheduled Workflow → Streams API → AI → Case → Agent/Fleet** for metric governance. |
-| `workflows/kibana/metric-governance-retail-banking-starter.yaml` | **Kibana** Observability workflow (import / `POST /api/workflows/workflow`): Streams list + ES|QL + Case — extend with AI + Streams `PUT`. |
+| `dashboards/metric-governance-retail-banking-as-code.json` | **Streams savings & TCO** dashboard (MCP `kibana_create_dashboard` or **POST /api/dashboards** v1): KPI **metric** tiles, **gauge**, **area**/**bar** charts — same layout as Instruqt push. |
+| `dashboards/instruqt-metric-governance-dashboard.json` | **Instruqt** push target (`scripts/push_governance_dashboard.py`): ops-style **metric** / **gauge** / **xy** panels + markdown; **Elastic-Api-Version: 1** by default (`KIBANA_DASHBOARDS_API_VERSION` overrides). |
+| `workflows/kibana/metric-governance-retail-banking-starter.yaml` | **Kibana** Observability workflow (import / `POST /api/workflows/workflow`): **scheduled `every: 5m`** by default, **Streams** list + ES|QL + Case — optional gated **`ai.prompt`** / **`ai.agent`**, **`waitForInput`** + **`kibana.streams.get`**, then extend with **`kibana.request`** `PUT` after merge (starter does **not** auto-**PUT** Streams). |
 | `workflows/retail-banking-streams-governance-dryrun.yaml` | **MCP** `run_workflow` dry run only (not a Kibana tile). |
 | `.cursor/skills/kibana-observability-workflows-api/` | Project skill: create **Kibana** workflows via `POST /api/workflows/workflow` vs MCP YAML. |
 | `archive/adaptive-metrics-sandbox-prototype/` | Archived prototype lab (not deployed as its own track). |
+| `scripts/push-to-serverless.sh` | Push `metric-governance-retail-banking-starter.yaml` to **Kibana Workflows** (`POST`/`PUT` `/api/workflows/workflow`). Needs `KIBANA_URL` or `ES_URL` + `ES_API_KEY` or `ELASTIC_API_KEY`. |
+| `scripts/push_governance_dashboard.py` | Push `dashboards/instruqt-metric-governance-dashboard.json` to **Kibana** (`POST /api/dashboards`, **Elastic-Api-Version: 1** by default). Needs `KIBANA_URL` or `ES_URL` + API key. |
+| `instruqt/.../track_scripts/noisy_otlp_metrics.py` | **Instruqt VM**: optional systemd **`noisy-metrics-otlp`** ships high-cardinality OTLP metrics (`noisy-governance-shipper`) for **Streams** retention / aggregation labs (needs **mOTLP** URL — see `metric-streams-governance-workflow.md`). |
 | `scripts/publish.sh` | Git commit/push + `instruqt track push` for the track above. |
 | `scripts/fetch-instruqt-track-id.sh` | Prints `id` / `checksum` from Instruqt after a temp pull (debugging). |
 

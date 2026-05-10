@@ -13,6 +13,8 @@ virtualmachines:
     # claims, policy, fraud, digital banking). Recommended for regulated retail-banking workshops.
     # Override in Instruqt Sandbox → es3-api environment (e.g. healthcare, finserv).
     DEMO_SCENARIO_ID: banking
+    # Set to 1 to skip the OTLP noisy-metrics systemd service (Streams governance lab).
+    DISABLE_NOISY_METRICS_SHIPPER: "0"
   memory: 12288
   cpus: 4
   allow_external_ingress:

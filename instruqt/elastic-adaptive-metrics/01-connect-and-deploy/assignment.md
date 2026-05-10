@@ -116,7 +116,7 @@ Everything was **automatically provisioned** when this lab started — your Elas
 
 **Low-cost metrics-only** stacks often win a spreadsheet line item until **cardinality, retention, and operational load** show up. **SaaS observability suites** can win feature demos until **custom metrics and tag cardinality** drive invoice growth. Elastic answers the same *buyer problem* with a different *architecture*: **downsampling** for metrics at scale plus **Kibana Workflows** and **server-side shaping** (for example **Elastic Streams**) so policy is enforceable where the data lives—and **logs, traces, metrics, and security** stay on **one** platform for **financial services** and other regulated buyers.
 
-For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter hot tiers, coarser rollups, downsampling, or human-approved policy**—not silent deletion.
+For the rest of this track, treat everything the deployer created as **declared usage**: if a metric appears on a **Systems Operations** or **Executive** dashboard, in an **SLO**, in an **ES|QL alert rule**, or in a **workflow**, it is a first-class signal you would protect with longer retention or finer resolution. Everything else is a candidate for **shorter retention via Streams**, **coarser rollups**, **downsampling**, or **human-approved policy**—not silent deletion.
 
 ---
 

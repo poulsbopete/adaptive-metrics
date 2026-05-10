@@ -20,6 +20,13 @@ steps:
     tool: esql_query
     parameters:
       query: FROM metrics* | WHERE @timestamp > NOW() - 15 minutes | STATS metric_points = COUNT(*)
+  - id: governance_lab_points
+    name: Governance lab OTLP slice (noisy-governance-shipper, last 15m)
+    tool: esql_query
+    parameters:
+      query: >-
+        FROM metrics* | WHERE @timestamp > NOW() - 15 minutes
+        | STATS points_governance_lab = COUNT(*) WHERE service.name == "noisy-governance-shipper"
   - id: payment_hotspot
     name: Payment engine snapshot
     tool: esql_query

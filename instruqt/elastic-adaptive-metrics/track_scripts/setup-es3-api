@@ -917,6 +917,97 @@ else
   echo "WARN: Missing Kibana URL or API key — skipping auto-launch."
 fi
 
+# ── Streams / governance lab: high-cardinality OTLP metrics via mOTLP ───────
+# Ships to a dedicated dataset (data_stream.dataset=governance.noisy) so learners
+# can target retention, child streams, and rollups without touching core banking series.
+_discover_motlp_url() {
+  local region="${REGIONS:-}" f="/tmp/project_results.json"
+  [[ -f "$f" && -n "$region" ]] || return 1
+  local url key
+  for key in otlp ingest observability_ingest motlp telemetry apm; do
+    url="$(jq -r --arg r "$region" --arg k "$key" '.[$r].endpoints[$k] // empty' "$f" 2>/dev/null || true)"
+    if [[ -n "$url" && "$url" != "null" ]]; then
+      printf '%s\n' "$url"
+      return 0
+    fi
+  done
+  while IFS= read -r url; do
+    [[ -z "$url" || "$url" == "null" ]] && continue
+    if echo "$url" | grep -qiE 'otlp|ingest|telemetry'; then
+      printf '%s\n' "$url"
+      return 0
+    fi
+  done < <(jq -r --arg r "$region" '.[$r].endpoints // {} | to_entries[] | .value | strings' "$f" 2>/dev/null || true)
+  return 1
+}
+
+if [[ "${DISABLE_NOISY_METRICS_SHIPPER:-0}" != "1" ]]; then
+  TRACK_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  MOTLP_URL_EFFECTIVE="${MOTLP_URL:-}"
+  if [[ -z "$MOTLP_URL_EFFECTIVE" ]]; then
+    MOTLP_URL_EFFECTIVE="$(_discover_motlp_url || true)"
+  fi
+  if [[ -n "$MOTLP_URL_EFFECTIVE" && -n "${ELASTICSEARCH_API_KEY:-}" && -f "$TRACK_SCRIPT_DIR/noisy_otlp_metrics.py" ]]; then
+    NOISY_DIR="/opt/noisy-metrics-shipper"
+    mkdir -p "$NOISY_DIR/pkg"
+    echo "Installing noisy-metrics OTLP shipper dependencies into $NOISY_DIR/pkg ..."
+    curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3 - --target="$NOISY_DIR/pkg" --quiet 2>/dev/null || true
+    PYTHONPATH="$NOISY_DIR/pkg" python3 -m pip install \
+      --target="$NOISY_DIR/pkg" --prefer-binary --quiet \
+      -r "$TRACK_SCRIPT_DIR/requirements-noisy-metrics.txt"
+    cp -f "$TRACK_SCRIPT_DIR/noisy_otlp_metrics.py" "$NOISY_DIR/"
+    chmod +x "$NOISY_DIR/noisy_otlp_metrics.py"
+
+    umask 077
+    cat > /etc/noisy-metrics.env <<EOF
+OTEL_EXPORTER_OTLP_ENDPOINT=${MOTLP_URL_EFFECTIVE}
+OTEL_EXPORTER_OTLP_HEADERS=Authorization=ApiKey ${ELASTICSEARCH_API_KEY}
+NOISY_METRICS_INTERVAL_SEC=${NOISY_METRICS_INTERVAL_SEC:-20}
+NOISY_METRICS_CARDINALITY=${NOISY_METRICS_CARDINALITY:-120}
+NOISY_METRICS_DATASET=${NOISY_METRICS_DATASET:-governance.noisy}
+EOF
+    chmod 600 /etc/noisy-metrics.env
+
+    agent variable set MOTLP_URL "$MOTLP_URL_EFFECTIVE" 2>/dev/null || true
+
+    cat > /etc/systemd/system/noisy-metrics-otlp.service <<'UNIT'
+[Unit]
+Description=Adaptive-metrics lab: high-cardinality OTLP metrics (Streams governance)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=PYTHONPATH=/opt/noisy-metrics-shipper/pkg
+EnvironmentFile=/etc/noisy-metrics.env
+WorkingDirectory=/opt/noisy-metrics-shipper
+ExecStart=/usr/bin/python3 /opt/noisy-metrics-shipper/noisy_otlp_metrics.py
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=noisy-metrics-otlp
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+    systemctl daemon-reload
+    systemctl enable noisy-metrics-otlp
+    if systemctl start noisy-metrics-otlp; then
+      echo "✅ noisy-metrics-otlp service started (mOTLP: ${MOTLP_URL_EFFECTIVE})"
+    else
+      echo "WARN: noisy-metrics-otlp failed to start — check journalctl -u noisy-metrics-otlp"
+    fi
+  else
+    echo "INFO: Noisy OTLP shipper skipped. Set MOTLP_URL on the es3-api host (Instruqt Sandbox → VM env),"
+    echo "      or ensure /tmp/project_results.json includes an ingest/otlp endpoint under endpoints.*"
+    echo "      and ELASTICSEARCH_API_KEY is set. See: instruqt/.../track_scripts/noisy_otlp_metrics.py"
+  fi
+else
+  echo "INFO: Noisy OTLP shipper disabled (DISABLE_NOISY_METRICS_SHIPPER=1)."
+fi
+
 # Convenience aliases
 cat >> /root/.bashrc <<'BASH'
 
@@ -926,6 +1017,8 @@ alias demo-status="curl -sf http://localhost:8090/api/status | python3 -m json.t
 alias demo-deployments="curl -sf http://localhost:8090/api/deployments | python3 -m json.tool"
 alias demo-chaos="curl -sf http://localhost:8090/api/chaos/status | python3 -m json.tool"
 alias demo-restart="systemctl restart elastic-demo && sleep 3 && curl -sf http://localhost:8090/health"
+alias noisy-metrics-logs="journalctl -u noisy-metrics-otlp -f --no-pager"
+alias noisy-metrics-status="systemctl is-active noisy-metrics-otlp 2>/dev/null || echo inactive"
 BASH
 
 

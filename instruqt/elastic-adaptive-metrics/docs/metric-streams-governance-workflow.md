@@ -8,6 +8,58 @@ This document is the **implementation guide** for a **Kibana Observability Workf
 
 ---
 
+## Lab: high-cardinality “noisy” metrics (Instruqt)
+
+The track VM may start **`noisy-metrics-otlp`** (`instruqt/elastic-adaptive-metrics/track_scripts/noisy_otlp_metrics.py`), which sends OTLP counters to the project’s **Managed OTLP endpoint** (not the Elasticsearch URL) with **`service.name` = `noisy-governance-shipper`** and **`data_stream.dataset` = `governance.noisy`**. Use **Observability → Streams** and workflows to attach **shorter retention** or **child routes** to that dataset while keeping core **`payment-engine`**-class streams on **longer retention** (declared-usage signals). If the service did not start, set **`MOTLP_URL`** on the **es3-api** host from **Add data → OpenTelemetry**, or set **`DISABLE_NOISY_METRICS_SHIPPER=1`** to turn it off.
+
+---
+
+## Metric governance dashboard (Kibana)
+
+Use [`dashboards/metric-governance-retail-banking-as-code.json`](../../../dashboards/metric-governance-retail-banking-as-code.json) as the **`kibana_create_dashboard`** payload (Observability MCP) when your **MCP `KIBANA_URL`** is the same project you want to update. **Instruqt lab** hosts often use a different URL than MCP; for those, use [`dashboards/instruqt-metric-governance-dashboard.json`](../../../dashboards/instruqt-metric-governance-dashboard.json) with **`scripts/push_governance_dashboard.py`** (`POST /api/dashboards`, **Elastic-Api-Version: 1** by default unless **`KIBANA_DASHBOARDS_API_VERSION`** is set) — KPI **metric** tiles, **gauge**, **area**/**bar** charts for **Retail Banking — Streams savings & metric governance (TCO)**.
+
+---
+
+## Example: Kubernetes metrics — shorter retention (Streams)
+
+**What you are governing:** Dashboards such as **[OTEL][Metrics Kubernetes] Cluster Overview** read OTel **metrics** stored under streams whose names usually include **`metrics-kubernetes.*`** and **`metrics-k8sclusterreceiver.*`** (for example **`metrics-kubernetes.container.otel-default`**, **`metrics-kubernetes.node.otel-default`**, **`metrics-k8sclusterreceiver.otel-default`**). Names can vary slightly by integration and namespace; use **Observability → Streams** and search **`kubernetes`** or **`k8s`** to match document volume to the UI.
+
+**Declared usage:** That Kubernetes dashboard (and any SLOs or alert rules you build on the same series) is your **“in use”** signal. Shortening retention **shrinks how far back** those panels can query—reasonable for noisy infra metrics in a lab; in production it is a conscious tradeoff with SRE and capacity owners.
+
+### Option A — Kibana UI (fastest lab path)
+
+1. Open **Observability → Streams** and select the stream that corresponds to the metric family you want to tune (container/node/pod vs cluster-receiver streams often split this way).
+2. Open the **Retention** tab → **Edit data retention**. If the stream **inherits** from a template or parent, turn **inherit** off when you intentionally want a **shorter** override for this lab.
+3. Choose **Custom period** and set a shorter retain-and-delete horizon (for example **7 days** on a non-production project instead of **Indefinite**).
+4. Save and confirm the **Data lifecycle** / storage summary on the same tab.
+
+Details: [Manage data retention for Streams](https://www.elastic.co/docs/solutions/observability/streams/management/retention).
+
+### Option B — Workflow automation (same pattern as the rest of this doc)
+
+1. **`kibana.streams.list`** (or **`kibana.request`** `GET /api/streams`) and pick the target **`name`** (URL-encode if needed when calling HTTP).
+2. **`kibana.streams.get`** with `with.name: "<stream-name>"` to retrieve the **authoritative** JSON.
+3. Merge only the **retention / lifecycle** fields the UI would have changed—then **`kibana.request`** `PUT /api/streams/{name}` with header **`kbn-xsrf: true`** and a principal that has **`manage_stream`**. The API expects the **full** merged `stream` object for that path ([Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name)); pair with **`waitForInput`** or a **Case** step before apply.
+4. Optional next lever after retention: **downsampling** when your **Streams** retention UI exposes it for that stream ([Downsampling in Streams retention](https://www.elastic.co/docs/solutions/observability/streams/management/retention#streams-retention-downsampling)). On **Serverless**, express cost discipline through **Streams policy and processing**, not self-managed index **data tiers**.
+
+**Volume check (ES|QL)** before you change policy:
+
+```esql
+FROM metrics-kubernetes*
+| WHERE @timestamp > NOW() - 30 minutes
+| STATS docs = COUNT(*)
+```
+
+```esql
+FROM metrics-k8s*
+| WHERE @timestamp > NOW() - 30 minutes
+| STATS docs = COUNT(*)
+```
+
+Use the counts in a **Case** or **`cases.addComment`** so approvers see *why* you picked that stream.
+
+---
+
 ## Roles: who does what
 
 | Component | Role |
@@ -64,12 +116,20 @@ flowchart TD
 
 ## Heuristic “% saved” in the starter Case (demo)
 
-The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yaml` adds two derived fields on the ES|QL snapshot row:
+The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yaml` adds derived fields on the ES|QL snapshot row:
 
 | Field | Meaning |
 |--------|--------|
-| **streams_eligible_pct** | `100 * (metric_points - points_core_services) / metric_points`, where `points_core_services` counts documents whose `service.name` is one of the nine retail-banking app services. This is a **proxy for volume eligible** for Streams child routes, coarser rollups, or shorter hot retention—not a guarantee every point should be dropped. |
-| **modeled_policy_savings_pct** | `ROUND(streams_eligible_pct * 0.35, 2)` — an **illustrative** fraction of that eligible share (tune `0.35`) until you connect real downsampling factors and **declared usage** from SLOs, dashboards, and alert rules instead of the fixed `IN (...)` list. |
+| **points_governance_lab** | Documents with **`service.name == "noisy-governance-shipper"`** (Instruqt **governance-lab** OTLP shipper when enabled). |
+| **metric_points_retail_model** | `metric_points - points_governance_lab` — retail-banking **denominator** for eligible % (lab traffic does not dilute the retail share). |
+| **streams_eligible_pct** | `100 * (metric_points_retail_model - points_core_services) / metric_points_retail_model`, where `points_core_services` counts the nine core retail-banking `service.name` values. **Eligible** = non-core **within the retail slice** only. |
+| **modeled_policy_savings_pct** | `ROUND(streams_eligible_pct * 0.35, 2)` — **retail headline** (tune `0.35`). |
+| **streams_governance_lab_pct** | Lab docs ÷ **all** metric docs × 100 (lab’s share of total ingest). |
+| **modeled_governance_lab_savings_pct** | `ROUND(streams_governance_lab_pct * 0.35, 2)` — same reclaim factor on **governance-only** lab volume. |
+| **points_in_savings_envelope** | Modeled reclaim **document count** proxy (retail modeled % on retail model slice + **0.35 ×** raw lab docs). |
+| **estimated_monthly_observe_bill_usd** | **Observe $ proxy** — all metric docs × **$/M points/month** × `periods_per_month` (pedagogical). |
+| **estimated_monthly_reclaim_usd** | **Reclaim $ proxy** — `points_in_savings_envelope` × same rate. |
+| **pct_savings_of_estimated_observe_bill** | **% of proxy observe bill** saved (**reclaim ÷ observe × 100**, zero-guarded). |
 
 Replace the service allowlist and the `0.35` factor with **your** governance model before production.
 
@@ -83,8 +143,31 @@ Ask the assistant to:
 
 - Prefer **child wired streams** + **processing steps** over hard deletes.
 - Never drop series that appear in the attached **SLO** or **alert rule** list.
-- Prefer **shorter hot retention** or **rollup/downsample** language that maps to your Elasticsearch **ILM** or stream processing capabilities.
+- Prefer **shorter retention**, **child routes**, or **rollup/downsample** language that maps to **Observability Streams** and stream processing (not self-managed **ILM / data-tier** knobs on Serverless).
 - Return `{"actions":[]}` when confidence is low.
+
+---
+
+## Starter YAML: gated `ai.prompt` for Streams (retention / drops)
+
+The repo file **`workflows/kibana/metric-governance-retail-banking-starter.yaml`** includes an **`if`** step named **`gated_ai_streams_recommendations`** whose default **`condition`** is **`${{ 1 == 2 }}`** (always false) so the workflow **imports and runs** without a GenAI connector. After you configure a **default GenAI connector** (or set **`connector-id`** on the **`ai.prompt`** step), change that condition to **`${{ true }}`**.
+
+When enabled, the branch runs **`ai.prompt`** with a **JSON Schema** so the model returns **`summary`** plus **`actions[]`** (`streamName`, `action`, optional **`retentionDaysSuggested`**, **`dropOrRouteHint`**, **`rationale`**, **`estimatedSavingsBand`**), then **`cases.addComment`** posts that object to the same governance Case.
+
+### Automation levels (Workflows + Agent Builder)
+
+| Level | What runs automatically | Human / tooling |
+|------|-------------------------|-----------------|
+| **A — Snapshot** | Schedule → **`kibana.streams.list`** + **`elasticsearch.esql.query`** + **Case** + ES|QL comment | Leadership / AI Assistant for $/month narrative |
+| **B — Structured plan** | Level **A** + gated **`ai.prompt`** (or **`ai.agent`** below) | Review JSON on the Case; no Streams **PUT** in the starter |
+| **C — HITL fetch** | Level **B** + **`waitForInput`** → conditional **`kibana.streams.get`** → Case comment with **live** stream JSON | Reviewer submits the form in the execution UI (or [`POST .../workflowExecutions/{id}/resume`](https://www.elastic.co/docs/explore-analyze/workflows/authoring-techniques/human-in-the-loop)); ops merge + **PUT** outside the YAML or add a gated **`kibana.request`** after merge tooling exists |
+| **D — Full apply** | Merge AI deltas with **`kibana.streams.get`** output, then **`kibana.request`** `PUT` | Only after change management: dedicated agent/workflow, dry-runs, audit index |
+
+**Agent Builder (`ai.agent`):** Build an Observability FinOps agent (tools: Streams read, ES|QL, optional Cases) in **[Elastic Agent Builder](https://www.elastic.co/docs/explore-analyze/ai-features/elastic-agent-builder)**, note its **`agent-id`**, then replace the **`ai_streams_plan`** step with an **`ai.agent`** step: top-level **`agent-id`**, **`connector-id`** (or **`inference-id`**), optional **`create-conversation: true`**, and **`with.message`** / optional **`with.schema`** per [AI steps — `ai.agent`](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps#ai-agent). The starter keeps **`ai.prompt`** so imports work without a published agent.
+
+**Scheduling vs HITL:** A **short schedule** plus **`waitForInput`** creates **one paused execution per run** until someone resumes—use **`settings.timeout`** or a **manual / alert** trigger for approval-heavy paths ([Human-in-the-loop workflows](https://www.elastic.co/docs/explore-analyze/workflows/authoring-techniques/human-in-the-loop)).
+
+**Applying changes to Elasticsearch/Kibana Streams** is intentionally **not** fully automated in the starter: there is still no first-class **`kibana.streams.update`** step ([Streams action steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/streams)), and **`PUT /api/streams/{name}`** requires a **full merged body** from **`kibana.streams.get`**. Level **C** automates **fetch-after-approval** onto the Case; treat **PUT** as a separate, audited step once you have merge logic or an agent that outputs a validated full body.
 
 ---
 
@@ -99,6 +182,6 @@ Ask the assistant to:
 
 ## Relation to this Instruqt track
 
-The track teaches **declared usage** and **Streams** as concepts, then **this blueprint + starter YAML** are the build: import **`workflows/kibana/metric-governance-retail-banking-starter.yaml`**, validate in a lab project, add AI + `PUT` when ready, and version the YAML beside this repo.
+The track teaches **declared usage** and **Streams** as concepts, then **this blueprint + starter YAML** are the build: import **`workflows/kibana/metric-governance-retail-banking-starter.yaml`**, validate in a lab project, enable the gated **`ai.prompt`** branch when a connector exists, add **`kibana.request`** `PUT` only after **`kibana.streams.get`** merge and approval, and version the YAML beside this repo. To push the workflow to **Elastic Cloud Serverless** from a machine with credentials, run **`./scripts/push-to-serverless.sh`** (see `README.md` — `KIBANA_URL` + `ES_API_KEY`).
 
 **Cursor / MCP side:** `workflows/retail-banking-streams-governance-dryrun.yaml` is an optional **MCP** `run_workflow` helper (agent calls `discover_o11y_data` + ES|QL) for dry runs from the IDE; it does **not** register a workflow in Kibana. For the Kibana UI list, use **Create a new workflow** or `POST /api/workflows/workflow` (see `.cursor/skills/kibana-observability-workflows-api/SKILL.md`).

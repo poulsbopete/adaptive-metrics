@@ -5,25 +5,34 @@
 # Import: Observability - Workflows - Create workflow - paste YAML, or:
 #   PUT /api/workflows/workflow/{id}  with JSON {"yaml": "<this file>"}
 #
-# For a 5m schedule, replace the manual trigger with:
-#   triggers:
-#     - type: scheduled
-#       with:
-#         every: "5m"
-# WARNING: scheduled + Case each run creates many cases - validate on manual first.
+# Trigger: **scheduled every 5 minutes** (Streams + ES|QL + Case snapshot). Each run creates
+# a **new** `[Governance]` Case — fine for lab demos; for production, add case-reuse / longer
+# intervals / or switch back to **manual** once you tune the model.
+# HITL: when the gated AI branch is enabled, **`waitForInput`** pauses each run until a
+# reviewer submits the form—avoid **5m schedule + HITL** without `settings.timeout` or you
+# will stack paused executions; keep **`gated_ai_streams_recommendations`** off until ready.
+# Agent Builder: swap **`ai.prompt`** for **`ai.agent`** (top-level **`agent-id`**, **`connector-id`**)
+# so a tool-enabled agent reasons over the same context; see Elastic [AI steps](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps).
 # =============================================================================
 
 version: "1"
 name: Retail Banking Metric governance snapshot
-enabled: false
+enabled: true
 description: >
-  Adaptive-metrics governance: lists Streams, runs ES|QL to estimate **modeled_policy_savings_pct**
-  (illustrative % of metric-ingest points reclaimable after Streams / downsampling / aggregation),
+  Adaptive-metrics governance: lists Streams, runs ES|QL for **modeled_policy_savings_pct** (retail
+  banking: **`noisy-governance-shipper`** excluded from the eligible **denominator**) plus
+  **modeled_governance_lab_savings_pct** / **streams_governance_lab_pct** for explicit lab OTLP;
   opens an Observability Case with that headline, and attaches the JSON for **AI Assistant**
-  dollarization. Pair with Executive dashboard Lens (see Challenge 2 instructions).
+  dollarization. Includes a **gated** **`ai.prompt`** branch (off by default) that returns structured
+  **retention / routing** recommendations to the same Case—enable after a GenAI connector exists;
+  apply **`PUT /api/streams/{name}`** only via **`kibana.streams.get`** + merge + approved **`kibana.request`**.
+  Optional **HITL** inside the AI gate: **`waitForInput`** then **`kibana.streams.get`** posts the **live**
+  stream JSON to the Case for merge (still no auto-**PUT**). Pair with Executive dashboard Lens (see Challenge 2 instructions).
 
 triggers:
-  - type: manual
+  - type: scheduled
+    with:
+      every: 5m
 
 steps:
   - name: list_streams
@@ -40,12 +49,22 @@ steps:
         | STATS
             metric_points = COUNT(*),
             points_core_services = COUNT(*) WHERE service.name IN ("payment-engine", "claims-processor", "mobile-gateway", "member-portal", "fraud-sentinel", "policy-manager", "auth-gateway", "document-vault", "quote-engine"),
+            points_governance_lab = COUNT(*) WHERE service.name == "noisy-governance-shipper",
             pay_tps = AVG(payment_engine.transactions_per_sec),
             ach_q = AVG(payment_engine.ach_queue_depth),
             claims_q = AVG(claims_processor.queue_depth),
             fraud_score = AVG(fraud_sentinel.avg_risk_score)
-        | EVAL streams_eligible_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * (metric_points - COALESCE(points_core_services, 0)) / metric_points, 2))
+        | EVAL metric_points_retail_model = metric_points - COALESCE(points_governance_lab, 0)
+        | EVAL streams_eligible_pct = CASE(metric_points_retail_model == 0, 0.0, ROUND(100.0 * (metric_points_retail_model - COALESCE(points_core_services, 0)) / metric_points_retail_model, 2))
         | EVAL modeled_policy_savings_pct = ROUND(streams_eligible_pct * 0.35, 2)
+        | EVAL streams_governance_lab_pct = CASE(metric_points == 0, 0.0, ROUND(100.0 * COALESCE(points_governance_lab, 0) / metric_points, 2))
+        | EVAL modeled_governance_lab_savings_pct = ROUND(streams_governance_lab_pct * 0.35, 2)
+        | EVAL points_in_savings_envelope = ROUND(metric_points_retail_model * modeled_policy_savings_pct / 100.0 + COALESCE(points_governance_lab, 0) * 0.35, 0)
+        | EVAL assumed_usd_per_million_points_month = 2.50
+        | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
+        | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
+        | EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
+        | EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))
 
   - name: governance_case
     type: cases.createCase
@@ -54,21 +73,22 @@ steps:
       description: |
         ### Modeled ingest savings — adaptive-metrics workflow
 
-        **What leadership should read first:** the workflow run attached **`modeled_policy_savings_pct`**
-        — an *illustrative* **% of total OTLP metric points** this model treats as reclaimable after
-        **Streams routing, downsampling, or aggregation** (factor **0.35** on eligible volume — tune
-        before production). **`streams_eligible_pct`** is the share of points **outside** the nine
-        core retail-banking `service.name` values (demo heuristic for “not clearly declared-used”).
+        **What leadership should read first:** **`modeled_policy_savings_pct`** (retail: **0.35 × eligible %**,
+        denominator excludes lab **`noisy-governance-shipper`**), **`estimated_monthly_reclaim_usd`** and
+        **`estimated_monthly_observe_bill_usd`** (same **$/M-point** constant scaled from the 15m window),
+        and **`pct_savings_of_estimated_observe_bill`** (reclaim ÷ observe bill × 100 — **pedagogical**).
+        **`modeled_governance_lab_savings_pct`** applies the same **0.35** lever to the lab’s share of total ingest.
 
         **Why this is an “AI saves money” story:** the **deterministic workflow** produces the %;
         **Observability AI Assistant** on this Case turns the JSON into **$/month** language using
         your storage and retention assumptions — paste that answer back here for CFO review.
 
         **Intent:** Compare to **Systems Operations**, **Executive**, and **SLOs** as *declared usage*;
-        then route eligible volume to cheaper tiers or child streams — see Streams UI + Case JSON.
+        then use **Streams** (retention, partitioning, processing) on eligible datasets — **Elastic Cloud Serverless** manages capacity; you do not tune classic cluster “data tiers” here.
 
-        Next: add a workflow [AI step](https://www.elastic.co/docs/explore-analyze/workflows/steps/ai-steps)
-        and optional `kibana.request` `PUT /api/streams/{name}` after human approval.
+        **AI Streams plan:** the YAML includes a gated **`ai.prompt`** step (see workflow comments).
+        When enabled, it posts structured **retention / drop-or-route** suggestions to this Case.
+        **`PUT /api/streams/{name}`** is **not** auto-run—merge with **`kibana.streams.get`** after approval.
       owner: observability
       severity: low
       tags:
@@ -87,10 +107,16 @@ steps:
 
         | Field | One-line meaning |
         |-------|------------------|
-        | **modeled_policy_savings_pct** | **Headline savings %** — modeled share of *all* metric points you could reclaim after Streams / downsampling / aggregation (demo uses **0.35 × eligible**). |
-        | **streams_eligible_pct** | Share of points **not** tagged to the nine core retail-banking services — **Streams / tiering candidate** volume. |
+        | **modeled_policy_savings_pct** | **Retail headline** — **0.35 × streams_eligible_pct** where eligible % uses **`metric_points_retail_model`** = total minus **`noisy-governance-shipper`** (lab traffic does not dilute retail banking eligible share). |
+        | **streams_eligible_pct** | Non-core share **within the retail model slice** (denominator excludes lab shipper). |
+        | **points_governance_lab** | Docs from **`noisy-governance-shipper`** (Instruqt lab OTLP — **Streams practice** surface). |
+        | **streams_governance_lab_pct** | Lab docs ÷ **all** metric docs × 100 (share of total ingest). |
+        | **modeled_governance_lab_savings_pct** | **0.35 × streams_governance_lab_pct** — same reclaim factor on **governance-only** lab volume. |
+        | **estimated_monthly_observe_bill_usd** | **Observe $ proxy** — all metric docs in the window × **$/M points** × `periods_per_month` (same constant as reclaim; **not** a Cloud bill). |
+        | **estimated_monthly_reclaim_usd** | **Reclaim $ proxy** — modeled reclaim points × **$/M points** × `periods_per_month`. |
+        | **pct_savings_of_estimated_observe_bill** | **% of that proxy bill** attributed to modeled reclaim (**reclaim ÷ observe × 100**). |
 
-        **AI saves money (next click):** open **Observability AI Assistant** on this Case and ask for a **$/month** estimate from these two fields + your $/GB assumptions; paste the answer below for leadership.
+        **AI saves money (next click):** open **Observability AI Assistant** on this Case and ask for a **$/month** estimate using **`estimated_monthly_reclaim_usd`**, **`pct_savings_of_estimated_observe_bill`**, and **`metric_points`**; paste the answer below for leadership.
 
         ---
 
@@ -101,3 +127,189 @@ steps:
         ```
 
         **Streams:** `list_streams` completed; inspect full JSON in the workflow run detail in Kibana.
+
+        **Gated AI (Streams / retention):** set step **`gated_ai_streams_recommendations`** `condition` to
+        `${{ true }}` in the workflow YAML after you configure a **default GenAI connector** (or set
+        **`connector-id`** on the **`ai.prompt`** step). Until then the branch is skipped so imports
+        succeed without LLM credentials. When that branch runs, **`waitForInput`** pauses for approval
+        before **`kibana.streams.get`** posts live stream JSON to this Case (see blueprint doc).
+
+  # ---------------------------------------------------------------------------
+  # Gated AI: structured FinOps plan for Streams (retention / routing / drops).
+  # Default condition is always false — flip to ${{ true }} after GenAI connector.
+  # Optional: set connector-id on ai_streams_plan (top level, kebab-case).
+  # Apply changes only with kibana.streams.get + human merge + kibana.request PUT.
+  # ---------------------------------------------------------------------------
+  - name: gated_ai_streams_recommendations
+    type: if
+    condition: "${{ 1 == 2 }}"
+    steps:
+      - name: ai_streams_plan
+        type: ai.prompt
+        with:
+          systemPrompt: |
+            You are an Observability FinOps advisor. Output ONLY JSON matching the schema.
+            Prefer shorter retention windows or child-stream routing over hard deletes.
+            Never recommend dropping data for the nine core retail-banking service.name values
+            (payment-engine, claims-processor, mobile-gateway, member-portal, fraud-sentinel,
+            policy-manager, auth-gateway, document-vault, quote-engine) or anything that could carry
+            PCI/PII without explicit human approval. The metrics snapshot may include
+            **noisy-governance-shipper** (synthetic lab OTLP): treat it as **governance-demo** traffic
+            separate from retail core/eligible math when reasoning about production. When unsure, use action "no_change" and streamName "none".
+            At most five actions; prioritize highest document-volume noise from the inventory.
+          prompt: |
+            **Streams inventory (truncated JSON):**
+            {{ steps.list_streams.output | json | truncate: 12000 }}
+
+            **Metrics governance snapshot (ES|QL step output, truncated):**
+            {{ steps.metrics_snapshot.output | json | truncate: 6000 }}
+
+            Propose concrete Streams-oriented savings: retention days suggestions and/or routing or
+            drop hints that reduce storage cost. Reference stream **names** exactly as they appear in inventory.
+          temperature: 0.2
+          schema:
+            type: object
+            properties:
+              summary:
+                type: string
+              actions:
+                type: array
+                maxItems: 5
+                items:
+                  type: object
+                  properties:
+                    streamName:
+                      type: string
+                    action:
+                      type: string
+                      enum:
+                        - shorten_retention
+                        - suggest_drop_or_child_route
+                        - no_change
+                    retentionDaysSuggested:
+                      type: integer
+                      minimum: 1
+                      maximum: 365
+                    dropOrRouteHint:
+                      type: string
+                    rationale:
+                      type: string
+                    estimatedSavingsBand:
+                      type: string
+                      enum:
+                        - low
+                        - medium
+                        - high
+                        - unknown
+                  required:
+                    - streamName
+                    - action
+                    - rationale
+                    - estimatedSavingsBand
+            required:
+              - summary
+              - actions
+
+      - name: attach_ai_streams_plan
+        type: cases.addComment
+        with:
+          case_id: "{{ steps.governance_case.output.case.id }}"
+          comment: |
+            ### AI Streams plan (structured — review before any API change)
+
+            **Summary:** {{ steps.ai_streams_plan.output.content.summary }}
+
+            **Full JSON (schema-validated):**
+
+            ```json
+            {{ steps.ai_streams_plan.output.content | json }}
+            ```
+
+            **Apply safely:** fetch current definition with **`kibana.streams.get`** for each
+            `streamName`, merge the change manually or in a follow-up workflow step, then
+            **`kibana.request`** `PUT /api/streams/{name}` per [Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name).
+            Do not PUT partial bodies against production without a human gate.
+
+      # --- Human-in-the-loop: pause for approval, then attach live stream body for merge ---
+      - name: hitl_streams_gate
+        type: waitForInput
+        with:
+          message: |
+            ## Streams governance — approval before live definition fetch
+
+            **AI summary:** {{ steps.ai_streams_plan.output.content.summary }}
+
+            If you **approve**, the workflow will **`kibana.streams.get`** the stream name you enter
+            and post the **full JSON** to the Case (for merge + optional **`kibana.request`** PUT outside this starter).
+
+            **Reject** to skip the fetch (no API change).
+          schema:
+            type: object
+            properties:
+              approved:
+                type: boolean
+                title: "Approve fetching live stream JSON"
+              streamName:
+                type: string
+                title: "Stream name (exactly as in inventory)"
+              notes:
+                type: string
+                title: "Reviewer notes (optional)"
+            required:
+              - approved
+              - streamName
+
+      - name: fetch_stream_for_merge
+        type: kibana.streams.get
+        if: "steps.hitl_streams_gate.output.approved : true"
+        with:
+          name: "{{ steps.hitl_streams_gate.output.streamName }}"
+
+      - name: attach_live_stream_for_merge
+        type: cases.addComment
+        if: "steps.hitl_streams_gate.output.approved : true"
+        with:
+          case_id: "{{ steps.governance_case.output.case.id }}"
+          comment: |
+            ### Live stream definition (for merge with AI plan)
+
+            **Reviewer notes:** {{ steps.hitl_streams_gate.output.notes }}
+
+            **Stream:** `{{ steps.hitl_streams_gate.output.streamName }}`
+
+            ```json
+            {{ steps.fetch_stream_for_merge.output | json }}
+            ```
+
+            Merge with the structured AI plan above, then apply **`PUT /api/streams/{name}`** when ready.
+
+      - name: attach_hitl_rejected
+        type: cases.addComment
+        if: "steps.hitl_streams_gate.output.approved : false"
+        with:
+          case_id: "{{ steps.governance_case.output.case.id }}"
+          comment: |
+            **HITL:** Reviewer did not approve a live stream fetch for this run.
+            **Notes:** {{ steps.hitl_streams_gate.output.notes }}
+
+# -----------------------------------------------------------------------------
+# Optional: replace `ai_streams_plan` (type: ai.prompt) with Agent Builder:
+#
+#   - name: ai_streams_plan
+#     type: ai.agent
+#     agent-id: "YOUR_AGENT_BUILDER_AGENT_ID"
+#     connector-id: "YOUR_GENAI_CONNECTOR_ID"
+#     create-conversation: true
+#     with:
+#       message: |
+#         Streams inventory (truncated): {{ steps.list_streams.output | json | truncate: 12000 }}
+#         Metrics snapshot (truncated): {{ steps.metrics_snapshot.output | json | truncate: 6000 }}
+#         Return the same structured FinOps actions as the ai.prompt schema in this file.
+#       schema:
+#         type: object
+#         ... # mirror properties under ai_streams_plan.schema above
+#
+# Structured fields appear on `steps.ai_streams_plan.output.structured_output` when using schema;
+# adjust Liquid in `attach_ai_streams_plan` / `hitl_streams_gate` if your agent step uses
+# different output paths than `ai.prompt`'s `output.content`.
+# -----------------------------------------------------------------------------

@@ -809,16 +809,24 @@ systemctl enable elastic-demo
 systemctl start  elastic-demo
 
 echo "Waiting for demo app to become healthy on port $DEMO_PORT..."
-for i in $(seq 1 60); do
-  if curl -sf "http://localhost:${DEMO_PORT}/health" >/dev/null 2>&1; then
-    echo "Demo app healthy after ${i}s ✓"
-    break
-  fi
-  if [[ $i -eq 60 ]]; then
+# Use `until` (not `for` + bare curl): with `set -e`, some runtimes still abort when the
+# health probe fails before uvicorn is ready; `until` treats failing test commands as normal.
+_demo_wait=0
+until curl -sf "http://localhost:${DEMO_PORT}/health" >/dev/null 2>&1; do
+  _demo_wait=$((_demo_wait + 1))
+  if [[ $_demo_wait -ge 60 ]]; then
     echo "WARN: Demo app did not become healthy after 60s"
+    journalctl -u elastic-demo -n 120 --no-pager || true
+    ss -tlnp 2>/dev/null | grep -E ':8090\b' || true
+    break
   fi
   sleep 1
 done
+if curl -sf "http://localhost:${DEMO_PORT}/health" >/dev/null 2>&1; then
+  echo "Demo app healthy ✓ (waited ${_demo_wait}s)"
+else
+  echo "WARN: Demo app still not healthy — check: journalctl -u elastic-demo -f"
+fi
 
 # Credentials are already exported by the project-creation block above.
 # KIBANA_URL and ELASTICSEARCH_API_KEY are set as env vars in this script.

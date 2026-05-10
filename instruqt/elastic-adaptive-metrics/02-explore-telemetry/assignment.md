@@ -119,11 +119,11 @@ Adaptive
 governance
 ```
 
-3. Open **Adaptive Metrics · Streams savings & governance (TCO)**.  
+3. Open **Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)**.
    *(Optional — paste the full title if the list is long:)*
 
 ```
-Adaptive Metrics · Streams savings & governance (TCO)
+Retail Banking — Adaptive Metrics · Streams savings & governance (TCO)
 ```
 
 ### Step 4 — Applications → Service inventory

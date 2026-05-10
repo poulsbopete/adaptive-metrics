@@ -67,6 +67,7 @@ steps:
         | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
         | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
         | EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
+        | EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)
         | EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))
 
   - name: governance_case
@@ -114,8 +115,9 @@ steps:
         | Doc count outside nine core services | `points_in_savings_envelope` |
         | Lab OTLP points (`noisy-governance-shipper`) | `points_governance_lab` |
         | Lab traffic as % of all points (alias `modeled_governance_lab_savings_pct`) | `streams_governance_lab_pct` |
-        | Monthly observe cost — USD proxy | `estimated_monthly_observe_bill_usd` |
-        | Monthly reclaim — USD proxy | `estimated_monthly_reclaim_usd` |
+        | Monthly observe cost — USD proxy (**Before** baseline) | `estimated_monthly_observe_bill_usd` |
+        | Monthly reclaim — USD proxy (**Addressable** non-core) | `estimated_monthly_reclaim_usd` |
+        | Monthly bill after governance — USD proxy (**After** core-only) | `estimated_monthly_bill_after_governance_usd` |
         | Reclaim as % of observe proxy (non-core volume share if $/point is flat) | `pct_savings_of_estimated_observe_bill` |
 
         **AI Assistant:** Ask for assumption stress-testing and a checklist of what Finance must validate

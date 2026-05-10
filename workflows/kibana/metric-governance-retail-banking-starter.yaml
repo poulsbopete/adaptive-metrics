@@ -205,6 +205,7 @@ steps:
         | EVAL periods_per_month = (30.0 * 24.0 * 60.0) / 15.0
         | EVAL estimated_monthly_observe_bill_usd = ROUND((metric_points / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
         | EVAL estimated_monthly_reclaim_usd = ROUND((points_in_savings_envelope / 1000000.0) * assumed_usd_per_million_points_month * periods_per_month, 2)
+        | EVAL estimated_monthly_bill_after_governance_usd = ROUND(estimated_monthly_observe_bill_usd - estimated_monthly_reclaim_usd, 2)
         | EVAL pct_savings_of_estimated_observe_bill = CASE(estimated_monthly_observe_bill_usd == 0, 0.0, ROUND(100.0 * estimated_monthly_reclaim_usd / estimated_monthly_observe_bill_usd, 2))
 
   - name: governance_case
@@ -258,9 +259,10 @@ steps:
         | `modeled_governance_lab_savings_pct` | Same value as **`streams_governance_lab_pct`** (lab shipper share of all points) |
         | `points_in_savings_envelope` | **Observed** doc count: **`metric_points - points_core_services`** |
         | `points_governance_lab` / `streams_governance_lab_pct` | OTLP lab shipper (`noisy-governance-shipper`) volume |
-        | `estimated_monthly_observe_bill_usd` | Order-of-magnitude **proxy** bill from metric-point rate |
-        | `estimated_monthly_reclaim_usd` | Same proxy applied to **`points_in_savings_envelope`** |
-        | `pct_savings_of_estimated_observe_bill` | Reclaim ÷ observe proxy — equals non-core **volume share** when $/point is flat |
+        | `estimated_monthly_observe_bill_usd` | **Before** — baseline proxy (all metric points × flat **$/point**) |
+        | `estimated_monthly_reclaim_usd` | **Addressable** — proxy on **`points_in_savings_envelope`** (non-core + lab by rule) |
+        | `estimated_monthly_bill_after_governance_usd` | **After** — proxy on core-only volume (**baseline − reclaim**) |
+        | `pct_savings_of_estimated_observe_bill` | Reclaim ÷ observe proxy — non-core **volume share** when $/point is flat |
 
         **Logs volume (top services, last 30m):**
 

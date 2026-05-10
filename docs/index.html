@@ -6,7 +6,7 @@
     <title>Elastic Adaptive Metrics — Demo</title>
     <meta
       name="description"
-      content="Governed metrics at scale: downsampling, Streams, declared usage, and workflows—one Elastic Observability platform."
+      content="Govern metrics with evidence: downsampling, Streams, ES|QL, and Observability Workflows—metrics, logs, and traces on Elastic."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -720,26 +720,25 @@
       <!-- 1 Hero -->
       <section class="slide is-active slide-hero-bg" data-slide="0">
         <div class="slide-inner">
-          <p class="eyebrow">Elastic Observability · Adaptive metrics</p>
+          <p class="eyebrow">Elastic Observability · Adaptive Metrics</p>
           <h1 class="hero-title">
             <span class="muted-part">Adaptive Metrics</span><br />
             <span class="gradient-text">Without Compromise</span>
           </h1>
           <p class="lede">
-            Discover unused or noisy series, recommend rollups and retention with
-            human approval, and enforce policy server-side—<strong
-              style="color: rgba(240, 240, 255, 0.92); font-weight: 600"
-              >downsampling</strong
-            >, Streams, and workflows on one correlated platform.
+            Right-size metric volume with evidence your teams can agree on: see what drives cost and
+            reliability, approve policy changes together, and enforce them in the platform—with
+            <strong style="color: rgba(240, 240, 255, 0.92); font-weight: 600">downsampling</strong>,
+            Streams, and Observability Workflows for metrics, logs, and traces in one place.
           </p>
           <div class="chips">
             <span class="chip"><strong>Downsampling</strong> · tiered fidelity</span>
             <span class="chip"><strong>Streams</strong> · route &amp; retain</span>
-            <span class="chip"><strong>ES|QL</strong> · prove volume &amp; usage</span>
-            <span class="chip"><strong>Workflows + Cases</strong> · govern changes</span>
+            <span class="chip"><strong>ES|QL</strong> · quantify volume &amp; usage</span>
+            <span class="chip"><strong>Workflows + Cases</strong> · governed change</span>
           </div>
           <div class="compare-row">
-            <span class="vs">Landscape</span>
+            <span class="vs">Often compared to</span>
             VM · Prometheus/Mimir · Grafana · Datadog · Dynatrace · New Relic · Chronosphere · Splunk · CloudWatch · …
             <span style="margin-left: auto; opacity: 0.55">Elastic · 2026</span>
           </div>
@@ -749,11 +748,11 @@
       <!-- 2 Problem + at a glance -->
       <section class="slide" data-slide="1">
         <div class="slide-inner">
-          <p class="eyebrow">Why now</p>
-          <h2 class="section-title">Cardinality, bills, and proof CFOs trust</h2>
+          <p class="eyebrow">Your challenge</p>
+          <h2 class="section-title">Cardinality, cost, and answers leadership asks for</h2>
           <p class="lede compact-bottom">
-            Tie spend to <strong style="color: rgba(240, 240, 255, 0.88)">declared usage</strong>
-            (dashboards, SLOs, alerts)—not mystery cardinality.
+            Connect observability spend to what your organization actually relies on—
+            <strong style="color: rgba(240, 240, 255, 0.88)">dashboards, SLOs, and alerts</strong>—instead of unclear metric volume alone.
           </p>
           <div class="stats" id="statStrip">
             <div class="stat-card">
@@ -773,14 +772,14 @@
             </div>
             <div class="stat-card">
               <div class="stat-val" data-target="7">0</div>
-              <div class="stat-label">Workflow story</div>
-              <p class="stat-sub">Six demos + governance as the seventh</p>
+              <div class="stat-label">Governance loop</div>
+              <p class="stat-sub">From insight to reviewed change</p>
             </div>
           </div>
           <ul class="tight-list">
-            <li><strong>Explosion:</strong> K8s labels, tenant IDs, and OTel attributes multiply series faster than teams can review.</li>
-            <li><strong>Bill risk:</strong> “Cheap ingest” stacks still mean HA ops, correlation gaps, and surprise cardinality under incidents.</li>
-            <li><strong>Ask:</strong> Full fidelity for what runs the business; adaptive policy everywhere else—with audit trails, not spreadsheets.</li>
+            <li><strong>Volume:</strong> Kubernetes labels, tenant IDs, and OpenTelemetry attributes multiply time series—often faster than teams can explain them.</li>
+            <li><strong>Cost:</strong> Optimizing ingest alone doesn’t remove operating risk: you still need correlation under incidents and predictable behavior when traffic spikes.</li>
+            <li><strong>Outcome:</strong> Keep full fidelity for services that matter most; apply adaptive retention and aggregation elsewhere—with decisions your auditors can follow.</li>
           </ul>
           <figure class="problem-photo">
             <img
@@ -791,7 +790,7 @@
               loading="lazy"
             />
             <figcaption>
-              Ops reality: sprawl shows up in the rack before finance sees the invoice.
+              Complexity usually surfaces in operations long before it appears as a clean finance line item.
             </figcaption>
           </figure>
         </div>
@@ -800,7 +799,7 @@
       <!-- 3 Mechanics -->
       <section class="slide" data-slide="2">
         <div class="slide-inner">
-          <p class="eyebrow">How it works</p>
+          <p class="eyebrow">How Elastic supports you</p>
           <h2 class="section-title">Discover · Recommend · Apply</h2>
           <div class="flow">
             <span class="flow-step">Inventory &amp; correlate</span>
@@ -812,13 +811,14 @@
             <span class="flow-step">Streams &amp; downsampling</span>
           </div>
           <p class="lede" style="margin-top: 1rem; max-width: 40rem">
-            Optional AI drafts diffs; humans merge and gate API writes—automation amplifies judgment.
+            Generative AI can draft recommendations; your teams review, merge, and approve before anything
+            reaches production APIs—automation supports people, it doesn’t replace ownership.
           </p>
           <h2 class="section-title" style="font-size: clamp(1.15rem, 2.8vw, 1.45rem); margin-top: 1.25rem">
             Downsampling that preserves intent
           </h2>
           <p class="lede" style="margin-top: 0.35rem; max-width: 42rem">
-            SLO- and alert-driving series stay sharp; long-tail namespaces roll to coarser intervals—still beside logs and traces in Elasticsearch.
+            The signals behind your SLOs and alerts stay at the fidelity you need; long-tail traffic can move to coarser tiers—still analyzed alongside logs and traces in Elasticsearch.
           </p>
           <div class="viz-bar" aria-hidden="true">
             <span class="hot"></span><span class="warm"></span><span class="roll"></span>
@@ -839,10 +839,11 @@
       <!-- 4 Evidence -->
       <section class="slide" data-slide="3">
         <div class="slide-inner">
-          <p class="eyebrow">Proof in Kibana</p>
-          <h2 class="section-title">Governance math + operational workflows</h2>
+          <p class="eyebrow">What you’ll see</p>
+          <h2 class="section-title">FinOps visibility and governed operations—in one UI</h2>
           <p class="lede compact-bottom">
-            Same platform as incidents and SLOs: ES|QL FinOps proxies, Cases, and scheduled Workflows.
+            Use the same Elastic Observability environment you already trust for incidents and SLOs:
+            ES|QL for transparent metrics economics, Cases for review, and Workflows for repeatable governance.
           </p>
           <div class="evidence-grid">
             <figure class="slide-figure">
@@ -850,7 +851,7 @@
                 <div class="savings-spotlight" aria-label="Demo modeled savings band">
                   <span class="savings-spotlight-range">60–80%</span>
                   <span class="savings-spotlight-sub"
-                    >modeled proxy-bill savings · typical demo band (not an invoice)</span
+                    >illustrative modeled savings · representative demo range</span
                   >
                 </div>
                 <img
@@ -863,8 +864,9 @@
                 />
               </div>
               <figcaption>
-                <strong style="color: rgba(240, 240, 255, 0.92)">Headline KPI</strong> lands in the
-                <strong style="color: var(--accent2)">60–80%</strong> range for modeled savings vs proxy observe bill—play-money math for exec alignment.
+                In our reference scenario, headline KPIs often fall in the
+                <strong style="color: var(--accent2)">60–80%</strong> band for modeled savings versus a proxy observe-bill view—useful for executive discussion and scenario planning;
+                your finance team validates real targets against your chargeback model.
               </figcaption>
             </figure>
             <figure class="slide-figure">
@@ -876,7 +878,9 @@
                 height="675"
                 loading="lazy"
               />
-              <figcaption>Observability Workflows — governance next to SLO and alert playbooks.</figcaption>
+              <figcaption>
+                Automate governance alongside the same alert and SLO workflows your teams already run—no separate “metrics-only” silo.
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -885,19 +889,20 @@
       <!-- 5 Competitors -->
       <section class="slide" data-slide="4">
         <div class="slide-inner">
-          <p class="eyebrow">Bake-off</p>
-          <h2 class="section-title">Metric-centric landscape — where Elastic leads</h2>
+          <p class="eyebrow">Choosing a metrics architecture</p>
+          <h2 class="section-title">How Elastic Observability fits your evaluation</h2>
           <p class="lede compact-bottom">
-            Abbreviated POV for stakeholder decks—validate per account. <strong style="color: rgba(240,240,255,0.9)">◎</strong> marks where Adaptive Metrics + Elastic typically tell the strongest regulated-enterprise story.
+            Every option involves tradeoffs. Below is a concise comparison our customers use with architecture and FinOps peers—
+            <strong style="color: rgba(240, 240, 255, 0.9)">◎</strong> highlights where Elastic Observability with Adaptive Metrics is often the strongest fit for regulated, unified telemetry estates.
           </p>
           <div class="comp-table-wrap" role="region" aria-label="Competitor comparison">
             <table class="comp-table">
               <thead>
                 <tr>
-                  <th scope="col">Offering</th>
-                  <th scope="col">Their usual wedge</th>
-                  <th scope="col">Typical gap @ enterprise bake-off</th>
-                  <th scope="col" class="col-elastic">Elastic + Adaptive Metrics</th>
+                  <th scope="col">Option</th>
+                  <th scope="col">Strength teams cite</th>
+                  <th scope="col">Where friction often appears</th>
+                  <th scope="col" class="col-elastic">Elastic Observability</th>
                 </tr>
               </thead>
               <tbody>
@@ -965,7 +970,7 @@
             </table>
           </div>
           <p class="comp-note">
-            Not a feature checklist—conversation guide when governance and unified telemetry matter as much as raw $/GB.
+            Intended as a discussion framework—priorities differ by industry, cloud footprint, and compliance regime.
           </p>
         </div>
       </section>
@@ -973,22 +978,23 @@
       <!-- 6 Thesis + CTA -->
       <section class="slide" data-slide="5">
         <div class="slide-inner">
-          <p class="eyebrow">Regulated enterprises · Try it</p>
-          <h2 class="section-title">Reliability · auditability · cost discipline — one stack</h2>
+          <p class="eyebrow">Regulated enterprises</p>
+          <h2 class="section-title">Reliability · auditability · cost discipline — on one platform</h2>
           <p class="lede" style="max-width: 42rem">
-            You are not pitching the cheapest scraper. You are proving why Elastic wins the
-            <strong style="color: rgba(240, 240, 255, 0.9)">metrics decision</strong>
-            when incidents, compliance, and CFO-ready economics must align.
+            The lowest-cost raw ingest is not always the lowest total cost of ownership—or the lowest risk.
+            Elastic Observability helps your teams align incident response, compliance expectations, and
+            <strong style="color: rgba(240, 240, 255, 0.9)">metrics economics</strong>
+            by keeping metrics, logs, and traces in one governed Elasticsearch-backed stack.
           </p>
           <p class="lede" style="margin-top: 1rem; max-width: 42rem">
-            <strong style="color: rgba(240, 240, 255, 0.88)">Live lab:</strong> Retail Banking telemetry, Streams exercises, governance workflow YAML — Instruqt track below.
+            <strong style="color: rgba(240, 240, 255, 0.88)">See it in action:</strong> explore a Retail Banking scenario with live telemetry, Streams, and sample governance workflows—in the guided hands-on lab below.
           </p>
           <a
             class="cta"
             href="https://play.instruqt.com/manage/elastic/tracks/elastic-adaptive-metrics"
             target="_blank"
             rel="noopener"
-            >Open Instruqt · elastic / elastic-adaptive-metrics →</a
+            >Launch hands-on lab · elastic-adaptive-metrics →</a
           >
         </div>
       </section>

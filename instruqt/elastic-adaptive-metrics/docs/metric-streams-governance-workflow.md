@@ -84,6 +84,7 @@ Use **`kibana.streams.list`** / **`kibana.streams.get`** ([Streams action steps]
 |--------|------|-----|
 | List streams | `GET /api/streams` | [Get stream list](https://www.elastic.co/docs/api/doc/kibana/operation/operation-get-streams) |
 | Create / update stream | `PUT /api/streams/{name}` | [Create or update a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-put-streams-name) |
+| **Fork child partition (wired)** | `POST /api/streams/{parent}/_fork` | [Fork a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-post-streams-name-fork) — body uses **`where`** [streamlang conditions](https://www.elastic.co/docs/solutions/observability/streams/management/streamlang); then **`PUT /api/streams/{child}/_ingest`** for **retention** (`scripts/set_streams_retention.py`) |
 
 Classic streams **cannot** be created through this API (only updated). Prefer **wired** streams when you need Kibana-managed **child routes**.
 

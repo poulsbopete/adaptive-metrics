@@ -20,11 +20,10 @@ name: Retail Banking Platform — Adaptive Metrics · Metric governance snapshot
 enabled: true
 description: >
   Metric governance for Adaptive Metrics: list Streams, run ES|QL for modeled savings and FinOps
-  USD proxies, and open an Observability Case with an executive/SRE-friendly narrative. JSON in
-  comments carries analyst fields. Optional gated **ai.prompt** (off by default) for structured
-  retention/routing recommendations—apply **PUT /api/streams/{name}** only after **kibana.streams.get**,
-  human merge, and approved **kibana.request**. Optional **waitForInput** for HITL. Pair with the
-  Adaptive Metrics dashboard in the Instruqt track.
+  USD proxies, optionally **fork** wired log partitions for cost control (**POST /api/streams/{name}/_fork**
+  + shorter retention on children), and open an Observability Case. Optional gated **ai.prompt** (off by
+  default). Full-stream merges still require **kibana.streams.get** + human review + **PUT**. Pair with
+  the Adaptive Metrics dashboard in the Instruqt track.
 
 triggers:
   - type: scheduled
@@ -35,6 +34,111 @@ steps:
   - name: list_streams
     type: kibana.streams.list
     with: {}
+
+  # Logs volume snapshot — supports Streams partitioning narrative (wired OTEL banking logs).
+  - name: logs_volume_by_service
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM logs*
+        | WHERE @timestamp > NOW() - 30 minutes
+        | STATS docs = COUNT(*) BY service.name
+        | SORT docs DESC
+        | LIMIT 25
+
+  # ---------------------------------------------------------------------------
+  # Cost control: fork additional **wired** child streams under logs.otel.banking so you can attach
+  # shorter retention per partition (see PUT .../_ingest below). Uses POST /api/streams/{name}/_fork
+  # ([Fork a stream](https://www.elastic.co/docs/api/doc/kibana/operation/operation-post-streams-name-fork)).
+  # Set condition to ${{ false }} if the parent stream name differs or you want UI-only partitioning.
+  # Each step uses on-failure: continue so re-runs stay green when partitions already exist.
+  # ---------------------------------------------------------------------------
+  - name: ensure_cost_control_partitions_otel_banking
+    type: if
+    condition: "${{ true }}"
+    steps:
+      - name: fork_partition_document_vault
+        type: kibana.request
+        with:
+          method: POST
+          path: "/api/streams/logs.otel.banking/_fork"
+          body:
+            stream:
+              name: logs.otel.banking.document-vault
+            where:
+              field: resource.attributes.service.name
+              eq: document-vault
+        on-failure:
+          continue: true
+
+      - name: fork_partition_quote_engine
+        type: kibana.request
+        with:
+          method: POST
+          path: "/api/streams/logs.otel.banking/_fork"
+          body:
+            stream:
+              name: logs.otel.banking.quote-engine
+            where:
+              field: resource.attributes.service.name
+              eq: quote-engine
+        on-failure:
+          continue: true
+
+      - name: fork_partition_policy_manager
+        type: kibana.request
+        with:
+          method: POST
+          path: "/api/streams/logs.otel.banking/_fork"
+          body:
+            stream:
+              name: logs.otel.banking.policy-manager
+            where:
+              field: resource.attributes.service.name
+              eq: policy-manager
+        on-failure:
+          continue: true
+
+      # Shorter retention on forked children — tune dsl (e.g. 7d vs 30d) per tenant / finance policy.
+      - name: retention_child_document_vault
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/logs.otel.banking.document-vault/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "14d"
+        on-failure:
+          continue: true
+
+      - name: retention_child_quote_engine
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/logs.otel.banking.quote-engine/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "14d"
+        on-failure:
+          continue: true
+
+      - name: retention_child_policy_manager
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/logs.otel.banking.policy-manager/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "14d"
+        on-failure:
+          continue: true
 
   - name: metrics_snapshot
     type: elasticsearch.esql.query
@@ -81,8 +185,9 @@ steps:
           comparison; replace inputs with **approved chargeback** before external commitments.
 
         **Next steps:** Use Observability AI Assistant for a leadership narrative; compare to the
-        **`list_streams`** inventory. This workflow **does not** change policy—**PUT /api/streams/{name}**
-        requires human review and merge.
+        **`list_streams`** inventory. When **ensure_cost_control_partitions_otel_banking** is enabled, this
+        run may **fork** child streams and set **child retention** via **fork** + **_ingest** APIs (see YAML).
+        Broader **PUT /api/streams/{name}** merges still require human review.
 
         Structured fields for SREs and FinOps are in the following Case comment (JSON).
       owner: observability
@@ -117,13 +222,19 @@ steps:
 
         ---
 
+        **`logs_volume_by_service` JSON** (top services by log volume — last 30m):
+
+        ```json
+        {{ steps.logs_volume_by_service.output | json }}
+        ```
+
         **`metrics_snapshot` JSON:**
 
         ```json
         {{ steps.metrics_snapshot.output | json }}
         ```
 
-        **Streams:** This run also executed **`list_streams`** — inspect the workflow execution in Kibana for full inventory JSON.
+        **Streams:** This run also executed **`list_streams`** — inspect the workflow execution in Kibana for full inventory JSON. If cost-control forks ran, check for child streams under **`logs.otel.banking.*`** and their retention.
 
         **Optional GenAI step:** A gated **AI** branch in this YAML stays **off** until you enable a connector and set its `condition` to `${{ true }}`. Approved owners still gate any **`PUT`** to Streams.
 

@@ -856,7 +856,9 @@ _resolve_track_scripts_dir() {
   local root
   for root in /tmp /root /home /opt /var/lib /usr/local /instruqt "${HOME:-}"; do
     [[ -d "${root}" ]] || continue
-    hit="$(find "${root}" -maxdepth 16 -path '*/track_scripts/dashboards/instruqt-metric-governance-dashboard.json' 2>/dev/null | head -n1)"
+    # Pipefail: find may exit 1 on permission errors — do not abort setup-es3-api.
+    hit=""
+    hit="$(find "${root}" -maxdepth 16 -path '*/track_scripts/dashboards/instruqt-metric-governance-dashboard.json' 2>/dev/null | head -n1)" || true
     [[ -n "${hit}" ]] || continue
     (cd "$(dirname "$(dirname "${hit}")")" && pwd)
     return 0

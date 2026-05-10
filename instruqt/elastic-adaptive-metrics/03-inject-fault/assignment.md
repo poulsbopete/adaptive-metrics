@@ -3,72 +3,22 @@ slug: inject-fault
 id: idjcheiijoey
 type: challenge
 title: Inject a Fault and Watch Elastic Detect It
-teaser: 'Fault → alert → workflow → case: see the signals that define **declared usage**,
-  then tie RCA windows to downsampling and retention on Elastic.'
+teaser: One fault from **Demo App** → see alerts, workflow, and **Case** in Kibana.
 notes:
 - type: text
   contents: |
-    ## Lab 3 — Inject a Fault and Watch Elastic Detect It
+    ## Lab 3 — Chaos → detection
 
-    **Workshop payoff:** The **Significant Event Notification** workflow is a concrete **Elastic Workflow**: it shows which logs, metrics, and traces participate when something breaks—the same operational surface you would *never* silently drop in a governance program. That is **declared usage under stress**—distinct from a separate “metric catalog cleanup” workflow, which you would add as **custom** automation on the same platform.
+    **Goal:** Prove alert → workflow → case — **three clicks**, then watch Kibana.
 
-    **By the end of this challenge you will:**
+    **You'll:**
+    - Inject **one** fault from the Demo App
+    - Confirm errors in Discover (optional query below)
+    - Open **Workflows** then **Cases**
 
-    - ✅ Trigger a realistic fault using the Demo App Chaos controller
-    - ✅ Watch the error spike appear in Elastic's log stream within seconds
-    - ✅ See an ES|QL alert rule fire within 30–60 seconds
-    - ✅ Observe the AI agent begin its investigation automatically
-    - ✅ Connect incident response to **why** governed retention and metric policy matter for TCO
+    **Retail Banking channels** cover payments, claims, mobile, fraud, infra (20 channels). Pick any channel you like.
 
-    **You have 20 fault channels to choose from** — for **Retail Banking** they map to **digital banking, payments, claims, policy, fraud, identity, documents, and core infra** across AWS, GCP, and Azure. Pick any channel and watch Elastic light up.
-- type: text
-  contents: |
-    ## How Fault Detection Works
-
-    Every fault channel is monitored by a dedicated **ES|QL alert rule** running on a 30-second schedule:
-
-    ```
-    FROM logs*
-    | WHERE @timestamp > NOW() - 2 MINUTES
-    | WHERE body.text : "MacAddressFlappingException"
-    | STATS error_count = COUNT(*)
-    | WHERE error_count > 5
-    ```
-
-    When errors exceed the threshold:
-    1. The alert fires and appears in **Observability → Alerts**
-    2. The alert triggers the **Significant Event Notification** workflow
-    3. The workflow calls the **AI agent** with the error context
-    4. The agent queries logs, correlates signals, and produces a root-cause analysis
-- type: text
-  contents: |
-    ## Fault Cascade: Why Observability Is Hard
-
-    A single fault channel doesn't just affect one service — it cascades:
-
-    | Step | What happens |
-    |------|-------------|
-    | **1** | Primary service emits `ERROR` logs with a specific exception type |
-    | **2** | Downstream services emit `WARN` — degraded upstream responses |
-    | **3** | Trace spans show elevated latency at integration boundaries |
-    | **4** | Host metrics spike on the affected cloud provider |
-
-    This cascade across logs, metrics, and traces is what makes incidents hard to diagnose manually — and what makes Elastic's correlated view so powerful.
-- type: text
-  contents: |
-    ## 20 Fault Channels — Pick One (Retail Banking)
-
-    | Category | Cloud | Example channels |
-    |----------|-------|------------------|
-    | **Digital banking** | AWS | Mobile app API timeout, mobile deposit failure, push notification storm |
-    | **Payments & treasury** | AWS | ACH direct deposit delay, bill pay failure, wire OFAC block, debit auth failure |
-    | **Claims & loss** | AWS | FNOL intake backlog, photo damage estimate timeout, claims disbursement failure |
-    | **Policy & underwriting** | AWS | Policy renewal batch failure, rules engine error, VA loan rate lock failure |
-    | **Identity & access** | Azure | Biometric auth degradation, MFA delivery failure |
-    | **Fraud & member channel** | GCP | Fraud false-positive surge, member session timeout cascade |
-    | **Documents & data** | Azure | Document upload failure, DB replication lag, certificate expiration cascade |
-
-    **Recommended:** **Channel 4 — ACH Direct Deposit Delay** (payments + member impact) or **Channel 6 — Wire Transfer OFAC Block** (treasury / compliance story). **Channel 1 — Mobile App API Timeout** is also a strong **digital banking** demo.
+    **Suggested first run:** **ACH Direct Deposit Delay** or **Mobile App API Timeout** — easy to narrate.
 tabs:
 - id: slqip2bp1bjo
   title: Demo App
@@ -99,18 +49,14 @@ enhanced_loading: null
 
 # Inject a Fault and Watch Elastic Detect It
 
-Trigger a fault from the **Demo App**, then watch Elastic automatically investigate and create a case — no human intervention required.
-
 ---
 
-## Step 1 — Inject a Fault
+## Step 1 — Inject (~1 min)
 
-1. Open the **Demo App** tab. On your running deployment, click **Chaos** (opens the incident simulator).
-2. Select any fault channel and click **Inject Fault**
+1. **Demo App** → active deployment → **Chaos**
+2. Pick **any** fault channel → **Inject Fault**
 
-> **Recommended:** Start with **Channel 4 — ACH Direct Deposit Delay** or **Channel 6 — Wire Transfer OFAC Block** for a clear **retail banking** payments story; **Channel 1 — Mobile App API Timeout** highlights the **mobile / API** path.
-
-While the fault propagates, run this query in **Elastic Serverless → Discover → ES|QL** to watch the error spike in real time:
+*(Optional)* In **Elastic Serverless → Discover → ES|QL**, watch errors climb:
 
 ```esql
 FROM logs*
@@ -120,39 +66,26 @@ FROM logs*
 | SORT errors DESC
 ```
 
-> **Tip:** Re-run this every 30 seconds after injecting the fault — you'll see the affected service's error count climb while all other services stay flat.
+Re-run every ~30s until you see the affected service spike.
 
 ---
 
-## Step 2 — Watch the Workflow Run
+## Step 2 — Workflow (~2 min)
 
-In the **Elastic Serverless** tab, go to **Observability → Workflows**.
+**Observability → Workflows** → find **Significant Event Notification** (name includes your scenario, e.g. **Retail Banking Platform**) → open the **latest run**.
 
-Within 1–2 minutes of injecting the fault, the **Significant Event Notification** workflow for **your running scenario** will show a recent execution (the workflow title includes the scenario name). Click it to see each step:
-
-- **count_errors** — ES|QL query counting recent errors from the affected service
-- **run_rca** — AI agent root-cause analysis
-- **create_case** — Kibana case created with RCA findings
-
-Click **View Full Conversation** to open the AI agent's complete chat thread — you can see exactly what it queried, what it found, and why it drew its conclusions. You can even type follow-up questions or ask the agent to take a remediation action.
+Skim steps: count errors → AI RCA → **create case**.
 
 ---
 
-## Step 3 — Review the Case
+## Step 3 — Case (~1 min)
 
-Go to **Observability → Cases** (or click **Cases** in the left nav).
+**Observability → Cases** — open the newest auto-created case (severity often **High**).
 
-A new case will appear automatically with:
-- The fault name and affected service in the title
-- The AI agent's root-cause analysis in the description
-- Severity set to **High**
-
-✅ **Ready to continue when** you can see a workflow execution and an auto-created case in Elastic Serverless.
+✅ **Done** when you see **one workflow run** and **one case**.
 
 ---
 
-## After the incident — retention, downsampling, and Streams
+## Why operators care (optional)
 
-Most **agentic RCA** and war-room analysis happens in the **first hours to days** after a spike. That is the business case for **predictable retention**: keep rich resolution on series tied to **alerts, SLOs, dashboards, and workflows** (everything you touched in Challenges 1–3—the **declared usage** surface), and use **shorter retention windows**, **coarser rollups**, or **downsampling** for high-cardinality metrics that never appear in those surfaces. **Elastic downsampling** plus **one correlated store and workflows** is how you answer finance and architecture reviewers without splitting observability across silos.
-
-**Elastic Streams** and server-side ingest shaping are how you encode that policy in one place—without shipping complex edge rules to every cluster. When you talk to finance or architecture reviewers at **large banks and insurers**, you are not “deleting observability,” you are **aligning spend** to the signals that actually drive incidents and customer outcomes—**workflows** make that list objective, not guessed.
+Incidents stress **the same signals** you declared as important (**alerts, SLOs, dashboards, workflows**). Keep rich retention there; trim **high-cardinality** volume that never appears on those surfaces — **downsampling**, **Streams**, shorter tiers — so cost tracks operational reality.

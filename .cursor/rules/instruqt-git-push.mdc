@@ -1,0 +1,15 @@
+---
+description: After Instruqt/track changes, push Git and publish the track to Instruqt.
+globs: instruqt/**/*
+alwaysApply: false
+---
+
+# Git + Instruqt publish
+
+When you finish changes under `instruqt/` (especially `instruqt/elastic-adaptive-metrics/` or bundled `track_scripts`), **before ending the task**:
+
+1. Commit any outstanding changes with a clear message.
+2. **`git push`** from the repo root (`origin`).
+3. **`instruqt track push --force`** from `instruqt/elastic-adaptive-metrics/` (same directory as that track’s `track.yml`).
+
+Confirm both commands succeed; report the track manage URL if Instruqt prints it.

@@ -869,7 +869,10 @@ _resolve_track_scripts_dir() {
 }
 
 _SCRIPT_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRACK_SCRIPT_DIR="$(_resolve_track_scripts_dir "${_SCRIPT_HOME}")"
+# `set -e` treats non-zero from `var=$(...)` as fatal. Absorb it so a fallback that
+# prints script_home (e.g. /tmp) still works even if an older resolver returns 1.
+_track_resolved="$(_resolve_track_scripts_dir "${_SCRIPT_HOME}")" || true
+TRACK_SCRIPT_DIR="${_track_resolved:-${_SCRIPT_HOME}}"
 if [[ ! -f "${TRACK_SCRIPT_DIR}/dashboards/instruqt-metric-governance-dashboard.json" ]]; then
   echo "WARN: Bundled governance dashboard JSON not found under TRACK_SCRIPT_DIR=${TRACK_SCRIPT_DIR} (script_home=${_SCRIPT_HOME})"
 fi

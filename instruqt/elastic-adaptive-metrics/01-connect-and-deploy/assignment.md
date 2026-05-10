@@ -8,50 +8,11 @@ teaser: Confirm Retail Banking is live — one ES|QL query + one dashboard in **
 notes:
 - type: text
   contents: |
-    ## Lab 1 — Quick orientation
-
-    **Goal:** Prove telemetry is flowing in Kibana. **Nothing to install.**
-
-    **You will:**
-    - See a **Running** deployment in the **Demo App**
-    - Use **Elastic Serverless** (already logged in)
-    - Run **one** ES|QL query and open **one** dashboard
-
-    **Optional while you wait:** **[Adaptive Metrics — slides](https://poulsbopete.github.io/adaptive-metrics/)** (keyboard **←** **→** Home End).
-
     First boot usually takes **3–4 minutes**. If a tab spins, wait and refresh.
-- type: text
-  contents: |
-    ## Two tabs
 
-    | Tab | Use it for |
-    |-----|------------|
-    | **Demo App** | Status, scenario cards, **Chaos** (later) |
-    | **Elastic Serverless** | Kibana — Discover, Dashboards, APM |
+    **[Open slides in a new tab](https://poulsbopete.github.io/adaptive-metrics/)** · Navigate with **←** **→** · Space · Home · End
 
-    **Default:** **Retail Banking Platform** (payments, claims, fraud, …). Pick another card in the Demo App if you prefer.
-- type: text
-  contents: |
-    ## Already provisioned
-
-    | | |
-    |-|--|
-    | Alerts | ES\|QL rules on fault channels |
-    | Workflows | Incident playbooks |
-    | Dashboards | Systems Ops + Executive + **Adaptive Metrics · governance / TCO** |
-    | Telemetry | OTel logs, metrics, traces |
-- type: text
-  contents: |
-    ## Optional — Adaptive Metrics slides (embedded)
-
-    Same deck as **[poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)**.
-
-    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
-- type: text
-  contents: |
-    ## Optional — mini-game while provisioning loads
-
-    <iframe src="https://poulsbopete.github.io/Vampire-Clone/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: qchxpuxaamyj
   title: Demo App

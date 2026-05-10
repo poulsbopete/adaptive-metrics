@@ -7,29 +7,9 @@ teaser: One fault from **Demo App** → see alerts, workflow, and **Case** in Ki
 notes:
 - type: text
   contents: |
-    ## Lab 3 — Chaos → detection
+    Fault / Chaos steps are in the assignment → **[Slides — new tab](https://poulsbopete.github.io/adaptive-metrics/)**
 
-    **Goal:** Prove alert → workflow → case — **three clicks**, then watch Kibana.
-
-    **You'll:**
-    - Inject **one** fault from the Demo App
-    - Confirm errors in Discover (optional query below)
-    - Open **Workflows** then **Cases**
-
-    **Retail Banking channels** cover payments, claims, mobile, fraud, infra (20 channels). Pick any channel you like.
-
-    **Suggested first run:** **ACH Direct Deposit Delay** or **Mobile App API Timeout** — easy to narrate.
-
-    **Fault vs sliders:** **Inject Fault** drives channel alerts → workflows → cases (the lab “process”). **Infrastructure spikes** are separate sliders—when finished, dial them **down** so you aren’t mixing lingering infra stress with fault demos.
-
-    **Slides:** **[Adaptive Metrics — demo deck](https://poulsbopete.github.io/adaptive-metrics/)** — optional narrative while Kibana loads.
-- type: text
-  contents: |
-    ## Optional — Adaptive Metrics slides (embedded)
-
-    **Open full window:** [poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)
-
-    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: slqip2bp1bjo
   title: Demo App

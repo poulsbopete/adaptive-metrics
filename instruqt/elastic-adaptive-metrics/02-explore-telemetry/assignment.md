@@ -8,51 +8,9 @@ teaser: Follow a **short checklist** — Discover, dashboards (including **Adapt
 notes:
 - type: text
   contents: |
-    ## Lab 2 — Explore telemetry
+    Lab checklist is in the assignment → Use **[Adaptive Metrics slides](https://poulsbopete.github.io/adaptive-metrics/)** full window if the embed is tight.
 
-    **Goal:** Click through the main Observability surfaces once — **no mastery required.**
-
-    **You'll:**
-    - Run ES|QL in Discover
-    - Open Retail Banking **and** **Adaptive Metrics / governance** dashboards
-    - Peek at **APM** and **SLOs**
-
-    Keep **Last 15 minutes** everywhere. Challenge steps use **copy boxes** for ES|QL and search strings — paste into Kibana as shown.
-
-    **Slides:** **[Adaptive Metrics — demo deck](https://poulsbopete.github.io/adaptive-metrics/)** — FinOps narrative and competitor framing while you explore.
-
-    **Adaptive Metrics dashboard:** Search **`Adaptive`** or **`Streams savings`** — title contains **Adaptive Metrics · Streams savings & governance (TCO)**.
-
-    **Want the full workshop** (workflows YAML, Streams API, Executive Lens)? See [`metric-streams-governance-workflow.md`](https://github.com/poulsbopete/adaptive-metrics/blob/main/instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md) in the repo.
-- type: text
-  contents: |
-    ## Three signals
-
-    | Signal | Menu |
-    |--------|------|
-    | Logs | Discover → ES\|QL |
-    | Traces | Applications → Service inventory |
-    | Metrics | Dashboards / Infrastructure |
-- type: text
-  contents: |
-    ## Optional — sample ES|QL (errors by service)
-
-    ```
-    FROM logs*
-    | WHERE @timestamp > NOW() - 15 MINUTES
-    | WHERE severity_text == "ERROR"
-    | STATS errors = COUNT(*) BY service.name
-    | SORT errors DESC
-    ```
-
-    **Governance noise (if shipped):** filter `service.name == "noisy-governance-shipper"` to practice Streams — see repo docs.
-- type: text
-  contents: |
-    ## Optional — Adaptive Metrics slides (embedded)
-
-    **Open full window:** [poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)
-
-    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="920" frameborder="0" allowfullscreen title="Adaptive Metrics slides" style="display:block;width:100%;min-height:78vh;border:0;border-radius:8px;"></iframe>
 tabs:
 - id: v7hvexx2xbyr
   title: Demo App

@@ -3,7 +3,8 @@ slug: connect-and-deploy
 id: zcj2ykfryvmc
 type: challenge
 title: Connect to Elastic Cloud & Deploy
-teaser: Confirm Retail Banking is live — one ES|QL query + one dashboard in **under 5 minutes**.
+teaser: Confirm Retail Banking is live — one ES|QL query + one dashboard in **under
+  5 minutes**.
 notes:
 - type: text
   contents: |
@@ -17,7 +18,6 @@ notes:
     - Run **one** ES|QL query and open **one** dashboard
 
     First boot usually takes **3–4 minutes**. If a tab spins, wait and refresh.
-
 - type: text
   contents: |
     ## Two tabs
@@ -28,7 +28,6 @@ notes:
     | **Elastic Serverless** | Kibana — Discover, Dashboards, APM |
 
     **Default:** **Retail Banking Platform** (payments, claims, fraud, …). Pick another card in the Demo App if you prefer.
-
 - type: text
   contents: |
     ## Already provisioned
@@ -39,7 +38,6 @@ notes:
     | Workflows | Incident playbooks |
     | Dashboards | Systems Ops + Executive + **Adaptive Metrics · governance / TCO** |
     | Telemetry | OTel logs, metrics, traces |
-
 - type: text
   contents: |
     ## Optional — mini-game while provisioning loads

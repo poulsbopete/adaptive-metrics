@@ -3,7 +3,8 @@ slug: explore-telemetry
 id: 98kwdohjlsof
 type: challenge
 title: Explore Live OpenTelemetry Data
-teaser: Follow a **short checklist** — Discover, dashboards (including **Adaptive Metrics**), APM, SLOs.
+teaser: Follow a **short checklist** — Discover, dashboards (including **Adaptive
+  Metrics**), APM, SLOs.
 notes:
 - type: text
   contents: |
@@ -21,7 +22,6 @@ notes:
     **Adaptive Metrics dashboard:** Search **`Adaptive`** or **`Streams savings`** — title contains **Adaptive Metrics · Streams savings & governance (TCO)**.
 
     **Want the full workshop** (workflows YAML, Streams API, Executive Lens)? See [`metric-streams-governance-workflow.md`](https://github.com/poulsbopete/adaptive-metrics/blob/main/instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md) in the repo.
-
 - type: text
   contents: |
     ## Three signals
@@ -31,7 +31,6 @@ notes:
     | Logs | Discover → ES\|QL |
     | Traces | Applications → Service inventory |
     | Metrics | Dashboards / Infrastructure |
-
 - type: text
   contents: |
     ## Optional — sample ES|QL (errors by service)

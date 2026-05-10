@@ -19,11 +19,10 @@ version: "1"
 name: Adaptive metrics — Retail Banking · Metric governance snapshot
 enabled: true
 description: >
-  Metric governance for Adaptive Metrics: list Streams, run ES|QL for modeled savings and FinOps
-  USD proxies, optionally **fork** wired log partitions for cost control (**POST /api/streams/{name}/_fork**
-  + shorter retention on children), and open an Observability Case. Optional gated **ai.prompt** (off by
-  default). Full-stream merges still require **kibana.streams.get** + human review + **PUT**. Pair with
-  the Adaptive Metrics dashboard in the Instruqt track.
+  Lists Streams, runs ES|QL modeled savings, **forks** wired `logs.otel.banking` partitions, **PUTs**
+  retention on those children plus selected **metrics-** OTel streams, then opens a Case whose body explains
+  **what APIs ran** (not just theory). Optional gated **ai.prompt** (off by default) can add AI recommendations;
+  apply risky merges with **kibana.streams.get** + human review + **PUT**.
 
 triggers:
   - type: scheduled
@@ -140,6 +139,47 @@ steps:
         on-failure:
           continue: true
 
+      # Metrics OTel defaults — shorten retention to reduce stored volume (lab-friendly).
+      # Tune days here for a more aggressive cost posture (shorter ⇒ lower storage going forward).
+      - name: retention_metrics_governance_noisy
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/metrics-governance.noisy.otel-default/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "7d"
+        on-failure:
+          continue: true
+
+      - name: retention_metrics_generic_otel_default
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/metrics-generic.otel-default/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "14d"
+        on-failure:
+          continue: true
+
+      - name: retention_metrics_hostmetrics_otel
+        type: kibana.request
+        with:
+          method: PUT
+          path: "/api/streams/metrics-hostmetricsreceiver.otel-default/_ingest"
+          body:
+            ingest:
+              lifecycle:
+                dsl:
+                  data_retention: "14d"
+        on-failure:
+          continue: true
+
   - name: metrics_snapshot
     type: elasticsearch.esql.query
     with:
@@ -171,25 +211,31 @@ steps:
   - name: governance_case
     type: cases.createCase
     with:
-      title: "[Governance] TCO snapshot — Adaptive Metrics (modeled savings in Case body)"
+      title: "[Governance] Adaptive Metrics — what we changed (Streams) + modeled savings snapshot"
       description: |
-        ### Metric governance — modeled TCO snapshot
+        ## What this run did automatically (Streams APIs)
 
-        **Scope:** Summarize the latest ES|QL run for Retail Banking: volume outside nine declared
-        core services (Streams-eligible share), **modeled_policy_savings_pct** after capture
-        assumptions, and **USD FinOps proxies** for modeled monthly observe vs reclaim.
+        Each step uses **on-failure: continue** if a stream name is not registered yet (no data).
 
-        **How to read it**
-        - **Percentages** are **scenario indices** (capped), not contracted SLAs or finance sign-off.
-        - **USD fields** use an illustrative **$/million metric points/month** rate for order-of-magnitude
-          comparison; replace inputs with **approved chargeback** before external commitments.
+        **Logs — partition + retention**
+        - `POST /api/streams/logs.otel.banking/_fork` → children **`logs.otel.banking.document-vault`**, **`quote-engine`**, **`policy-manager`**
+        - `PUT .../_ingest` → **`data_retention: 14d`** on each child above (cheaper than indefinite parent rollup)
 
-        **Next steps:** Use Observability AI Assistant for a leadership narrative; compare to the
-        **`list_streams`** inventory. When **ensure_cost_control_partitions_otel_banking** is enabled, this
-        run may **fork** child streams and set **child retention** via **fork** + **_ingest** APIs (see YAML).
-        Broader **PUT /api/streams/{name}** merges still require human review.
+        **Metrics — retention only (no fork)**
+        - `metrics-governance.noisy.otel-default` → **7d** (lab / governance OTLP shipper — aggressive trim)
+        - `metrics-generic.otel-default` → **14d**
+        - `metrics-hostmetricsreceiver.otel-default` → **14d**
 
-        Structured fields for SREs and FinOps are in the following Case comment (JSON).
+        Shorter retention reduces **stored bytes going forward**; it is **not** a guaranteed **50% invoice**
+        cut—real Serverless cost depends on pricing, ingest shape, and what else uses those streams.
+
+        ## About “50% savings” and the numbers below
+
+        The next Case comment includes **ES|QL modeled** fields (`estimated_monthly_*`, `pct_savings_of_estimated_observe_bill`).
+        Those are **FinOps proxies** for prioritization—**not** Finance-approved bill forecasts. To aim higher modeled
+        reclaim, tighten retention days in this workflow’s YAML or add forks for additional noisy partitions.
+
+        Raw JSON for engineers is attached in the following comment.
       owner: observability
       severity: low
       tags:
@@ -204,39 +250,32 @@ steps:
     with:
       case_id: "{{ steps.governance_case.output.case.id }}"
       comment: |
-        ### Field reference — `metrics_snapshot` output
+        ### Modeled savings snapshot (ES|QL — illustrative USD, not an invoice)
 
-        | Business meaning | Field |
-        |------------------|-------|
-        | Modeled governance savings % (capped) | `modeled_policy_savings_pct` |
-        | Share of retail-modeled points outside core services (eligibility) | `streams_eligible_pct` |
-        | Lab OTLP points (`noisy-governance-shipper`) | `points_governance_lab` |
-        | Lab traffic as % of all points | `streams_governance_lab_pct` |
-        | Modeled savings % on lab slice | `modeled_governance_lab_savings_pct` |
-        | Modeled monthly observe cost — USD proxy | `estimated_monthly_observe_bill_usd` |
-        | Modeled monthly reclaim — USD proxy | `estimated_monthly_reclaim_usd` |
-        | Reclaim as % of observe proxy | `pct_savings_of_estimated_observe_bill` |
+        | Field | Meaning |
+        |-------|-----------|
+        | `modeled_policy_savings_pct` | Scenario index — % band if governance captured eligible traffic |
+        | `streams_eligible_pct` | Share of modeled metric points outside nine declared core services |
+        | `points_governance_lab` / `streams_governance_lab_pct` | Synthetic OTLP lab shipper volume |
+        | `estimated_monthly_observe_bill_usd` | Order-of-magnitude **proxy** bill from metric-point rate |
+        | `estimated_monthly_reclaim_usd` | Same proxy applied to “in savings envelope” points |
+        | `pct_savings_of_estimated_observe_bill` | Reclaim ÷ observe proxy — **lab scenario**, not a promise |
 
-        **AI Assistant:** Ask for assumption stress-testing and a checklist of what Finance must validate
-        for a board-ready business case.
-
-        ---
-
-        **`logs_volume_by_service` JSON** (top services by log volume — last 30m):
+        **Logs volume (top services, last 30m):**
 
         ```json
         {{ steps.logs_volume_by_service.output | json }}
         ```
 
-        **`metrics_snapshot` JSON:**
+        **Metrics governance snapshot:**
 
         ```json
         {{ steps.metrics_snapshot.output | json }}
         ```
 
-        **Streams:** This run also executed **`list_streams`** — inspect the workflow execution in Kibana for full inventory JSON. If cost-control forks ran, check for child streams under **`logs.otel.banking.*`** and their retention.
-
-        **Optional GenAI step:** A gated **AI** branch in this YAML stays **off** until you enable a connector and set its `condition` to `${{ true }}`. Approved owners still gate any **`PUT`** to Streams.
+        Full **`list_streams`** output is on the workflow execution details in Kibana. Optional **GenAI** branch
+        in this workflow YAML (`gated_ai_streams_recommendations`) stays disabled until you set its `condition`
+        and connector—then it can **suggest** further retention changes; dangerous merges still need review.
 
   # ---------------------------------------------------------------------------
   # Gated AI: structured FinOps plan for Streams (retention / routing / drops).
@@ -261,6 +300,8 @@ steps:
             **noisy-governance-shipper** (synthetic lab OTLP): treat it as **governance-demo** traffic
             separate from retail core/eligible math when reasoning about production. When unsure, use action "no_change" and streamName "none".
             At most five actions; prioritize highest document-volume noise from the inventory.
+            To raise **modeled** reclaim (`pct_savings_of_estimated_observe_bill`-style thinking), favor aggressive
+            shorten_retention on infra/noisy streams (host/K8s/generic OTel, VPC flows) rather than core tracing logs.
           prompt: |
             **Streams inventory (truncated JSON):**
             {{ steps.list_streams.output | json | truncate: 12000 }}

@@ -478,13 +478,104 @@
         font-weight: 600;
         color: var(--accent2);
       }
+
+      /* Real-world & product photography */
+      .slide-hero-bg {
+        --hero-bg: url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80");
+      }
+
+      .slide-hero-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(
+            105deg,
+            rgba(10, 10, 15, 0.94) 0%,
+            rgba(10, 10, 15, 0.82) 42%,
+            rgba(10, 10, 15, 0.62) 100%
+          ),
+          var(--hero-bg);
+        background-size: cover;
+        background-position: center;
+      }
+
+      .slide-hero-bg .slide-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .slide-figure {
+        margin: 0;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        border: 1px solid var(--edge);
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.65);
+      }
+
+      .slide-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        vertical-align: middle;
+      }
+
+      .slide-figure figcaption {
+        font-size: 0.72rem;
+        line-height: 1.45;
+        color: var(--dim);
+        padding: 0.65rem 0.85rem 0.85rem;
+        background: rgba(0, 0, 0, 0.35);
+      }
+
+      .slide-figure figcaption a {
+        color: var(--accent2);
+      }
+
+      .slide-photo-thumb {
+        margin-top: 1rem;
+        max-height: min(38vh, 320px);
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      @media (max-width: 899px) {
+        .slide-photo-thumb {
+          max-height: 28vh;
+        }
+      }
+
+      .problem-photo {
+        margin-top: 1.25rem;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        border: 1px solid var(--edge);
+      }
+
+      .problem-photo img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: min(32vh, 280px);
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .problem-photo figcaption {
+        font-size: 0.72rem;
+        color: var(--dim);
+        padding: 0.5rem 0.75rem 0.65rem;
+        background: rgba(0, 0, 0, 0.28);
+      }
     </style>
   </head>
   <body>
     <div class="backdrop-glow" aria-hidden="true"></div>
     <div class="deck" id="deck">
       <!-- 1 -->
-      <section class="slide is-active" data-slide="0">
+      <section class="slide is-active slide-hero-bg" data-slide="0">
         <div class="slide-inner">
           <p class="eyebrow">Elastic Observability · Adaptive metrics</p>
           <h1 class="hero-title">
@@ -582,6 +673,18 @@
               </p>
             </div>
           </div>
+          <figure class="problem-photo">
+            <img
+              src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1400&q=80"
+              alt="Network cables in a live operations environment"
+              width="1400"
+              height="560"
+              loading="lazy"
+            />
+            <figcaption>
+              Photo: uncontrolled growth shows up as cable sprawl and alert fatigue long before finance sees the bill.
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -651,6 +754,19 @@
               </p>
             </div>
           </div>
+          <figure class="slide-figure" style="margin-top: 1.25rem">
+            <img
+              class="slide-photo-thumb"
+              src="assets/kibana-adaptive-metrics-governance-dashboard.png"
+              alt="Kibana dashboard: modeled retail savings percentage and proxy observe bill metrics"
+              width="1200"
+              height="675"
+              loading="lazy"
+            />
+            <figcaption>
+              Live demo: governance / TCO view—modeled savings vs proxy observe spend (Retail Banking lab).
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -693,6 +809,19 @@
               </p>
             </div>
           </div>
+          <figure class="slide-figure" style="margin-top: 1.35rem">
+            <img
+              class="slide-photo-thumb"
+              src="assets/kibana-workflows-retail-banking.png"
+              alt="Kibana Workflows list: Retail Banking metric governance, SLO management, and incident playbooks"
+              width="1200"
+              height="675"
+              loading="lazy"
+            />
+            <figcaption>
+              Product shot: Observability Workflows—scheduled governance next to SLO and alert-triggered playbooks.
+            </figcaption>
+          </figure>
         </div>
       </section>
 

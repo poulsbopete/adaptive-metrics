@@ -120,6 +120,8 @@ flowchart TD
 
 ## Heuristic “% saved” in the starter Case (demo)
 
+The **Case description** is written in **plain language** on purpose. The **first comment** has a small **“picture → field name”** table so adults can match words to the JSON block.
+
 The repo workflow `workflows/kibana/metric-governance-retail-banking-starter.yaml` adds derived fields on the ES|QL snapshot row:
 
 | Field | Meaning |

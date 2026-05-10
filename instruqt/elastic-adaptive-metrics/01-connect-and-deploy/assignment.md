@@ -17,6 +17,8 @@ notes:
     - Use **Elastic Serverless** (already logged in)
     - Run **one** ES|QL query and open **one** dashboard
 
+    **Optional while you wait:** **[Adaptive Metrics — slides](https://poulsbopete.github.io/adaptive-metrics/)** (keyboard **←** **→** Home End).
+
     First boot usually takes **3–4 minutes**. If a tab spins, wait and refresh.
 - type: text
   contents: |
@@ -38,6 +40,13 @@ notes:
     | Workflows | Incident playbooks |
     | Dashboards | Systems Ops + Executive + **Adaptive Metrics · governance / TCO** |
     | Telemetry | OTel logs, metrics, traces |
+- type: text
+  contents: |
+    ## Optional — Adaptive Metrics slides (embedded)
+
+    Same deck as **[poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)**.
+
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
 - type: text
   contents: |
     ## Optional — mini-game while provisioning loads

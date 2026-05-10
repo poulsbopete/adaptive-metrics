@@ -19,6 +19,8 @@ notes:
 
     Keep **Last 15 minutes** everywhere. Challenge steps use **copy boxes** for ES|QL and search strings — paste into Kibana as shown.
 
+    **Slides:** **[Adaptive Metrics — demo deck](https://poulsbopete.github.io/adaptive-metrics/)** — FinOps narrative and competitor framing while you explore.
+
     **Adaptive Metrics dashboard:** Search **`Adaptive`** or **`Streams savings`** — title contains **Adaptive Metrics · Streams savings & governance (TCO)**.
 
     **Want the full workshop** (workflows YAML, Streams API, Executive Lens)? See [`metric-streams-governance-workflow.md`](https://github.com/poulsbopete/adaptive-metrics/blob/main/instruqt/elastic-adaptive-metrics/docs/metric-streams-governance-workflow.md) in the repo.
@@ -44,6 +46,13 @@ notes:
     ```
 
     **Governance noise (if shipped):** filter `service.name == "noisy-governance-shipper"` to practice Streams — see repo docs.
+- type: text
+  contents: |
+    ## Optional — Adaptive Metrics slides (embedded)
+
+    **Open full window:** [poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)
+
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
 tabs:
 - id: v7hvexx2xbyr
   title: Demo App

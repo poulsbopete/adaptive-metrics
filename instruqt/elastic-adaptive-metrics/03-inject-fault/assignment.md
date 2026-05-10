@@ -21,6 +21,15 @@ notes:
     **Suggested first run:** **ACH Direct Deposit Delay** or **Mobile App API Timeout** — easy to narrate.
 
     **Fault vs sliders:** **Inject Fault** drives channel alerts → workflows → cases (the lab “process”). **Infrastructure spikes** are separate sliders—when finished, dial them **down** so you aren’t mixing lingering infra stress with fault demos.
+
+    **Slides:** **[Adaptive Metrics — demo deck](https://poulsbopete.github.io/adaptive-metrics/)** — optional narrative while Kibana loads.
+- type: text
+  contents: |
+    ## Optional — Adaptive Metrics slides (embedded)
+
+    **Open full window:** [poulsbopete.github.io/adaptive-metrics](https://poulsbopete.github.io/adaptive-metrics/)
+
+    <iframe src="https://poulsbopete.github.io/adaptive-metrics/" width="100%" height="650" frameborder="0" allowfullscreen style="border-radius:8px;display:block;"></iframe>
 tabs:
 - id: slqip2bp1bjo
   title: Demo App
